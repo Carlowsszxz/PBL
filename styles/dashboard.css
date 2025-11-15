@@ -1,0 +1,462 @@
+/* Dashboard-specific styles */
+
+/* Quick Actions Buttons - Sliding Background Effect */
+.quick-action-btn {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    isolation: isolate;
+    font-weight: 500;
+}
+
+/* Default colors for each button type */
+.quick-action-btn[data-color="indigo"] {
+    color: #0e163e;
+    border-color: #0e163e;
+}
+
+.quick-action-btn[data-color="slate"] {
+    color: #1e293b;
+    border-color: #1e293b;
+}
+
+.quick-action-btn[data-color="emerald"] {
+    color: #059669;
+    border-color: #059669;
+}
+
+.quick-action-btn[data-color="rose"] {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+/* Sliding background effect */
+.quick-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 100%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+    border-radius: 0.5rem;
+    pointer-events: none;
+}
+
+/* RFID Assignment Container */
+#rfidAssignment {
+    animation: slideDown 0.3s ease-out;
+    display: none;
+}
+
+#rfidAssignment.show {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Background colors for each button type on hover */
+.quick-action-btn[data-color="indigo"]::before {
+    background: linear-gradient(135deg, #0e163e 0%, #121c54 100%);
+}
+
+.quick-action-btn[data-color="slate"]::before {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+}
+
+.quick-action-btn[data-color="emerald"]::before {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.quick-action-btn[data-color="rose"]::before {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+}
+
+.quick-action-btn:hover::before {
+    width: 100%;
+    transform-origin: right center;
+}
+
+.quick-action-btn:hover {
+    background: transparent !important;
+    color: white !important;
+    border-color: transparent;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15), 0 0 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure text and icons stay above background */
+.quick-action-btn>*,
+.quick-action-btn i,
+.quick-action-btn svg {
+    position: relative;
+    z-index: 2;
+    transition: color 0.3s ease;
+}
+
+.quick-action-btn:hover i,
+.quick-action-btn:hover svg,
+.quick-action-btn:hover>* {
+    color: white !important;
+}
+
+/* Scrollable Today's Activity Container */
+.activity-timeline-scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+/* Custom Scrollbar Styling for Activity Timeline */
+.activity-timeline-scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.activity-timeline-scrollable::-webkit-scrollbar-track {
+    background: rgba(14, 22, 62, 0.05);
+    border-radius: 10px;
+}
+
+.activity-timeline-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(14, 22, 62, 0.2);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.activity-timeline-scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 22, 62, 0.35);
+}
+
+/* Firefox Scrollbar */
+.activity-timeline-scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(14, 22, 62, 0.2) rgba(14, 22, 62, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .activity-timeline-scrollable {
+        max-height: 300px;
+    }
+}
+
+@media (max-height: 800px) {
+    .activity-timeline-scrollable {
+        max-height: 250px;
+    }
+}
+
+/* Scrollable Announcements Container */
+.announcements-scrollable {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 8px;
+    margin-right: -8px;
+}
+
+/* Custom Scrollbar Styling for Announcements */
+.announcements-scrollable::-webkit-scrollbar {
+    width: 8px;
+}
+
+.announcements-scrollable::-webkit-scrollbar-track {
+    background: rgba(14, 22, 62, 0.05);
+    border-radius: 10px;
+}
+
+.announcements-scrollable::-webkit-scrollbar-thumb {
+    background: rgba(14, 22, 62, 0.2);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.announcements-scrollable::-webkit-scrollbar-thumb:hover {
+    background: rgba(14, 22, 62, 0.35);
+}
+
+/* Firefox Scrollbar */
+.announcements-scrollable {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(14, 22, 62, 0.2) rgba(14, 22, 62, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .announcements-scrollable {
+        max-height: 300px;
+    }
+}
+
+@media (max-height: 800px) {
+    .announcements-scrollable {
+        max-height: 250px;
+    }
+}
+
+/* Burger Menu Button - Dashboard Page Specific */
+.burger-menu-btn,
+#burgerMenuBtn {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 1) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 2px solid rgba(14, 22, 62, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+    touch-action: manipulation !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.burger-menu-btn .burger-line,
+#burgerMenuBtn .burger-line {
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e293b !important;
+    border-radius: 2px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    pointer-events: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(1),
+#burgerMenuBtn.active .burger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg) !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(2),
+#burgerMenuBtn.active .burger-line:nth-child(2) {
+    opacity: 0 !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(3),
+#burgerMenuBtn.active .burger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg) !important;
+}
+
+@media (min-width: 769px) {
+
+    .burger-menu-btn,
+    #burgerMenuBtn {
+        display: none !important;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .burger-menu-btn,
+    #burgerMenuBtn {
+        display: flex !important;
+        z-index: 999999 !important;
+        pointer-events: auto !important;
+    }
+
+    .cursor-follower {
+        z-index: 1 !important;
+        pointer-events: none !important;
+    }
+
+    .nav-label {
+        z-index: 99998 !important;
+    }
+}
+
+/* Page-specific color overrides for dashboard */
+[data-page="dashboard"] .text-indigo-600 {
+    color: #0e163e !important
+}
+
+[data-page="dashboard"] .text-indigo-700 {
+    color: #0e163e !important
+}
+
+[data-page="dashboard"] .hover\:text-indigo-800:hover {
+    color: #121c54 !important
+}
+
+[data-page="dashboard"] .bg-indigo-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="dashboard"] .hover\:bg-indigo-700:hover {
+    background-color: #121c54 !important
+}
+
+[data-page="dashboard"] .focus\:border-indigo-500:focus {
+    border-color: #0e163e !important
+}
+
+[data-page="dashboard"] .focus\:ring-indigo-200:focus {
+    box-shadow: 0 0 0 3px rgba(14, 22, 62, .2) !important
+}
+
+[data-page="dashboard"] .bg-indigo-100 {
+    background-color: rgba(14, 22, 62, .10) !important
+}
+
+[data-page="dashboard"] .text-indigo-700 {
+    color: #0e163e !important
+}
+
+[data-page="dashboard"] .hover\:bg-indigo-200:hover {
+    background-color: rgba(14, 22, 62, .18) !important
+}
+
+[data-page="dashboard"] .sidebar-nav-item.active {
+    background: rgba(14, 22, 62, .15) !important;
+    border-color: rgba(14, 22, 62, .4) !important;
+    color: #0e163e !important
+}
+
+[data-page="dashboard"] .header-trigger-icon {
+    color: #0e163e !important
+}
+
+/* Dashboard background gradient */
+body[data-page="dashboard"] {
+    background: linear-gradient(135deg, rgba(14, 22, 62, 0.05) 0%, rgba(59, 130, 246, 0.05) 50%, rgba(14, 22, 62, 0.05) 100%);
+}
+
+/* Force burger menu to be visible and clickable on mobile for dashboard */
+@media (max-width: 768px) {
+    [data-page="dashboard"] #burgerMenuBtn {
+        display: flex !important;
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        z-index: 999999 !important;
+        pointer-events: auto !important;
+        background: rgba(255, 255, 255, 1) !important;
+        border: 2px solid rgba(14, 22, 62, 0.2) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    [data-page="dashboard"] #burgerMenuBtn .burger-line {
+        pointer-events: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    [data-page="dashboard"] #burgerMenuBtn {
+        display: none !important;
+    }
+}
+
+/* Noise gauge inline styles */
+#noiseGauge {
+    background: linear-gradient(90deg, #10b981 0%, #fbbf24 50%, #ef4444 100%);
+}
+
+/* Stats boxes gradient backgrounds */
+.stat-box-indigo-gradient {
+    background: linear-gradient(135deg, rgba(14, 22, 62, 0.08) 0%, rgba(18, 28, 84, 0.08) 100%);
+}
+
+/* --- Timeline UI (Dashboard -> Today's Activity) --- */
+.timeline-summary-card {
+    padding: 0.75rem;
+    /* p-3 */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    border: 1px solid #e5e7eb;
+    /* border-gray-200 */
+    background: linear-gradient(135deg, #f9fafb 0%, #f8fafc 100%);
+    /* from-gray-50 to-slate-50 */
+    margin-bottom: 0.5rem;
+    /* mb-2 */
+}
+
+.timeline-group {
+    margin-top: 0.5rem;
+}
+
+.timeline-group-header {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1f2937;
+    /* gray-800 */
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-item {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.6rem;
+}
+
+.timeline-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    line-height: 1;
+}
+
+.timeline-content {
+    flex: 1;
+}
+
+.timeline-primary {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111827;
+    /* gray-900 */
+}
+
+.timeline-meta {
+    font-size: 0.8rem;
+    color: #4b5563;
+    /* gray-600 */
+}

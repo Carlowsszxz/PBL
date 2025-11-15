@@ -1,0 +1,116 @@
+<!-- TEMPLATE FOR ALL ADMIN PAGES -->
+<!-- Replace the old sidebar/main structure with this -->
+
+    <!-- Modern Layout: Fixed Sidebar + Main Content -->
+    <div class="admin-layout-container">
+        <!-- Fixed Sidebar (Left) -->
+        <aside id="adminSidebar" class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="images/UMak_Logo_Registered.png" alt="University of Makati Logo" class="sidebar-logo" />
+                <h1 class="sidebar-title">Admin Dashboard</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="setup.html" class="admin-nav-link" data-label="Admin Dashboard" aria-label="Admin Dashboard">
+                    <i data-lucide="settings" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Dashboard</span>
+                </a>
+                <a href="user-management.html" class="admin-nav-link" data-label="User Management" aria-label="User Management">
+                    <i data-lucide="users" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Users</span>
+                </a>
+                <a href="rfid-management.html" class="admin-nav-link" data-label="RFID Management" aria-label="RFID Management">
+                    <i data-lucide="contact" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Devices</span>
+                </a>
+                <a href="student-reports.html" class="admin-nav-link" data-label="Student Reports" aria-label="Student Reports">
+                    <i data-lucide="book-open-check" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Reports</span>
+                </a>
+                <a href="activity-logs.html" class="admin-nav-link" data-label="Activity Logs" aria-label="Activity Logs">
+                    <i data-lucide="list" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Activity</span>
+                </a>
+                <a href="lcd-messages.html" class="admin-nav-link" data-label="LCD Messages" aria-label="LCD Messages">
+                    <i data-lucide="tv" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">LCD Messages</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="logout(); return false;" class="admin-nav-link logout-item" data-label="Logout" aria-label="Logout">
+                    <i data-lucide="log-out" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area (Right) -->
+        <main class="admin-main-content">
+            <!-- Top Navigation Bar -->
+            <header class="admin-top-nav">
+                <div class="top-nav-left">
+                    <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="adminSidebar">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <h1 class="page-title">PAGE_TITLE_HERE</h1>
+                </div>
+                <div class="top-nav-right">
+                    <button class="top-nav-action" aria-label="Search">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </button>
+                    <button class="top-nav-action" aria-label="Notifications">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                    </button>
+                    <div class="top-nav-profile">
+                        <div class="profile-avatar">A</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="admin-content-grid">
+                <!-- PAGE CONTENT GOES HERE -->
+            </div>
+        </main>
+    </div>
+
+<!-- JAVASCRIPT FOR SIDEBAR TOGGLE -->
+<script>
+    // Sidebar Toggle Functionality + Accessibility
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        const body = document.body;
+        
+        if (sidebarToggle && adminSidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                const isOpen = adminSidebar.classList.toggle('sidebar-open');
+                body.classList.toggle('sidebar-open');
+                sidebarToggle.setAttribute('aria-expanded', isOpen.toString());
+            });
+            
+            body.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && body.classList.contains('sidebar-open')) {
+                    if (!adminSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                        adminSidebar.classList.remove('sidebar-open');
+                        body.classList.remove('sidebar-open');
+                        sidebarToggle.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && body.classList.contains('sidebar-open')) {
+                    adminSidebar.classList.remove('sidebar-open');
+                    body.classList.remove('sidebar-open');
+                    sidebarToggle.setAttribute('aria-expanded', 'false');
+                    sidebarToggle.focus();
+                }
+            });
+        }
+        
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+

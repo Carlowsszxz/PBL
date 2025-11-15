@@ -1,0 +1,107 @@
+/* Universal Burger Menu Button Styles - Independent of login.css */
+/* This file can be imported by any page that needs a burger menu */
+
+.burger-menu-btn,
+#burgerMenuBtn {
+    position: fixed !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 1) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 2px solid rgba(14, 22, 62, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    pointer-events: auto !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+    touch-action: manipulation !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.burger-menu-btn:hover,
+#burgerMenuBtn:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+.burger-menu-btn:active,
+#burgerMenuBtn:active {
+    transform: scale(0.9) !important;
+    background: rgba(240, 240, 240, 1) !important;
+}
+
+.burger-menu-btn .burger-line,
+#burgerMenuBtn .burger-line {
+    width: 20px !important;
+    height: 2px !important;
+    background: #1e293b !important;
+    border-radius: 2px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    pointer-events: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(1),
+#burgerMenuBtn.active .burger-line:nth-child(1) {
+    transform: translateY(6px) rotate(45deg) !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(2),
+#burgerMenuBtn.active .burger-line:nth-child(2) {
+    opacity: 0 !important;
+}
+
+.burger-menu-btn.active .burger-line:nth-child(3),
+#burgerMenuBtn.active .burger-line:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg) !important;
+}
+
+/* Desktop: hide burger menu */
+@media (min-width: 769px) {
+    .burger-menu-btn,
+    #burgerMenuBtn {
+        display: none !important;
+    }
+}
+
+/* Mobile: always show and ensure it's clickable */
+@media (max-width: 768px) {
+    .burger-menu-btn,
+    #burgerMenuBtn {
+        display: flex !important;
+        z-index: 999999 !important;
+        pointer-events: auto !important;
+    }
+    
+    .burger-menu-btn:hover,
+    #burgerMenuBtn:hover {
+        transform: none !important;
+    }
+    
+    /* Ensure cursor follower doesn't block burger */
+    .cursor-follower {
+        z-index: 1 !important;
+        pointer-events: none !important;
+    }
+    
+    /* Ensure nav label doesn't block burger */
+    .nav-label {
+        z-index: 99998 !important;
+    }
+}
+

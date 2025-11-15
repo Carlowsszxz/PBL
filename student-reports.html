@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/UMak_Logo_Registered.png">
+    <title>Student Reports - Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="styles/setup.css">
+    <link rel="stylesheet" href="styles/student-reports.css">
+    <style>
+        [data-page="student-reports"] .bg-indigo-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .hover\:bg-indigo-700:hover {
+            background-color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .text-indigo-600 {
+            color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .hover\:text-indigo-700:hover {
+            color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .focus\:border-indigo-500:focus {
+            border-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .focus\:ring-indigo-200:focus {
+            box-shadow: 0 0 0 3px rgba(14, 22, 62, .2) !important
+        }
+
+        [data-page="student-reports"] .sidebar-nav-item.active {
+            background: rgba(14, 22, 62, .15) !important;
+            border-color: rgba(14, 22, 62, .4) !important;
+            color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .header-trigger-icon {
+            color: #0e163e !important
+        }
+
+        /* Dark mode toggle button styling */
+        .dark-mode-toggle-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dark-mode-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark .dark-mode-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+
+        .dark .dark-mode-icon {
+            color: #fbbf24;
+        }
+
+        /* Dark mode cards - Premium styling with layered depth */
+        .dark .admin-card {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
+            border: 1px solid rgba(60, 60, 80, 0.4) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Disable hover effects on cards */
+        .admin-card:hover {
+            transform: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .dark .admin-card:hover {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+            transform: none !important;
+        }
+
+        [data-page="student-reports"] .bg-gradient-to-br:not(.from-amber-50):not(.from-green-50):not(.from-slate-50):not(.from-gray-50):not(.from-yellow-50):not(.to-yellow-50):not(.to-emerald-50):not(.to-gray-50) {
+            background: linear-gradient(135deg, #0e163e 0%, #121c54 100%) !important
+        }
+
+        /* Override for stats summary boxes to prevent blue override */
+        #statsSummary .bg-gradient-to-br.from-slate-50 {
+            background: linear-gradient(to bottom right, rgb(248 250 252), rgb(249 250 251)) !important
+        }
+
+        #statsSummary .bg-gradient-to-br.from-amber-50 {
+            background: linear-gradient(to bottom right, rgb(255 251 235), rgb(254 243 199)) !important
+        }
+
+        #statsSummary .bg-gradient-to-br.from-green-50 {
+            background: linear-gradient(to bottom right, rgb(240 253 244), rgb(209 250 229)) !important
+        }
+
+        #statsSummary .border-indigo-200 {
+            border-color: rgb(226 232 240) !important
+        }
+
+        #statsSummary .text-indigo-700 {
+            color: rgb(51 65 85) !important
+        }
+
+        [data-page="student-reports"] .bg-gradient-to-r {
+            background: linear-gradient(90deg, #0e163e 0%, #121c54 100%) !important
+        }
+
+        [data-page="student-reports"] .from-indigo-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .to-pink-400 {
+            background-color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .from-pink-500 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .to-pink-600 {
+            background-color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .from-pink-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .to-pink-800 {
+            background-color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .bg-emerald-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .hover\:bg-emerald-700:hover {
+            background-color: #121c54 !important
+        }
+
+        [data-page="student-reports"] .focus\:border-emerald-600:focus {
+            border-color: #0e163e !important
+        }
+
+        [data-page="student-reports"] .focus\:ring-emerald-100:focus {
+            box-shadow: 0 0 0 2px rgba(14, 22, 62, .2) !important
+        }
+
+        .card-fadein {
+            opacity: 0;
+            transform: translateY(20px) scale(.99);
+            animation: fadeinup .8s 0.1s linear both;
+        }
+
+        .card-lift:hover {
+            box-shadow: 0 22px 64px rgba(14, 22, 62, 0.17), 0 2px 18px 2px rgba(14, 22, 62, 0.19) !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        @keyframes fadeinup {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        [data-page="student-reports"] .nav-label {
+            left: 250px;
+            right: auto;
+            top: 25px;
+            z-index: 99999;
+        }
+
+        /* Force burger menu to be visible and clickable on mobile */
+        @media (max-width: 768px) {
+            #burgerMenuBtn {
+                display: flex !important;
+                position: fixed !important;
+                top: 1rem !important;
+                right: 1rem !important;
+                width: 48px !important;
+                height: 48px !important;
+                min-width: 48px !important;
+                min-height: 48px !important;
+                z-index: 999999 !important;
+                pointer-events: auto !important;
+                background: rgba(255, 255, 255, 1) !important;
+                border: 2px solid rgba(14, 22, 62, 0.2) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+                cursor: pointer !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+            }
+
+            #burgerMenuBtn .burger-line {
+                pointer-events: none !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            #burgerMenuBtn {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="text-slate-900 min-h-screen flex flex-col relative setup-body-bg" data-page="student-reports">
+    <!-- Visual Effects -->
+    <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
+    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="paper-background" class="paper-background" aria-hidden="true"></div>
+
+    <div class="admin-layout-container">
+        <aside id="adminSidebar" class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="images/UMak_Logo_Registered.png" alt="University of Makati Logo" class="sidebar-logo" />
+                <h1 class="sidebar-title">Admin Dashboard</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="setup.html" class="admin-nav-link" aria-label="Admin Dashboard"><i data-lucide="settings"
+                        class="admin-nav-icon"></i><span class="admin-nav-text">Dashboard</span></a>
+                <a href="user-management.html" class="admin-nav-link" aria-label="User Management"><i
+                        data-lucide="users" class="admin-nav-icon"></i><span class="admin-nav-text">Users</span></a>
+                <a href="rfid-management.html" class="admin-nav-link" aria-label="RFID Management"><i
+                        data-lucide="contact" class="admin-nav-icon"></i><span class="admin-nav-text">Devices</span></a>
+                <a href="student-reports.html" class="admin-nav-link active" aria-label="Student Reports"><i
+                        data-lucide="book-open-check" class="admin-nav-icon"></i><span
+                        class="admin-nav-text">Reports</span></a>
+                <a href="activity-logs.html" class="admin-nav-link" aria-label="Activity Logs"><i data-lucide="list"
+                        class="admin-nav-icon"></i><span class="admin-nav-text">Activity</span></a>
+                <a href="lcd-messages.html" class="admin-nav-link" aria-label="LCD Messages"><i data-lucide="tv"
+                        class="admin-nav-icon"></i><span class="admin-nav-text">LCD Messages</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="logout(); return false;" class="admin-nav-link logout-item" aria-label="Logout"><i
+                        data-lucide="log-out" class="admin-nav-icon"></i><span class="admin-nav-text">Logout</span></a>
+            </div>
+        </aside>
+        <main class="admin-main-content">
+            <header class="admin-top-nav">
+                <div class="top-nav-left">
+                    <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle sidebar"
+                        aria-expanded="false" aria-controls="adminSidebar"><i data-lucide="menu"
+                            class="w-5 h-5"></i></button>
+                    <h1 class="page-title">Student Reports</h1>
+                </div>
+                <div class="top-nav-right">
+                    <button id="darkModeToggle" class="dark-mode-toggle-btn" aria-label="Toggle dark mode"
+                        title="Toggle dark mode">
+                        <i data-lucide="moon" class="dark-mode-icon"></i>
+                    </button>
+                    <div class="top-nav-profile">
+                        <div class="profile-avatar">A</div>
+                    </div>
+                </div>
+            </header>
+            <div class="admin-content-grid">
+
+                <!-- Summary Card -->
+                <section class="admin-card card-fadein">
+                    <div class="admin-card-header">
+                        <h2 class="text-lg font-semibold setup-title-color">Reports Summary</h2>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-5" id="statsSummary">
+                        <div
+                            class="text-center p-5 rounded-xl bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200">
+                            <div id="statPending" class="text-3xl font-bold text-amber-700">-</div>
+                            <div class="text-xs text-gray-600 mt-1">Pending</div>
+                        </div>
+                        <div
+                            class="text-center p-5 rounded-xl bg-gradient-to-br from-slate-50 to-gray-50 border border-gray-200">
+                            <div id="statReviewing" class="text-3xl font-bold text-gray-700">-</div>
+                            <div class="text-xs text-gray-600 mt-1">Reviewing</div>
+                        </div>
+                        <div
+                            class="text-center p-5 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
+                            <div id="statResolved" class="text-3xl font-bold text-emerald-700">-</div>
+                            <div class="text-xs text-gray-600 mt-1">Resolved</div>
+                        </div>
+                        <div
+                            class="text-center p-5 rounded-xl bg-gradient-to-br from-slate-50 to-gray-50 border border-gray-200">
+                            <div id="statDismissed" class="text-3xl font-bold text-gray-700">-</div>
+                            <div class="text-xs text-gray-600 mt-1">Dismissed</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Advanced Search -->
+                <section class="admin-card card-fadein">
+                    <div class="admin-card-header flex items-center justify-between">
+                        <h2 class="text-lg font-semibold setup-title-color">Advanced Search</h2>
+                        <button id="searchToggle" onclick="toggleSearch()" class="btn btn-sm setup-btn">Toggle</button>
+                    </div>
+                    <form id="searchForm" class="grid md:grid-cols-2 gap-4"
+                        onsubmit="event.preventDefault(); performSearch();">
+                        <div><label for="searchUser" class="block text-sm font-medium text-slate-700 mb-1">User
+                                (Email)</label><input type="text" id="searchUser"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
+                                placeholder="e.g., user@example.com"></div>
+                        <div><label for="searchStatus"
+                                class="block text-sm font-medium text-slate-700 mb-1">Status</label><select
+                                id="searchStatus"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="reviewing">Reviewing</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="dismissed">Dismissed</option>
+                            </select></div>
+                        <div><label for="searchType" class="block text-sm font-medium text-slate-700 mb-1">Report
+                                Type</label><select id="searchType"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                <option value="">All Types</option>
+                                <option value="issue">Issue</option>
+                                <option value="feedback">Feedback</option>
+                                <option value="complaint">Complaint</option>
+                                <option value="suggestion">Suggestion</option>
+                                <option value="other">Other</option>
+                            </select></div>
+                        <div><label for="searchDateFrom" class="block text-sm font-medium text-slate-700 mb-1">From
+                                Date</label><input type="date" id="searchDateFrom"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                        </div>
+                        <div><label for="searchDateTo" class="block text-sm font-medium text-slate-700 mb-1">To
+                                Date</label><input type="date" id="searchDateTo"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                        </div>
+                        <div><label for="searchTitle" class="block text-sm font-medium text-slate-700 mb-1">Title
+                                (contains)</label><input type="text" id="searchTitle"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
+                                placeholder="Search in title..."></div>
+                        <div><label for="searchHasReply" class="block text-sm font-medium text-slate-700 mb-1">Has Admin
+                                Reply</label><select id="searchHasReply"
+                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                <option value="">All Reports</option>
+                                <option value="yes">Has Reply</option>
+                                <option value="no">No Reply</option>
+                            </select></div>
+                        <div class="md:col-span-2 flex gap-3 justify-end mt-2"><button type="submit"
+                                class="setup-btn px-5 py-3 rounded-xl font-semibold shadow">Search</button><button
+                                type="button" onclick="clearSearch()"
+                                class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- All Reports -->
+                <section class="admin-card card-fadein">
+                    <div class="admin-card-header flex items-center justify-between">
+                        <h2 class="text-lg font-semibold setup-title-color">All Student Reports</h2>
+                        <div id="searchInfo" class="text-sm text-slate-600 hidden"></div>
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-between items-center mb-4">
+                        <div class="quick-filters flex flex-wrap gap-2">
+                            <button class="filter-btn all active" onclick="filterByStatus('')">All Reports</button>
+                            <button class="filter-btn pending" onclick="filterByStatus('pending')">Pending</button>
+                            <button class="filter-btn reviewing"
+                                onclick="filterByStatus('reviewing')">Reviewing</button>
+                            <button class="filter-btn resolved" onclick="filterByStatus('resolved')">Resolved</button>
+                            <button class="filter-btn dismissed"
+                                onclick="filterByStatus('dismissed')">Dismissed</button>
+                        </div>
+                        <button onclick="viewAllReports()"
+                            class="setup-btn px-6 py-2.5 rounded-xl font-semibold shadow flex items-center"><i
+                                data-lucide="refresh-cw" class="inline w-5 h-5 mr-2"></i>Refresh Reports</button>
+                    </div>
+                    <div id="reportsData" class="reports-data-container">Loading reports...</div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="scripts/login-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts/student-reports.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const adminSidebar = document.getElementById('adminSidebar');
+            const body = document.body;
+            if (sidebarToggle && adminSidebar) {
+                sidebarToggle.addEventListener('click', function () {
+                    const isOpen = adminSidebar.classList.toggle('sidebar-open');
+                    body.classList.toggle('sidebar-open');
+                    sidebarToggle.setAttribute('aria-expanded', isOpen.toString());
+                });
+                body.addEventListener('click', function (e) {
+                    if (window.innerWidth <= 768 && body.classList.contains('sidebar-open')) {
+                        if (!adminSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                            adminSidebar.classList.remove('sidebar-open');
+                            body.classList.remove('sidebar-open');
+                            sidebarToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && body.classList.contains('sidebar-open')) {
+                        adminSidebar.classList.remove('sidebar-open');
+                        body.classList.remove('sidebar-open');
+                        sidebarToggle.setAttribute('aria-expanded', 'false');
+                        sidebarToggle.focus();
+                    }
+                });
+            }
+            if (window.lucide) lucide.createIcons();
+        });
+
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+
+        // Check for saved dark mode preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            html.classList.add('dark');
+            updateDarkModeIcon(true);
+        }
+
+        darkModeToggle.addEventListener('click', function () {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateDarkModeIcon(isDark);
+        });
+
+        function updateDarkModeIcon(isDark) {
+            const icon = darkModeToggle.querySelector('i');
+            if (isDark) {
+                icon.setAttribute('data-lucide', 'sun');
+            } else {
+                icon.setAttribute('data-lucide', 'moon');
+            }
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+    </script>
+</body>
+
+</html>

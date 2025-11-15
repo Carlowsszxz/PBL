@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/UMak_Logo_Registered.png">
+    <title>How to Use - University of Makati Library</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="styles/directions.css">
+</head>
+
+<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen" data-page="directions">
+
+    <!-- Cursor Follower (Desktop Only) -->
+    <div class="cursor-follower"></div>
+
+    <!-- Library Background with Blur -->
+    <div class="library-background"></div>
+
+    <!-- Paper Texture Overlay -->
+    <div class="paper-background"></div>
+
+    <!-- Header Peek Trigger -->
+    <button class="header-trigger" id="headerTrigger" aria-label="Toggle navigation">
+        <i data-lucide="chevron-down" class="header-trigger-icon w-5 h-5"></i>
+    </button>
+
+    <!-- Top Navigation Bar (Collapsible) -->
+    <nav class="modern-sidebar header-collapsed" id="modernSidebar">
+        <!-- Brand/Logo -->
+        <div class="sidebar-brand">
+            <img src="images/UMak_Logo_Registered.png" alt="University of Makati Logo" />
+        </div>
+
+        <!-- Navigation Items -->
+        <a href="login.html" class="sidebar-nav-item" data-label="Login" aria-label="Login">
+            <i data-lucide="home" class="sidebar-icon"></i>
+        </a>
+
+        <a href="register.html" class="sidebar-nav-item" data-label="Register" aria-label="Register">
+            <i data-lucide="user-plus" class="sidebar-icon"></i>
+        </a>
+
+        <a href="directions.html" class="sidebar-nav-item active" data-label="How To / Help" aria-label="How To / Help">
+            <i data-lucide="book-open" class="sidebar-icon"></i>
+        </a>
+    </nav>
+
+    <!-- Nav Label (Desktop Hover) -->
+    <div class="nav-label" id="navLabel"></div>
+
+    <!-- Burger Menu Button (Mobile Only) -->
+    <button class="burger-menu-btn" id="burgerMenuBtn" aria-label="Toggle menu">
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+        <span class="burger-line"></span>
+    </button>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Mobile Menu Panel -->
+    <div class="mobile-menu-panel" id="mobileMenuPanel">
+        <div class="mobile-menu-header">
+            <img src="images/UMak_Logo_Registered.png" alt="University of Makati Logo" />
+            <span class="mobile-menu-title">Navigation</span>
+        </div>
+
+        <a href="login.html" class="mobile-nav-item">
+            <i data-lucide="home" class="mobile-nav-icon"></i>
+            Login
+        </a>
+
+        <a href="register.html" class="mobile-nav-item">
+            <i data-lucide="user-plus" class="mobile-nav-icon"></i>
+            Register
+        </a>
+
+        <a href="directions.html" class="mobile-nav-item active">
+            <i data-lucide="book-open" class="mobile-nav-icon"></i>
+            How To / Help
+        </a>
+    </div>
+
+    <!-- Sticky Table of Contents (outside main for proper fixed positioning) -->
+    <div class="toc-sidebar" id="tocSidebar">
+        <div class="toc-sticky">
+            <h3 class="toc-title">Contents</h3>
+            <nav class="toc-nav">
+                <ol class="toc-list">
+                    <li><a href="#registration" data-section="registration">Step 1: Creating Your Account</a></li>
+                    <li><a href="#login" data-section="login">Step 2: Logging In</a></li>
+                    <li><a href="#rfid" data-section="rfid">Step 3: Setting Up Your Access Device</a></li>
+                    <li><a href="#dashboard" data-section="dashboard">Step 4: Using Your Dashboard</a></li>
+                    <li><a href="#map" data-section="map">Step 5: Viewing Seat Map</a></li>
+                    <li><a href="#reports" data-section="reports">Step 6: Submitting Reports</a></li>
+                    <li><a href="#logout" data-section="logout">Step 7: Logging Out</a></li>
+                    <li><a href="#tips" data-section="tips">Helpful Tips & Important Notes</a></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Table of Contents Sidebar -->
+    <div class="toc-sidebar" id="tocSidebar">
+        <div class="toc-sticky">
+            <h3 class="toc-title">Contents</h3>
+            <nav class="toc-nav">
+                <ol class="toc-list">
+                    <li><a href="#registration" data-section="registration">Creating Your Account</a></li>
+                    <li><a href="#login" data-section="login">Logging In</a></li>
+                    <li><a href="#rfid" data-section="rfid">Setting Up Your Access Device</a></li>
+                    <li><a href="#dashboard" data-section="dashboard">Using Your Dashboard</a></li>
+                    <li><a href="#map" data-section="map">Viewing Seat Map</a></li>
+                    <li><a href="#reports" data-section="reports">Submitting Reports</a></li>
+                    <li><a href="#logout" data-section="logout">Logging Out</a></li>
+                    <li><a href="#tips" data-section="tips">Helpful Tips &amp; Important Notes</a></li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="fade-content main-with-sidebar w-full px-4 sm:px-6 lg:px-8 py-16">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <header class="mb-16">
+                <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 mb-3">
+                    Student Portal Guide
+                </h1>
+                <p class="text-base text-gray-600">
+                    How to use the University of Makati Library Noise Comfort Index System
+                </p>
+            </header>
+
+            <div class="guide-container">
+
+                <!-- Step 1: Registration -->
+                <section class="guide-section" id="registration">
+                    <h2>Creating Your Account</h2>
+                    
+                    <div class="step">
+                        <h3>Go to the Sign Up Page</h3>
+                        <p>On the login page, click the "Sign up" link below the login form to access the registration form.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Fill Out Your Information</h3>
+                        <p>Provide the following details:</p>
+                        <ul>
+                            <li><strong>Email Address</strong> — Your university email (<code>name@umak.edu.ph</code>)</li>
+                            <li><strong>First and Last Name</strong> — Your full name</li>
+                            <li><strong>Student ID</strong> — Your identification number (e.g., <code>A12345678</code>)</li>
+                            <li><strong>College Department</strong> — Select your college from the dropdown</li>
+                            <li><strong>Password</strong> — Create a secure password for your account</li>
+                        </ul>
+                    </div>
+
+                    <!-- Interactive Practice Form -->
+                    <div class="practice-box">
+                        <h4>Practice: Fill Out Registration</h4>
+                        <p>Try filling out the registration form below (simulation only, not submitted):</p>
+                        
+                        <div class="practice-form">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="practice-email" placeholder="juan.delacruz@umak.edu.ph">
+                                <span class="form-hint">Must end with @umak.edu.ph</span>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>First Name</label>
+                                    <input type="text" id="practice-fname" placeholder="Juan">
+                                </div>
+                                <div class="form-group">
+                                    <label>Last Name</label>
+                                    <input type="text" id="practice-lname" placeholder="Dela Cruz">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Student ID</label>
+                                <input type="text" id="practice-studentid" placeholder="A12345678" maxlength="9">
+                                <span class="form-hint">Format: A followed by 8 digits</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>College Department</label>
+                                <select id="practice-college">
+                                    <option value="">Select your college</option>
+                                    <option value="CCIS">College of Computing and Information Sciences</option>
+                                    <option value="CED">College of Education</option>
+                                    <option value="CEAS">College of Engineering and Architecture Sciences</option>
+                                    <option value="CBA">College of Business Administration</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="practice-password" placeholder="••••••••">
+                                <span class="form-hint">At least 6 characters</span>
+                            </div>
+                            
+                            <button class="practice-btn" onclick="validateRegistration()">Validate Form</button>
+                            <div id="practice-result-registration" class="practice-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Create Your Account</h3>
+                        <p>Click "Create Account" to submit your registration.</p>
+                        <div class="info-box">
+                            Check your email inbox for a confirmation email. You must verify your email address before you can log in.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 2: Login -->
+                <section class="guide-section" id="login">
+                    <h2>Logging In</h2>
+                    
+                    <div class="step">
+                        <h3>Enter Your Credentials</h3>
+                        <p>On the login page, enter your registered email address and password.</p>
+                    </div>
+
+                    <!-- Interactive Practice Form -->
+                    <div class="practice-box">
+                        <h4>Practice: Login Simulation</h4>
+                        <p>Try the login form (use any email ending with @umak.edu.ph):</p>
+                        
+                        <div class="practice-form">
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="login-email" placeholder="your.email@umak.edu.ph">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input type="password" id="login-password" placeholder="••••••••">
+                            </div>
+                            
+                            <button class="practice-btn" onclick="validateLogin()">Simulate Login</button>
+                            <div id="practice-result-login" class="practice-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Access Your Dashboard</h3>
+                        <p>Click "Login" to access your dashboard. If your credentials are correct and your email is confirmed, you'll be redirected automatically.</p>
+                        <div class="info-box">
+                            If login fails, verify that you've confirmed your email address. Check your spam folder if needed.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 3: Device Setup -->
+                <section class="guide-section" id="rfid">
+                    <h2>Setting Up Your Access Device</h2>
+                    
+                    <div class="step">
+                        <h3>Locate the Device Reader</h3>
+                        <p>Find the physical device reader at your table or lab location.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Get Your Device ID</h3>
+                        <p>Tap your access device on the reader. The LCD screen will display your unique Device ID (e.g., <code>93B12CDA</code>).</p>
+                        <div class="info-box">
+                            Copy the Device ID exactly as shown. It's case-sensitive.
+                        </div>
+                    </div>
+
+                    <!-- Interactive Practice Form -->
+                    <div class="practice-box">
+                        <h4>Practice: Device Registration</h4>
+                        <p>Simulate tapping your device and registering it:</p>
+                        
+                        <div class="practice-form">
+                            <div class="simulator-display">
+                                <div class="lcd-screen" id="lcd-screen">
+                                    <div class="lcd-text">Tap device to scan...</div>
+                                </div>
+                                <button class="simulator-btn" onclick="simulateTap()">
+                                    <i data-lucide="nfc" style="width: 20px; height: 20px;"></i>
+                                    Simulate Tap
+                                </button>
+                            </div>
+                            
+                            <div class="form-group" id="device-input-group" style="display: none;">
+                                <label>Device ID (from LCD screen)</label>
+                                <input type="text" id="device-id" placeholder="Enter Device ID" maxlength="8">
+                                <span class="form-hint">8 characters, case-sensitive</span>
+                            </div>
+                            
+                            <button class="practice-btn" id="register-device-btn" onclick="validateDevice()" style="display: none;">Register Device</button>
+                            <div id="practice-result-device" class="practice-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Register in Dashboard</h3>
+                        <p>In your Dashboard, locate the "Register Your Access Device" section and enter your Device ID. Click "Register Device" to complete the setup.</p>
+                        <div class="info-box">
+                            You only need to register once. After that, you can use your device to check in and out at any time.
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Step 4: Dashboard -->
+                <section class="guide-section" id="dashboard">
+                    <h2>Using Your Dashboard</h2>
+                    
+                    <div class="step">
+                        <h3>Navigation</h3>
+                        <p>Use the navigation bar to access different sections:</p>
+                        <ul>
+                            <li><strong>Dashboard</strong> — Your main page with status overview</li>
+                            <li><strong>Seat Map</strong> — View available seats in real-time</li>
+                            <li><strong>Reports</strong> — Submit feedback or issues</li>
+                            <li><strong>Logout</strong> — End your session</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h3>Your Status</h3>
+                        <p>The dashboard displays your current session information:</p>
+                        <ul>
+                            <li>Session status (active or ended)</li>
+                            <li>Assigned seat location</li>
+                            <li>Real-time noise level at your table</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h3>Check In and Out</h3>
+                        <p>Tap your device on the reader when you arrive to start monitoring. Tap again when leaving to end your session. The system automatically assigns an available seat and updates your status in real-time.</p>
+                    </div>
+                </section>
+
+                <!-- Step 5: Seat Map -->
+                <section class="guide-section" id="map">
+                    <h2>Viewing the Seat Map</h2>
+                    
+                    <div class="step">
+                        <h3>Access the Map</h3>
+                        <p>Click "Seat Map" in the navigation bar to view current seat occupancy.</p>
+                    </div>
+
+                    <div class="step">
+                        <h3>Understanding Colors</h3>
+                        <ul>
+                            <li><strong>Green</strong> — Seat is occupied</li>
+                            <li><strong>Gray</strong> — Seat is available</li>
+                        </ul>
+                    </div>
+
+                    <div class="step">
+                        <h3>Full Floor Plan</h3>
+                        <p>Click "View Full Map" to see the complete floor plan. The map updates automatically every 5 seconds.</p>
+                    </div>
+                </section>
+
+                <!-- Step 6: Reports -->
+                <section class="guide-section" id="reports">
+                    <h2>Submitting Reports</h2>
+                    
+                    <div class="step">
+                        <h3>Create a Report</h3>
+                        <p>Navigate to "Reports" and fill out the form with:</p>
+                        <ul>
+                            <li><strong>Report Type</strong> — Issue, Suggestion, or Feedback</li>
+                            <li><strong>Title</strong> — Brief summary of your report</li>
+                            <li><strong>Description</strong> — Detailed information</li>
+                        </ul>
+                    </div>
+
+                    <!-- Interactive Practice Form -->
+                    <div class="practice-box">
+                        <h4>Practice: Submit a Report</h4>
+                        <p>Try filling out a sample report:</p>
+                        
+                        <div class="practice-form">
+                            <div class="form-group">
+                                <label>Report Type</label>
+                                <select id="report-type">
+                                    <option value="">Select type</option>
+                                    <option value="issue">Issue</option>
+                                    <option value="suggestion">Suggestion</option>
+                                    <option value="feedback">Feedback</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" id="report-title" placeholder="Brief summary of your report">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea id="report-description" rows="4" placeholder="Provide detailed information about your report..."></textarea>
+                                <span class="form-hint">At least 20 characters</span>
+                            </div>
+                            
+                            <button class="practice-btn" onclick="validateReport()">Validate Report</button>
+                            <div id="practice-result-report" class="practice-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Track Your Reports</h3>
+                        <p>View your submitted reports, their status (Pending, Reviewing, Resolved), and admin replies in the "My Submitted Reports" section.</p>
+                    </div>
+                </section>
+
+                <!-- Step 7: Logout -->
+                <section class="guide-section" id="logout">
+                    <h2>Logging Out</h2>
+                    
+                    <div class="step">
+                        <h3>End Your Session</h3>
+                        <p>Click the "Logout" button in the navigation bar when you're finished.</p>
+                        <div class="info-box">
+                            Always use the Logout button. Closing the browser without logging out may keep your session active.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h3>Physical Logout</h3>
+                        <p>If you checked in with your device at the reader, tap it again before leaving to free up your seat.</p>
+                    </div>
+                </section>
+
+                <!-- Tips Section -->
+                <div class="guide-section" id="tips">
+                    <h2>💡 Helpful Tips & Important Notes</h2>
+
+                    <div class="feature-list">
+                        <div class="feature-card">
+                            <h4>✅ Stay Within Student Pages</h4>
+                            <p>You can freely navigate between Dashboard, Seat Map, and Reports. The system will prevent
+                                you from accessing admin pages or returning to login without logging out.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>📧 Email Confirmation</h4>
+                            <p>Always check your email after registration. You cannot log in until you confirm your
+                                email address via the link sent to you.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🔐 Device ID</h4>
+                            <p>Your Device ID is case-sensitive! Make sure to copy it exactly as shown on the LCD
+                                screen, or use copy-paste for accuracy.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🪑 Automatic Seat Assignment</h4>
+                            <p>When you tap your device to check in, the system automatically assigns you the first
+                                available seat and begins monitoring noise levels. You don't need to choose.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🔔 Noise Level Monitoring</h4>
+                            <p>The system monitors noise levels in real-time. If noise gets too high, warnings will
+                                appear on the LCD screen at your table.</p>
+                        </div>
+
+                        <div class="feature-card">
+                            <h4>🚪 Proper Logout</h4>
+                            <p>Always use the Logout button. This ensures your seat is freed up for other students and
+                                your session is properly ended.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box highlight-box-margin">
+                        <strong>❓ Need Help?</strong> If you encounter any issues or have questions, contact your lab
+                        administrator or submit a report through the Reports section.
+                    </div>
+                </div>
+
+                <!-- Navigation Link -->
+                <div class="nav-link">
+                    <a href="login.html">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-glass">
+        <p>
+            University of Makati Library<br>
+            © 2025
+        </p>
+    </footer>
+
+    <script src="scripts/directions.js"></script>
+    
+    <!-- Practice Simulation Scripts -->
+    <script>
+        // Generate random device ID
+        function generateDeviceID() {
+            const chars = '0123456789ABCDEF';
+            let id = '';
+            for (let i = 0; i < 8; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return id;
+        }
+
+        let generatedDeviceID = '';
+
+        // Simulate device tap
+        function simulateTap() {
+            const lcdScreen = document.getElementById('lcd-screen');
+            lcdScreen.innerHTML = '<div class="lcd-text">Reading device...</div>';
+            
+            setTimeout(() => {
+                generatedDeviceID = generateDeviceID();
+                lcdScreen.innerHTML = `
+                    <div class="lcd-text">Device ID:</div>
+                    <div class="lcd-text" style="font-size: 1.25rem; font-weight: bold; margin-top: 8px;">${generatedDeviceID}</div>
+                `;
+                
+                document.getElementById('device-input-group').style.display = 'block';
+                document.getElementById('register-device-btn').style.display = 'inline-block';
+                
+                // Re-initialize Lucide icons
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }, 1500);
+        }
+
+        // Validate registration form
+        function validateRegistration() {
+            const email = document.getElementById('practice-email').value;
+            const fname = document.getElementById('practice-fname').value;
+            const lname = document.getElementById('practice-lname').value;
+            const studentId = document.getElementById('practice-studentid').value;
+            const college = document.getElementById('practice-college').value;
+            const password = document.getElementById('practice-password').value;
+            const result = document.getElementById('practice-result-registration');
+
+            let errors = [];
+
+            if (!email || !email.endsWith('@umak.edu.ph')) {
+                errors.push('Email must end with @umak.edu.ph');
+            }
+            if (!fname || fname.length < 2) {
+                errors.push('First name must be at least 2 characters');
+            }
+            if (!lname || lname.length < 2) {
+                errors.push('Last name must be at least 2 characters');
+            }
+            if (!studentId || !/^A\d{8}$/.test(studentId)) {
+                errors.push('Student ID must be format A followed by 8 digits');
+            }
+            if (!college) {
+                errors.push('Please select a college');
+            }
+            if (!password || password.length < 6) {
+                errors.push('Password must be at least 6 characters');
+            }
+
+            if (errors.length > 0) {
+                result.className = 'practice-result error';
+                result.innerHTML = '<strong>Validation Failed:</strong><br>' + errors.join('<br>');
+            } else {
+                result.className = 'practice-result success';
+                result.innerHTML = '<strong>✓ All fields are valid!</strong> Your registration form is complete. In the real system, you would now receive a confirmation email.';
+            }
+        }
+
+        // Validate login form
+        function validateLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const result = document.getElementById('practice-result-login');
+
+            let errors = [];
+
+            if (!email || !email.endsWith('@umak.edu.ph')) {
+                errors.push('Email must end with @umak.edu.ph');
+            }
+            if (!password || password.length < 6) {
+                errors.push('Password must be at least 6 characters');
+            }
+
+            if (errors.length > 0) {
+                result.className = 'practice-result error';
+                result.innerHTML = '<strong>Login Failed:</strong><br>' + errors.join('<br>');
+            } else {
+                result.className = 'practice-result success';
+                result.innerHTML = '<strong>✓ Login successful!</strong> In the real system, you would now be redirected to your dashboard.';
+            }
+        }
+
+        // Validate device registration
+        function validateDevice() {
+            const deviceId = document.getElementById('device-id').value;
+            const result = document.getElementById('practice-result-device');
+
+            if (!deviceId || deviceId.length !== 8) {
+                result.className = 'practice-result error';
+                result.innerHTML = '<strong>Invalid Device ID:</strong> Must be exactly 8 characters.';
+            } else if (deviceId.toUpperCase() !== generatedDeviceID) {
+                result.className = 'practice-result error';
+                result.innerHTML = '<strong>Device ID Mismatch:</strong> Please enter the exact ID shown on the LCD screen: ' + generatedDeviceID;
+            } else {
+                result.className = 'practice-result success';
+                result.innerHTML = '<strong>✓ Device registered successfully!</strong> Your access device is now linked to your account. You can now use it to check in and out.';
+            }
+        }
+
+        // Validate report form
+        function validateReport() {
+            const type = document.getElementById('report-type').value;
+            const title = document.getElementById('report-title').value;
+            const description = document.getElementById('report-description').value;
+            const result = document.getElementById('practice-result-report');
+
+            let errors = [];
+
+            if (!type) {
+                errors.push('Please select a report type');
+            }
+            if (!title || title.length < 5) {
+                errors.push('Title must be at least 5 characters');
+            }
+            if (!description || description.length < 20) {
+                errors.push('Description must be at least 20 characters');
+            }
+
+            if (errors.length > 0) {
+                result.className = 'practice-result error';
+                result.innerHTML = '<strong>Validation Failed:</strong><br>' + errors.join('<br>');
+            } else {
+                result.className = 'practice-result success';
+                result.innerHTML = '<strong>✓ Report is valid!</strong> In the real system, your report would now be submitted and visible to administrators.';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,442 @@
+/* Styles for activity-logs.html */
+
+.activity-logs-nav {
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+
+.activity-logs-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.activity-logs-nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.activity-logs-nav a.active {
+    color: #ffd700;
+    text-decoration: underline;
+}
+
+.activity-logs-nav .nav-spacer {
+    margin-left: auto;
+}
+
+.activity-logs-nav button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.page-title {
+    text-align: center;
+}
+
+.search-section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.search-toggle {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-bottom: 15px;
+}
+
+.search-toggle:hover {
+    background: #0056b3;
+}
+
+.search-toggle.active {
+    background: #6c757d;
+}
+
+.search-form {
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.search-form.active {
+    display: grid;
+}
+
+.search-form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.search-form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.search-form-group input,
+.search-form-group select {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-form-group input[type="datetime-local"] {
+    padding: 8px;
+}
+
+.search-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-search {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.btn-search:hover {
+    background: #218838;
+}
+
+.btn-clear {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.btn-clear:hover {
+    background: #5a6268;
+}
+
+.search-results-info {
+    padding: 10px;
+    background: #e7f3ff;
+    border-left: 4px solid #007bff;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+/* Match container heights - flex layout */
+.logs-events-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 550px;
+}
+
+.logs-events-container .admin-card-header {
+    flex-shrink: 0;
+}
+
+.logs-events-container>div:not(.log-data-container) {
+    flex-shrink: 0;
+}
+
+/* Log Data Container - matches Advanced Search height */
+.log-data-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 420px;
+    max-height: 420px;
+    box-sizing: border-box;
+}
+
+.log-data-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.log-data-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.log-data-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.log-data-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.logs-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    margin-top: 8px;
+    background: white;
+    font-size: 0.875rem;
+}
+
+.logs-table thead {
+    background: #333;
+    color: white;
+}
+
+.logs-table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.813rem;
+    white-space: nowrap;
+}
+
+.logs-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.813rem;
+    word-wrap: break-word;
+    max-width: 200px;
+}
+
+.logs-table tbody tr:hover {
+    background: #f5f5f5;
+}
+
+.logs-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.event-login {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.event-logout {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+.event-noise {
+    color: #ffc107;
+    font-weight: bold;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Match Advanced Search container height */
+.advanced-search-container {
+    min-height: 550px;
+}
+
+/* Make both containers full width */
+.activity-full-width {
+    grid-column: 1 / -1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+
+    .advanced-search-container,
+    .logs-events-container {
+        min-height: 500px;
+    }
+
+    .log-data-container {
+        min-height: 370px;
+        max-height: 370px;
+    }
+
+    .logs-table {
+        font-size: 0.813rem;
+        min-width: 700px;
+    }
+
+    .logs-table th {
+        padding: 6px 8px;
+        font-size: 0.75rem;
+    }
+
+    .logs-table td {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+
+    .advanced-search-container,
+    .logs-events-container {
+        min-height: 450px;
+    }
+
+    .log-data-container {
+        min-height: 320px;
+        max-height: 320px;
+    }
+
+    .logs-table {
+        min-width: 600px;
+    }
+}
+
+/* Page-specific color overrides and animations */
+[data-page="activity-logs"] .bg-indigo-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .hover\:bg-indigo-700:hover {
+    background-color: #121c54 !important
+}
+
+[data-page="activity-logs"] .text-indigo-600 {
+    color: #0e163e !important
+}
+
+[data-page="activity-logs"] .hover\:text-indigo-700:hover {
+    color: #121c54 !important
+}
+
+[data-page="activity-logs"] .focus\:border-indigo-500:focus {
+    border-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .focus\:ring-indigo-200:focus {
+    box-shadow: 0 0 0 3px rgba(14, 22, 62, .2) !important
+}
+
+[data-page="activity-logs"] .sidebar-nav-item.active {
+    background: rgba(14, 22, 62, .15) !important;
+    border-color: rgba(14, 22, 62, .4) !important;
+    color: #0e163e !important
+}
+
+[data-page="activity-logs"] .header-trigger-icon {
+    color: #0e163e !important
+}
+
+[data-page="activity-logs"] .bg-gradient-to-br {
+    background: linear-gradient(135deg, #0e163e 0%, #121c54 100%) !important
+}
+
+[data-page="activity-logs"] .bg-gradient-to-r {
+    background: linear-gradient(90deg, #0e163e 0%, #121c54 100%) !important
+}
+
+[data-page="activity-logs"] .from-indigo-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .to-pink-400 {
+    background-color: #121c54 !important
+}
+
+[data-page="activity-logs"] .from-pink-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .to-pink-800 {
+    background-color: #121c54 !important
+}
+
+[data-page="activity-logs"] .bg-emerald-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .hover\:bg-emerald-700:hover {
+    background-color: #121c54 !important
+}
+
+[data-page="activity-logs"] .focus\:border-emerald-600:focus {
+    border-color: #0e163e !important
+}
+
+[data-page="activity-logs"] .focus\:ring-emerald-100:focus {
+    box-shadow: 0 0 0 2px rgba(14, 22, 62, .2) !important
+}
+
+.card-fadein {
+    opacity: 0;
+    transform: translateY(20px) scale(.99);
+    animation: fadeinup .8s 0.1s linear both;
+}
+
+.card-lift:hover {
+    box-shadow: 0 22px 64px rgba(14, 22, 62, 0.17), 0 2px 18px 2px rgba(14, 22, 62, 0.19) !important;
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+@keyframes fadeinup {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+[data-page="activity-logs"] .nav-label {
+    left: 250px;
+    right: auto;
+    top: 25px;
+    z-index: 99999;
+}
+
+/* Force burger menu to be visible and clickable on mobile */
+@media (max-width: 768px) {
+    [data-page="activity-logs"] #burgerMenuBtn {
+        display: flex !important;
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        z-index: 999999 !important;
+        pointer-events: auto !important;
+        background: rgba(255, 255, 255, 1) !important;
+        border: 2px solid rgba(14, 22, 62, 0.2) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    [data-page="activity-logs"] #burgerMenuBtn .burger-line {
+        pointer-events: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    [data-page="activity-logs"] #burgerMenuBtn {
+        display: none !important;
+    }
+}

@@ -1,0 +1,393 @@
+/* Styles for lcd-messages.html - LCD Message Control */
+
+/* Make both containers full width */
+.lcd-messages-full-width {
+    grid-column: 1 / -1;
+}
+
+.admin-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+}
+
+.admin-section h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+.message-form {
+    margin-bottom: 20px;
+}
+
+.message-form textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.message-preview {
+    margin-top: 10px;
+    padding: 15px;
+    background: #000;
+    color: #0f0;
+    border: 2px solid #333;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    min-height: 80px;
+}
+
+.character-count {
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+
+.message-list {
+    margin-top: 20px;
+}
+
+.message-item {
+    padding: 15px;
+    margin-bottom: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message-item-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.message-item-content {
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 3px;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.status-active {
+    background: #28a745;
+    color: white;
+}
+
+.status-inactive {
+    background: #6c757d;
+    color: white;
+}
+
+/* Navigation styles */
+.lcd-nav {
+    background: #333;
+    color: white;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+
+.lcd-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 20px;
+}
+
+.lcd-nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.lcd-nav a.active {
+    color: #ffd700;
+    text-decoration: underline;
+}
+
+.lcd-nav .nav-spacer {
+    margin-left: auto;
+}
+
+.lcd-nav button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.table-select {
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.checkbox-group {
+    margin-top: 15px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.duration-input {
+    width: 80px;
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.button-group {
+    margin-top: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-primary {
+    background: #28a745;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+.btn-info {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #218838;
+}
+
+.btn-info:hover {
+    background: #0056b3;
+}
+
+.btn+.btn {
+    margin-left: 10px;
+}
+
+.preview-label {
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.message-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
+
+.page-title {
+    text-align: center;
+}
+
+.refresh-btn {
+    margin-top: 10px;
+    padding: 8px 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.refresh-btn:hover {
+    background: #0056b3;
+}
+
+.hidden {
+    display: none;
+}
+
+.message-status.visible {
+    display: block;
+}
+
+.message-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* Page-specific color overrides for lcd-messages */
+[data-page="lcd-messages"] .bg-indigo-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .hover\:bg-indigo-700:hover {
+    background-color: #121c54 !important
+}
+
+[data-page="lcd-messages"] .text-indigo-600 {
+    color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .hover\:text-indigo-700:hover {
+    color: #121c54 !important
+}
+
+[data-page="lcd-messages"] .focus\:border-indigo-500:focus {
+    border-color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .focus\:ring-indigo-200:focus {
+    box-shadow: 0 0 0 3px rgba(14, 22, 62, .2) !important
+}
+
+[data-page="lcd-messages"] .sidebar-nav-item.active {
+    background: rgba(14, 22, 62, .15) !important;
+    border-color: rgba(14, 22, 62, .4) !important;
+    color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .header-trigger-icon {
+    color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .bg-gradient-to-br {
+    background: linear-gradient(135deg, #0e163e 0%, #121c54 100%) !important
+}
+
+[data-page="lcd-messages"] .bg-gradient-to-r {
+    background: linear-gradient(90deg, #0e163e 0%, #121c54 100%) !important
+}
+
+[data-page="lcd-messages"] .from-indigo-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .to-pink-400 {
+    background-color: #121c54 !important
+}
+
+[data-page="lcd-messages"] .from-pink-600 {
+    background-color: #0e163e !important
+}
+
+[data-page="lcd-messages"] .to-pink-800 {
+    background-color: #121c54 !important
+}
+
+.card-fadein {
+    opacity: 0;
+    transform: translateY(20px) scale(.99);
+    animation: fadeinup .8s 0.1s linear both;
+}
+
+.card-lift:hover {
+    box-shadow: 0 22px 64px rgba(14, 22, 62, 0.17), 0 2px 18px 2px rgba(14, 22, 62, 0.19) !important;
+    transform: scale(1.02);
+    z-index: 10;
+}
+
+@keyframes fadeinup {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+[data-page="lcd-messages"] .nav-label {
+    left: 250px;
+    right: auto;
+    top: 25px;
+    z-index: 99999;
+}
+
+/* Fix Send to LCD button visibility */
+.setup-btn.btn-primary {
+    background: #28a745 !important;
+    color: white !important;
+    border-color: #28a745 !important;
+}
+
+.setup-btn.btn-primary:hover {
+    background: #218838 !important;
+    border-color: #218838 !important;
+}
+
+.setup-btn.btn-primary::before {
+    background: linear-gradient(135deg, #218838 0%, #1e7e34 100%) !important;
+}
+
+/* Force burger menu to be visible and clickable on mobile */
+@media (max-width: 768px) {
+    [data-page="lcd-messages"] #burgerMenuBtn {
+        display: flex !important;
+        position: fixed !important;
+        top: 1rem !important;
+        right: 1rem !important;
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        min-height: 48px !important;
+        z-index: 999999 !important;
+        pointer-events: auto !important;
+        background: rgba(255, 255, 255, 1) !important;
+        border: 2px solid rgba(14, 22, 62, 0.2) !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+        cursor: pointer !important;
+        touch-action: manipulation !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    [data-page="lcd-messages"] #burgerMenuBtn .burger-line {
+        pointer-events: none !important;
+    }
+}
+
+@media (min-width: 769px) {
+    [data-page="lcd-messages"] #burgerMenuBtn {
+        display: none !important;
+    }
+}

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="images/UMak_Logo_Registered.png">
+    <title>User Management - Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="styles/setup.css">
+    <style>
+        [data-page="user-management"] .bg-indigo-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="user-management"] .hover\:bg-indigo-700:hover {
+            background-color: #121c54 !important
+        }
+
+        [data-page="user-management"] .text-indigo-600 {
+            color: #0e163e !important
+        }
+
+        [data-page="user-management"] .hover\:text-indigo-700:hover {
+            color: #121c54 !important
+        }
+
+        [data-page="user-management"] .focus\:border-indigo-500:focus {
+            border-color: #0e163e !important
+        }
+
+        [data-page="user-management"] .focus\:ring-indigo-200:focus {
+            box-shadow: 0 0 0 3px rgba(14, 22, 62, .2) !important
+        }
+
+        [data-page="user-management"] .sidebar-nav-item.active {
+            background: rgba(14, 22, 62, .15) !important;
+            border-color: rgba(14, 22, 62, .4) !important;
+            color: #0e163e !important
+        }
+
+        [data-page="user-management"] .header-trigger-icon {
+            color: #0e163e !important
+        }
+
+        [data-page="user-management"] .bg-gradient-to-br {
+            background: linear-gradient(135deg, #0e163e 0%, #121c54 100%) !important
+        }
+
+        [data-page="user-management"] .bg-gradient-to-r {
+            background: linear-gradient(90deg, #0e163e 0%, #121c54 100%) !important
+        }
+
+        [data-page="user-management"] .from-indigo-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="user-management"] .to-pink-400 {
+            background-color: #121c54 !important
+        }
+
+        [data-page="user-management"] .from-pink-500 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="user-management"] .to-pink-600 {
+            background-color: #121c54 !important
+        }
+
+        [data-page="user-management"] .from-pink-600 {
+            background-color: #0e163e !important
+        }
+
+        [data-page="user-management"] .to-pink-800 {
+            background-color: #121c54 !important
+        }
+
+        .card-fadein {
+            opacity: 0;
+            transform: translateY(20px) scale(.99);
+            animation: fadeinup .8s 0.1s linear both;
+        }
+
+        .card-lift:hover {
+            box-shadow: 0 22px 64px rgba(14, 22, 62, 0.17), 0 2px 18px 2px rgba(14, 22, 62, 0.19) !important;
+            transform: scale(1.02);
+            z-index: 10;
+        }
+
+        @keyframes fadeinup {
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        [data-page="user-management"] .nav-label {
+            left: 250px;
+            right: auto;
+            top: 25px;
+            z-index: 99999;
+        }
+
+        /* Force burger menu to be visible and clickable on mobile */
+        @media (max-width: 768px) {
+            #burgerMenuBtn {
+                display: flex !important;
+                position: fixed !important;
+                top: 1rem !important;
+                right: 1rem !important;
+                width: 48px !important;
+                height: 48px !important;
+                min-width: 48px !important;
+                min-height: 48px !important;
+                z-index: 999999 !important;
+                pointer-events: auto !important;
+                background: rgba(255, 255, 255, 1) !important;
+                border: 2px solid rgba(14, 22, 62, 0.2) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+                cursor: pointer !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1) !important;
+                transition: all 0.2s !important;
+            }
+
+            .dark #burgerMenuBtn {
+                background: rgba(31, 41, 55, 0.95) !important;
+                border-color: rgba(75, 85, 99, 0.5) !important;
+            }
+
+            #burgerMenuBtn .burger-line {
+                pointer-events: none !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            #burgerMenuBtn {
+                display: none !important;
+            }
+        }
+
+        /* Dark Mode Styles */
+        .dark-mode-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .dark-mode-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .dark-mode-icon {
+            width: 20px;
+            height: 20px;
+            color: #0e163e;
+            transition: all 0.3s;
+        }
+
+        .dark .dark-mode-icon {
+            color: #fbbf24;
+        }
+
+        /* Dark mode form inputs - Enhanced contrast and depth */
+        .dark input[type="email"],
+        .dark input[type="text"],
+        .dark input[type="password"],
+        .dark select {
+            background: #1a1a24 !important;
+            border: 1px solid #2d2d3a !important;
+            color: #f3f4f6 !important;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark input::placeholder {
+            color: #9ca3af !important;
+        }
+
+        .dark input:focus,
+        .dark select:focus {
+            border-color: #a78bfa !important;
+            background: #1f1f2e !important;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        .dark select option {
+            background: #1a1a24 !important;
+            color: #f3f4f6 !important;
+        }
+
+        /* Dark mode labels - Better readability */
+        .dark label {
+            color: #f3f4f6 !important;
+            font-weight: 500;
+        }
+
+        .dark small {
+            color: #d1d5db !important;
+        }
+
+        /* Dark mode buttons - Enhanced with glow */
+        .dark .setup-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+            border-color: #8b5cf6 !important;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+        }
+
+        .dark .setup-btn:hover {
+            background: linear-gradient(135deg, #9d6dff 0%, #8b5cf6 100%) !important;
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45), 0 0 30px rgba(139, 92, 246, 0.3) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Dark mode cards - Layered depth */
+        .dark .admin-card {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
+            border: 1px solid rgba(60, 60, 80, 0.4) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+            backdrop-filter: none;
+        }
+
+        /* Disable hover effects on cards */
+        .admin-card:hover {
+            transform: none !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .dark .admin-card:hover {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+            transform: none !important;
+        }
+
+        /* Dark mode table styles - Premium look */
+        .dark #allUsersData table {
+            border: 1px solid rgba(60, 60, 80, 0.4) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .dark #allUsersData thead tr {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.98) 0%, rgba(31, 31, 46, 0.98) 100%) !important;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .dark #allUsersData thead th {
+            color: #f3f4f6 !important;
+            font-weight: 600;
+        }
+
+        .dark #allUsersData tbody tr {
+            border-bottom: 1px solid rgba(60, 60, 80, 0.25) !important;
+        }
+
+        .dark #allUsersData td {
+            color: #e5e7eb !important;
+        }
+
+        /* Dark mode action buttons in table - Distinct styling */
+        .dark #allUsersData button {
+            transition: all 0.15s ease;
+            border: 1px solid rgba(60, 60, 80, 0.5);
+        }
+
+        .dark #allUsersData button:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
+        }
+
+        /* Dark mode status badges - Enhanced visibility */
+        .dark #allUsersData span[style*="color:green"] {
+            color: #86efac !important;
+            background: rgba(34, 197, 94, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .dark #allUsersData span[style*="color:red"] {
+            color: #fca5a5 !important;
+            background: rgba(239, 68, 68, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        /* Dark mode notifications - Premium style */
+        .dark .notification {
+            background: linear-gradient(135deg, rgba(26, 26, 36, 0.98) 0%, rgba(31, 31, 46, 0.98) 100%) !important;
+            border: 1px solid rgba(139, 92, 246, 0.3) !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
+            color: #f3f4f6 !important;
+        }
+
+        /* Dark mode result messages */
+        .dark #userResult {
+            color: #f3f4f6 !important;
+        }
+
+        /* Dark mode checkbox styling */
+        .dark input[type="checkbox"] {
+            background: #1a1a24;
+            border: 1px solid #2d2d3a;
+        }
+
+        .dark input[type="checkbox"]:checked {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+        }
+
+        /* Full width for users table card */
+        .all-users-card {
+            grid-column: 1 / -1;
+        }
+
+        /* Improve mobile table responsiveness */
+        @media (max-width: 640px) {
+            .all-users-card table {
+                font-size: 0.875rem;
+            }
+
+            .all-users-card th,
+            .all-users-card td {
+                padding: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="text-slate-900 dark:text-gray-100 min-h-screen flex flex-col relative setup-body-bg dark:bg-[#0a0a0f] transition-colors duration-300"
+    data-page="user-management">
+    <!-- Visual Effects -->
+    <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
+    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="paper-background" class="paper-background" aria-hidden="true"></div>
+    <!-- Modern Layout: Fixed Sidebar + Main Content -->
+    <div class="admin-layout-container">
+        <!-- Fixed Sidebar (Left) -->
+        <aside id="adminSidebar" class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="images/UMak_Logo_Registered.png" alt="University of Makati Logo" class="sidebar-logo" />
+                <h1 class="sidebar-title">Admin Dashboard</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="setup.html" class="admin-nav-link" data-label="Admin Dashboard" aria-label="Admin Dashboard">
+                    <i data-lucide="settings" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Dashboard</span>
+                </a>
+                <a href="user-management.html" class="admin-nav-link active" data-label="User Management"
+                    aria-label="User Management">
+                    <i data-lucide="users" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Users</span>
+                </a>
+                <a href="rfid-management.html" class="admin-nav-link" data-label="RFID Management"
+                    aria-label="RFID Management">
+                    <i data-lucide="contact" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Devices</span>
+                </a>
+                <a href="student-reports.html" class="admin-nav-link" data-label="Student Reports"
+                    aria-label="Student Reports">
+                    <i data-lucide="book-open-check" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Reports</span>
+                </a>
+                <a href="activity-logs.html" class="admin-nav-link" data-label="Activity Logs"
+                    aria-label="Activity Logs">
+                    <i data-lucide="list" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Activity</span>
+                </a>
+                <a href="lcd-messages.html" class="admin-nav-link" data-label="LCD Messages" aria-label="LCD Messages">
+                    <i data-lucide="tv" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">LCD Messages</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <a href="#" onclick="logout(); return false;" class="admin-nav-link logout-item" data-label="Logout"
+                    aria-label="Logout">
+                    <i data-lucide="log-out" class="admin-nav-icon"></i>
+                    <span class="admin-nav-text">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Area (Right) -->
+        <main class="admin-main-content">
+            <!-- Top Navigation Bar -->
+            <header class="admin-top-nav">
+                <div class="top-nav-left">
+                    <button id="sidebarToggle" class="sidebar-toggle-btn" aria-label="Toggle sidebar"
+                        aria-expanded="false" aria-controls="adminSidebar">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <h1 class="page-title">User Management</h1>
+                </div>
+                <div class="top-nav-right">
+                    <button id="darkModeToggle" class="dark-mode-toggle-btn" aria-label="Toggle dark mode"
+                        title="Toggle dark mode">
+                        <i data-lucide="moon" class="dark-mode-icon"></i>
+                    </button>
+                    <div class="top-nav-profile">
+                        <div class="profile-avatar">A</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="admin-content-grid">
+                <!-- Add User Card -->
+                <section class="admin-card card-fadein">
+                    <div class="admin-card-header">
+                        <h2 class="text-lg font-semibold setup-title-color">Add New User</h2>
+                    </div>
+                    <form class="space-y-5" onsubmit="event.preventDefault(); addUser();">
+                        <div>
+                            <label for="userEmail"
+                                class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Email
+                                Address:</label>
+                            <input type="email" id="userEmail" required placeholder="user@example.com"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                        </div>
+                        <div class="sm:flex sm:gap-4">
+                            <div class="sm:flex-1">
+                                <label for="userFirstName"
+                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">First
+                                    Name:</label>
+                                <input type="text" id="userFirstName" placeholder="John"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                            </div>
+                            <div class="sm:flex-1">
+                                <label for="userLastName"
+                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Last
+                                    Name:</label>
+                                <input type="text" id="userLastName" placeholder="Doe"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                            </div>
+                        </div>
+                        <div class="sm:flex sm:gap-4">
+                            <div class="sm:flex-1">
+                                <label for="userStudentId"
+                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Student
+                                    ID:</label>
+                                <input type="text" id="userStudentId"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                    placeholder="e.g., 2025-12345">
+                            </div>
+                            <div class="sm:flex-1">
+                                <label for="userDepartment"
+                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">College
+                                    Department:</label>
+                                <select id="userDepartment" title="Select college department"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200">
+                                    <option value="">Select a department…</option>
+                                    <option value="College of Liberal Arts and Sciences (CLAS)">College of Liberal Arts
+                                        and Sciences (CLAS)</option>
+                                    <option value="College of Business and Financial Science (CBFS)">College of Business
+                                        and Financial Science (CBFS)</option>
+                                    <option value="College of Computing and Information Sciences (CCIS)">College of
+                                        Computing and Information Sciences (CCIS)</option>
+                                    <option value="College of Continuing, Advanced and Professional Studies (CCAPS)">
+                                        College of Continuing, Advanced and Professional Studies (CCAPS)</option>
+                                    <option value="College of Innovative Teacher Education (CITE)">College of Innovative
+                                        Teacher Education (CITE)</option>
+                                    <option value="College of Construction Sciences and Engineering (CCSE)">College of
+                                        Construction Sciences and Engineering (CCSE)</option>
+                                    <option value="College of Engineering Technology (CET)">College of Engineering
+                                        Technology (CET)</option>
+                                    <option value="College of Governance and Public Policy (CGPP)">College of Governance
+                                        and Public Policy (CGPP)</option>
+                                    <option value="College of Tourism and Hospitality Management (CTHM)">College of
+                                        Tourism and Hospitality Management (CTHM)</option>
+                                    <option value="College of Human Kinetics (CHK)">College of Human Kinetics (CHK)
+                                    </option>
+                                    <option value="School of Law (SOL)">School of Law (SOL)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="userPassword"
+                                class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Password:</label>
+                            <input type="password" id="userPassword" required
+                                placeholder="User's password (they can change it later)"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                            <small
+                                class="text-slate-600 dark:text-gray-400 transition-colors duration-200 block mt-1">Confirmation
+                                email will be sent to the user</small>
+                        </div>
+                        <div
+                            class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#1a1a24] rounded-xl border border-gray-200 dark:border-gray-700">
+                            <input type="checkbox" id="makeAdmin"
+                                class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-purple-500 focus:ring-indigo-500 dark:focus:ring-purple-500 transition-colors duration-200 cursor-pointer">
+                            <label for="makeAdmin"
+                                class="text-sm font-medium text-slate-700 dark:text-gray-100 cursor-pointer transition-colors duration-200">
+                                Grant administrator privileges
+                            </label>
+                        </div>
+                        <button type="submit"
+                            class="btn setup-btn w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg dark:hover:shadow-purple-500/30 active:scale-[0.98]">Add
+                            User & Send
+                            Confirmation Email</button>
+                    </form>
+                    <p id="userResult"
+                        class="mt-4 text-center text-slate-700 dark:text-gray-300 transition-colors duration-200"></p>
+                </section>
+                <!-- Pending Validation Card -->
+                <section class="admin-card card-fadein all-users-card" id="pendingValidationSection">
+                    <div class="admin-card-header">
+                        <h2 class="text-lg font-semibold setup-title-color flex items-center gap-2">
+                            <i data-lucide="user-check" class="w-5 h-5"></i>
+                            Pending Student Validation
+                        </h2>
+                        <span id="pendingCount" class="text-sm text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full"></span>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-sm text-slate-600 dark:text-gray-400">Review and validate newly registered student accounts</p>
+                        <button onclick="loadPendingValidation()"
+                            class="btn btn-sm setup-btn flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
+                            aria-label="Refresh pending validation list">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3C7.029 3 3 7.029 3 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M21 12c0 4.971-4.029 9-9 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M3 12L5.5 9.5M3 12L5.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12L18.5 14.5M21 12L18.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.3"/>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="pendingValidationData" class="transition-colors duration-200 max-h-[600px] overflow-y-auto"></div>
+                </section>
+
+                <!-- All Users Card -->
+                <section class="admin-card card-fadein all-users-card">
+                    <div class="admin-card-header">
+                        <h2 class="text-lg font-semibold setup-title-color">All Users</h2>
+                    </div>
+                    <div class="flex justify-end mb-4">
+                        <button onclick="viewAllUsers()"
+                            class="btn btn-sm setup-btn flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
+                            aria-label="Refresh users list">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 3C7.029 3 3 7.029 3 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M21 12c0 4.971-4.029 9-9 9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M3 12L5.5 9.5M3 12L5.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M21 12L18.5 14.5M21 12L18.5 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="12" cy="12" r="2" fill="currentColor" opacity="0.3"/>
+                            </svg>
+                            Refresh
+                        </button>
+                    </div>
+                    <div id="allUsersData" class="transition-colors duration-200"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Correction Request Modal -->
+    <div id="correctionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-slate-900 dark:text-gray-100 flex items-center gap-2">
+                        <i data-lucide="edit-3" class="w-5 h-5 text-orange-500"></i>
+                        Request Student Data Correction
+                    </h3>
+                    <button onclick="closeCorrectionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <div id="correctionStudentInfo" class="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 mb-6">
+                    <!-- Student info will be populated here -->
+                </div>
+
+                <form id="correctionForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-200 mb-3">
+                            Select the issues that need correction:
+                        </label>
+                        <div class="space-y-3">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="student_id" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Student ID Format</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">Student ID doesn't match the required format (e.g., a12345027)</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="email_format" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Email Address</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">Email should use official university domain (@umak.edu.ph)</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="name_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Name Verification</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">First name or last name appears incorrect or incomplete</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="department_mismatch" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Department Verification</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">College department doesn't match student ID or records</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="missing_information" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Missing Information</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">Required fields are empty or incomplete</div>
+                                </div>
+                            </label>
+                            
+                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+                                <input type="checkbox" value="document_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                                <div>
+                                    <div class="font-medium text-slate-900 dark:text-gray-100">Document Verification Required</div>
+                                    <div class="text-sm text-slate-600 dark:text-gray-400">Additional documents needed to verify identity/enrollment</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="customCorrectionReason" class="block text-sm font-semibold text-slate-700 dark:text-gray-200 mb-2">
+                            Additional Instructions (Optional):
+                        </label>
+                        <textarea id="customCorrectionReason" rows="4" 
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-slate-700 dark:text-gray-100 focus:border-orange-500 dark:focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none"
+                            placeholder="Provide specific details about what needs to be corrected or any additional instructions for the student..."></textarea>
+                    </div>
+
+                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"></i>
+                            <div class="text-sm">
+                                <div class="font-medium text-blue-800 dark:text-blue-300 mb-1">Correction Process:</div>
+                                <ul class="text-blue-700 dark:text-blue-400 space-y-1">
+                                    <li>• Student will be notified via email about required corrections</li>
+                                    <li>• They will have 7 days to make the necessary changes</li>
+                                    <li>• Account access will remain limited until corrections are approved</li>
+                                    <li>• You can track correction status in the main users table</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="submitCorrectionRequest()" 
+                            class="flex-1 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            Send Correction Request
+                        </button>
+                        <button type="button" onclick="closeCorrectionModal()" 
+                            class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="scripts/login-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts/user-management.js"></script>
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+
+        // Check for saved dark mode preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            html.classList.add('dark');
+            updateDarkModeIcon(true);
+        }
+
+        darkModeToggle.addEventListener('click', function () {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateDarkModeIcon(isDark);
+        });
+
+        function updateDarkModeIcon(isDark) {
+            const icon = darkModeToggle.querySelector('i');
+            if (isDark) {
+                icon.setAttribute('data-lucide', 'sun');
+            } else {
+                icon.setAttribute('data-lucide', 'moon');
+            }
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        // Sidebar Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const adminSidebar = document.getElementById('adminSidebar');
+            const body = document.body;
+
+            if (sidebarToggle && adminSidebar) {
+                sidebarToggle.addEventListener('click', function () {
+                    const isOpen = adminSidebar.classList.toggle('sidebar-open');
+                    body.classList.toggle('sidebar-open');
+                    sidebarToggle.setAttribute('aria-expanded', isOpen.toString());
+                });
+
+                body.addEventListener('click', function (e) {
+                    if (window.innerWidth <= 768 && body.classList.contains('sidebar-open')) {
+                        if (!adminSidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                            adminSidebar.classList.remove('sidebar-open');
+                            body.classList.remove('sidebar-open');
+                            sidebarToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                });
+
+                document.addEventListener('keydown', function (e) {
+                    if (e.key === 'Escape' && body.classList.contains('sidebar-open')) {
+                        adminSidebar.classList.remove('sidebar-open');
+                        body.classList.remove('sidebar-open');
+                        sidebarToggle.setAttribute('aria-expanded', 'false');
+                        sidebarToggle.focus();
+                    }
+                });
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

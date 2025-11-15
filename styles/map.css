@@ -1,0 +1,574 @@
+.seat-map {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+    width: calc(100% - 16px);
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Very small screens - ensure it fits */
+@media (max-width: 375px) {
+    .seat-map {
+        width: 100%;
+        gap: 8px;
+        margin: 20px 0;
+    }
+}
+
+/* Desktop: 4 columns */
+@media (min-width: 768px) {
+    .seat-map {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        padding: 0;
+    }
+}
+
+.seat-map.message-mode {
+    display: block;
+    max-width: 100%;
+}
+
+.seat {
+    border: 2px solid #333;
+    padding: 12px 6px;
+    text-align: center;
+    border-radius: 8px;
+    background: #f0f0f0;
+    transition: all 0.3s;
+    position: relative;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    overflow: hidden;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+/* Desktop: larger padding and min-height */
+@media (min-width: 768px) {
+    .seat {
+        padding: 20px;
+        min-height: 100px;
+    }
+}
+
+.seat.occupied {
+    background: #28a745;
+    color: white;
+}
+
+.seat.available {
+    background: #6c757d;
+    color: white;
+}
+
+.seat.user-seat {
+    background: linear-gradient(135deg, #0e163e 0%, #121c54 100%);
+    color: white;
+    border: 3px solid #0e163e;
+    box-shadow: 0 8px 24px rgba(14, 22, 62, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+    position: relative;
+}
+
+.seat-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #fbbf24;
+    color: #78350f;
+    font-size: 0.65em;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+}
+
+.seat-number {
+    font-weight: bold;
+    font-size: 0.95em;
+    line-height: 1.2;
+}
+
+.seat-details {
+    font-size: 0.75em;
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+/* Desktop: larger text */
+@media (min-width: 768px) {
+    .seat-number {
+        font-size: 1.2em;
+    }
+    
+    .seat-details {
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+}
+
+/* Map Buttons Container */
+#mapButtons {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+/* Button Base Styles - Plain Text by Default */
+#mapButtons button {
+    flex-shrink: 0;
+    white-space: nowrap;
+    position: relative;
+    background: transparent !important;
+    border: none;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    overflow: hidden;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px; /* Touch target size */
+    min-width: 120px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* Desktop: larger buttons */
+@media (min-width: 768px) {
+    #mapButtons button {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        min-width: auto;
+    }
+}
+
+/* Button Text */
+#mapButtons button span,
+#mapButtons button .button-text {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Button Background - Hidden by Default */
+#mapButtons button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background: var(--button-bg, #0e163e);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+    border-radius: 0.5rem;
+}
+
+/* Refresh Button - Background Expands from Right */
+#refreshBtn::before {
+    right: 0;
+    transform-origin: right center;
+}
+
+#refreshBtn:hover::before {
+    width: 100%;
+    transform-origin: right center;
+}
+
+/* Full Map Button - Background Expands from Left */
+#fullMapBtn::before {
+    left: 0;
+    transform-origin: left center;
+}
+
+#fullMapBtn:hover::before {
+    width: 100%;
+    transform-origin: left center;
+}
+
+/* Shadow/Glow Effect on Hover */
+#mapButtons button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3), transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.4s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#mapButtons button:hover::after {
+    width: 200%;
+    height: 200%;
+    opacity: 1;
+}
+
+#mapButtons button:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15),
+                0 0 20px var(--button-glow, rgba(14, 22, 62, 0.3));
+}
+
+#mapButtons button:hover span,
+#mapButtons button:hover .button-text {
+    transform: translateX(4px);
+}
+
+/* Specific Colors for Each Button */
+#refreshBtn {
+    color: #0e163e;
+    --button-bg: linear-gradient(135deg, #0e163e 0%, #121c54 100%);
+    --button-glow: rgba(14, 22, 62, 0.3);
+}
+
+#refreshBtn:hover {
+    color: white;
+}
+
+#fullMapBtn {
+    color: #0d9488;
+    --button-bg: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+    --button-glow: rgba(13, 148, 136, 0.3);
+}
+
+#fullMapBtn:hover {
+    color: white;
+}
+
+/* Active/Loading State - Subtle Pulse/Shimmer */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+#refreshBtn:active::before {
+    width: 100% !important;
+    background: linear-gradient(
+        90deg,
+        #0e163e 0%,
+        #121c54 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        #121c54 75%,
+        #0e163e 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+#fullMapBtn:active::before {
+    width: 100% !important;
+    background: linear-gradient(
+        90deg,
+        #0d9488 0%,
+        #14b8a6 25%,
+        rgba(255, 255, 255, 0.2) 50%,
+        #14b8a6 75%,
+        #0d9488 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Icon Positioning in Buttons */
+#mapButtons button i,
+#mapButtons button svg {
+    position: relative;
+    z-index: 2;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#mapButtons button:hover i,
+#mapButtons button:hover svg {
+    transform: translateX(4px);
+}
+
+/* Map Legend Container */
+#mapLegend {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+/* Desktop: larger gap and margin */
+@media (min-width: 768px) {
+    #mapLegend {
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+}
+
+#mapLegend > div {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Desktop: larger legend items */
+@media (min-width: 768px) {
+    #mapLegend > div {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* Loading Animation */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Hover Spin Animation with Deceleration */
+@keyframes spin-hover {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Refresh Button Icon Hover Effect */
+#refreshBtn {
+    position: relative;
+}
+
+/* Spin animation on hover only */
+#refreshBtn:hover .refresh-icon,
+#refreshBtn:hover svg,
+#refreshBtn:hover > svg,
+#refreshBtn:hover i.refresh-icon,
+#refreshBtn:hover [data-lucide="refresh-cw"] {
+    animation: spin-hover 0.8s cubic-bezier(0.165, 0.84, 0.44, 1) infinite !important;
+    transform-origin: center center !important;
+}
+
+/* No animation when not hovered */
+#refreshBtn .refresh-icon,
+#refreshBtn svg,
+#refreshBtn > svg,
+#refreshBtn i.refresh-icon,
+#refreshBtn [data-lucide="refresh-cw"] {
+    animation: none !important;
+}
+
+/* Ensure icon is properly styled for animation */
+#refreshBtn .refresh-icon,
+#refreshBtn svg:first-of-type,
+#refreshBtn > svg,
+#refreshBtn i.refresh-icon,
+#refreshBtn [data-lucide="refresh-cw"] {
+    transform-origin: center center;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* View Full Map Button Icon Hover Effect */
+#fullMapBtn {
+    position: relative;
+}
+
+/* Maximize icon smooth scale animation on hover only */
+@keyframes maximize-glow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 0.9;
+    }
+}
+
+#fullMapBtn:hover .fullmap-icon,
+#fullMapBtn:hover svg,
+#fullMapBtn:hover > svg,
+#fullMapBtn:hover i.fullmap-icon,
+#fullMapBtn:hover [data-lucide="maximize"] {
+    animation: maximize-glow 1.2s ease-in-out infinite !important;
+    transform-origin: center center !important;
+}
+
+/* No animation when not hovered */
+#fullMapBtn .fullmap-icon,
+#fullMapBtn svg,
+#fullMapBtn > svg,
+#fullMapBtn i.fullmap-icon,
+#fullMapBtn [data-lucide="maximize"] {
+    animation: none !important;
+}
+
+/* Ensure icon is properly styled */
+#fullMapBtn .fullmap-icon,
+#fullMapBtn svg:first-of-type,
+#fullMapBtn > svg,
+#fullMapBtn i.fullmap-icon,
+#fullMapBtn [data-lucide="maximize"] {
+    transform-origin: center center;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+/* Pulse Animation for User Seat */
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 8px 24px rgba(14, 22, 62, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 12px 32px rgba(14, 22, 62, 0.6);
+        transform: scale(1.02);
+    }
+}
+
+/* Mobile: reduce pulse animation for better performance */
+@media (max-width: 767px) {
+    .seat.user-seat {
+        animation: pulse 3s ease-in-out infinite;
+    }
+}
+
+/* Disable hover effects on mobile to prevent sticky states */
+@media (hover: none) and (pointer: coarse) {
+    #mapButtons button:hover::before,
+    #mapButtons button:hover::after {
+        width: 0 !important;
+        height: 0 !important;
+        opacity: 0 !important;
+    }
+    
+    #mapButtons button:hover span,
+    #mapButtons button:hover .button-text {
+        transform: none !important;
+    }
+    
+    #refreshBtn:hover .refresh-icon,
+    #refreshBtn:hover svg,
+    #fullMapBtn:hover .fullmap-icon,
+    #fullMapBtn:hover svg {
+        animation: none !important;
+        transform: none !important;
+    }
+    
+    .close-full-map-btn:hover {
+        transform: none !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    .close-full-map-btn:hover .close-icon,
+    .close-full-map-btn:hover i,
+    .close-full-map-btn:hover svg {
+        color: #0e163e !important;
+        transform: none !important;
+    }
+}
+
+/* Full Map Modal Close Button - Modern Design */
+.close-full-map-btn {
+    position: fixed !important;
+    top: 16px !important;
+    right: 16px !important;
+    width: 44px !important;
+    height: 44px !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 2px solid rgba(14, 22, 62, 0.2) !important;
+    border-radius: 50% !important;
+    cursor: pointer !important;
+    z-index: 10001 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    -webkit-tap-highlight-color: transparent !important;
+    touch-action: manipulation !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+}
+
+/* Desktop: larger close button */
+@media (min-width: 768px) {
+    .close-full-map-btn {
+        top: 24px !important;
+        right: 24px !important;
+        width: 48px !important;
+        height: 48px !important;
+    }
+}
+
+.close-full-map-btn:hover {
+    background: rgba(14, 22, 62, 0.95) !important;
+    border-color: rgba(14, 22, 62, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(14, 22, 62, 0.3) !important;
+}
+
+.close-full-map-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.close-full-map-btn .close-icon,
+.close-full-map-btn i,
+.close-full-map-btn svg {
+    width: 20px !important;
+    height: 20px !important;
+    color: #0e163e !important;
+    transition: color 0.3s ease, transform 0.3s ease !important;
+}
+
+/* Desktop: larger icon */
+@media (min-width: 768px) {
+    .close-full-map-btn .close-icon,
+    .close-full-map-btn i,
+    .close-full-map-btn svg {
+        width: 24px !important;
+        height: 24px !important;
+    }
+}
+
+.close-full-map-btn:hover .close-icon,
+.close-full-map-btn:hover i,
+.close-full-map-btn:hover svg {
+    color: white !important;
+    transform: rotate(90deg) !important;
+}
