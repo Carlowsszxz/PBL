@@ -231,61 +231,99 @@
             <div class="admin-content-grid">
 
                 <!--Advanced Search -->
-                <section class="admin-card card-fadein advanced-search-container activity-full-width">
-                    <div class="admin-card-header">
-                        <h2 class="text-lg font-semibold setup-title-color">Advanced Search</h2>
+                <section class="admin-card card-fadein advanced-search-container activity-full-width bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                    <div class="p-6">
+                        <div class="mb-6">
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Advanced Search</h2>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Filter activity logs by multiple criteria</p>
+                        </div>
+
+                        <form id="searchForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                            onsubmit="event.preventDefault(); performSearch();">
+
+                            <div class="space-y-2">
+                                <label for="searchUserName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">User Name</label>
+                                <input type="text" id="searchUserName"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors"
+                                    placeholder="e.g., Carlos Alivarvar">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchEvent" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Event Type</label>
+                                <select id="searchEvent"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors">
+                                    <option value="">All Events</option>
+                                    <option value="login">Login</option>
+                                    <option value="logout">Logout</option>
+                                    <option value="noise">Noise</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchSeat" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Seat Number</label>
+                                <input type="number" id="searchSeat" min="1" max="8"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors"
+                                    placeholder="e.g., 1, 2, 3...">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchDateFrom" class="block text-sm font-medium text-gray-700 dark:text-gray-300">From Date</label>
+                                <input type="date" id="searchDateFrom"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchDateTo" class="block text-sm font-medium text-gray-700 dark:text-gray-300">To Date</label>
+                                <input type="date" id="searchDateTo"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchRfid" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Device ID</label>
+                                <input type="text" id="searchRfid"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors"
+                                    placeholder="e.g., 93B12CDA">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchNoiseMin" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Min Noise (dB)</label>
+                                <input type="number" id="searchNoiseMin" min="0" max="100"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors"
+                                    placeholder="0">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="searchNoiseMax" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Noise (dB)</label>
+                                <input type="number" id="searchNoiseMax" min="0" max="100"
+                                    class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 outline-none transition-colors"
+                                    placeholder="100">
+                            </div>
+
+                            <div class="lg:col-span-3 flex justify-end gap-3 pt-4">
+                                <button type="button" onclick="clearSearch()"
+                                    class="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-medium transition-colors">
+                                    Clear
+                                </button>
+                                <button type="submit"
+                                    class="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors">
+                                    Search
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <form id="searchForm" class="grid md:grid-cols-3 gap-4"
-                        onsubmit="event.preventDefault(); performSearch();">
-                        <div><label for="searchUserName" class="block text-sm font-medium text-slate-700 mb-1">User
-                                Name</label><input type="text" id="searchUserName"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                placeholder="e.g., Carlos Alivarvar"></div>
-                        <div><label for="searchEvent" class="block text-sm font-medium text-slate-700 mb-1">Event
-                                Type</label><select id="searchEvent"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                                <option value="">All Events</option>
-                                <option value="login">Login</option>
-                                <option value="logout">Logout</option>
-                                <option value="noise">Noise</option>
-                            </select></div>
-                        <div><label for="searchSeat" class="block text-sm font-medium text-slate-700 mb-1">Seat
-                                Number</label><input type="number" id="searchSeat" min="1" max="8"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                placeholder="e.g., 1, 2, 3..."></div>
-                        <div><label for="searchDateFrom" class="block text-sm font-medium text-slate-700 mb-1">From
-                                Date</label><input type="date" id="searchDateFrom"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                        </div>
-                        <div><label for="searchDateTo" class="block text-sm font-medium text-slate-700 mb-1">To
-                                Date</label><input type="date" id="searchDateTo"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                        </div>
-                        <div><label for="searchRfid" class="block text-sm font-medium text-slate-700 mb-1">Device
-                                ID</label><input type="text" id="searchRfid"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                placeholder="e.g., 93B12CDA"></div>
-                        <div><label for="searchNoiseMin" class="block text-sm font-medium text-slate-700 mb-1">Min Noise
-                                (dB)</label><input type="number" id="searchNoiseMin" min="0" max="100"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                placeholder="0"></div>
-                        <div><label for="searchNoiseMax" class="block text-sm font-medium text-slate-700 mb-1">Max Noise
-                                (dB)</label><input type="number" id="searchNoiseMax" min="0" max="100"
-                                class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                placeholder="100"></div>
-                        <div class="md:col-span-3 flex gap-3 justify-end mt-2"><button type="submit"
-                                class="setup-btn px-5 py-3 rounded-xl font-semibold shadow">Search</button><button
-                                type="button" onclick="clearSearch()"
-                                class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear</button>
-                        </div>
-                    </form>
                 </section>
 
                 <!-- Logs -->
                 <section class="admin-card card-fadein logs-events-container activity-full-width">
                     <div class="admin-card-header flex items-center justify-between">
                         <h2 class="text-lg font-semibold setup-title-color">Login/Logout Events</h2>
-                        <div id="searchInfo" class="text-sm text-slate-600 hidden"></div>
+                        <div class="flex items-center gap-3">
+                            <div id="searchInfo" class="text-sm text-slate-600 hidden"></div>
+                            <button id="deleteAllLogsBtn" onclick="deleteAllLogs()" class="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-sm transition-colors duration-200 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span class="text-sm font-medium">Delete All Logs</span>
+                            </button>
+                        </div>
                     </div>
 
                     <div id="logData" class="log-data-container">Loading events...</div>

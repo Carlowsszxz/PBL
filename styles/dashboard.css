@@ -460,3 +460,149 @@ body[data-page="dashboard"] {
     color: #4b5563;
     /* gray-600 */
 }
+
+/* ===== RFID Floating Button & Panel ===== */
+
+/* Pulse animation for floating button when active */
+@keyframes rfid-pulse {
+    0%, 100% {
+        box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+    }
+    50% {
+        box-shadow: 0 10px 35px rgba(79, 70, 229, 0.5), 0 0 0 8px rgba(79, 70, 229, 0.15);
+    }
+}
+
+/* Apply pulse animation when panel is shown (checkbox checked) */
+#rfidToggle:checked ~ label {
+    animation: none;
+}
+
+/* Smooth panel slide-up animation */
+#rfidScanDisplay {
+    transform-origin: bottom left;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+    #rfidFloatingRoot {
+        bottom: 1rem;
+        left: 1rem;
+    }
+    
+    #rfidScanDisplay {
+        width: calc(100vw - 2rem);
+        max-width: 320px;
+    }
+}
+
+/* Dark Mode Styles */
+.dark {
+    background-color: #111827 !important;
+    color: #f9fafb !important;
+}
+
+.dark .bg-white\/85 {
+    background-color: rgba(31, 41, 55, 0.85) !important;
+}
+
+.dark .text-gray-900 {
+    color: #f9fafb !important;
+}
+
+.dark .text-gray-600 {
+    color: #d1d5db !important;
+}
+
+.dark .text-gray-700 {
+    color: #d1d5db !important;
+}
+
+.dark .bg-gray-50 {
+    background-color: #374151 !important;
+}
+
+.dark .border-gray-200 {
+    border-color: #4b5563 !important;
+}
+
+.dark .bg-indigo-50 {
+    background-color: rgba(49, 46, 129, 0.1) !important;
+}
+
+.dark .text-indigo-600 {
+    color: #a78bfa !important;
+}
+
+.dark .bg-red-50 {
+    background-color: rgba(153, 27, 27, 0.1) !important;
+}
+
+.dark .text-red-800 {
+    color: #fca5a5 !important;
+}
+
+.dark .bg-orange-50 {
+    background-color: rgba(154, 52, 18, 0.1) !important;
+}
+
+.dark .text-orange-800 {
+    color: #fdba74 !important;
+}
+
+.dark .quick-action-btn {
+    background: rgba(55, 65, 81, 0.95) !important;
+    color: #f9fafb !important;
+    border-color: #6b7280 !important;
+}
+
+.dark .quick-action-btn[data-color="indigo"] {
+    color: #a78bfa !important;
+    border-color: #a78bfa !important;
+}
+
+.dark .quick-action-btn[data-color="slate"] {
+    color: #cbd5e1 !important;
+    border-color: #cbd5e1 !important;
+}
+
+.dark .quick-action-btn[data-color="emerald"] {
+    color: #6ee7b7 !important;
+    border-color: #6ee7b7 !important;
+}
+
+.dark .quick-action-btn[data-color="rose"] {
+    color: #fca5a5 !important;
+    border-color: #fca5a5 !important;
+}
+
+/* Dark Mode Logo */
+.dark img[alt="University of Makati Logo"] {
+    filter: brightness(0) !important;
+}
+
+/* Dark Mode Sidebar */
+.dark .modern-sidebar {
+    background: rgba(31, 41, 55, 0.9) !important;
+    border-color: rgba(75, 85, 99, 0.6) !important;
+}
+
+/* Dark Mode Toggle Icon */
+.dark #themeToggle svg {
+    color: #000000 !important;
+}
+
+/* Ensure stat card text is white in dark mode */
+.dark #statSessionTime,
+.dark #statWeekSessions,
+.dark #statAvgLength {
+    color: #ffffff !important;
+}
+
+.dark .group\/stat .text-xs {
+    color: #ffffff !important;
+}
+
+.dark .group\/stat svg {
+    color: #ffffff !important;
+}

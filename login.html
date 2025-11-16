@@ -15,6 +15,11 @@
             rel="stylesheet">
     </noscript>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        };
+    </script>
     <link rel="stylesheet" href="styles/login.css">
     <style>
         [data-page="login"] .bg-indigo-600 {
@@ -85,6 +90,24 @@
             #burgerMenuBtn {
                 display: none !important;
             }
+        }
+
+        /* Force Change Password link to white in dark mode */
+        .dark .change-password-link {
+            color: white !important;
+        }
+
+        .dark .change-password-link:hover {
+            color: #d1d5db !important;
+        }
+
+        /* Force Sign up here link to black in dark mode */
+        .dark a[href="register.html"] {
+            color: black !important;
+        }
+
+        .dark a[href="register.html"]:hover {
+            color: #6b7280 !important;
         }
     </style>
 </head>
@@ -160,15 +183,15 @@
         </a>
     </div>
 
-    <main class="main-with-sidebar flex-1 flex items-center justify-center py-12 px-6">
-        <div id="fade-content" class="w-full max-w-6xl fade-content">
-            <div id="glassmorphic-container" class="glassmorphic-container bg-white rounded-2xl shadow overflow-hidden">
+    <main class="main-with-sidebar flex-1 flex items-center justify-center py-6 px-4 md:py-12 md:px-6">
+                    <div id="fade-content" class="w-full max-w-4xl md:max-w-6xl fade-content">
+            <div id="glassmorphic-container" class="glassmorphic-container bg-white dark:bg-gray-900 rounded-2xl shadow overflow-hidden">
                 <!-- LOGIN FORM -->
                 <div id="loginForm" class="grid grid-cols-1 md:grid-cols-2">
                     <!-- Left: Login form -->
-                    <div class="p-8">
-                        <h1 class="text-4xl font-bold mb-2">Welcome Back</h1>
-                        <p class="text-sm text-slate-500 mb-6">Sign in to your account to continue</p>
+                    <div class="p-4 md:p-8">
+                        <h1 class="text-4xl font-bold mb-2 dark:text-white">Welcome Back</h1>
+                        <p class="text-sm text-slate-500 mb-6 dark:text-gray-300">Sign in to your account to continue</p>
 
                         <!-- Status Messages -->
                         <div id="login-error"
@@ -180,21 +203,21 @@
 
                         <form id="login" class="space-y-4" novalidate>
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1 dark:text-white">Email Address</label>
                                 <input id="email" type="email" autocomplete="email"
                                     class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
                                     placeholder="your.email@umak.edu.ph" required />
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                                <label class="block text-sm font-medium text-slate-700 mb-1 dark:text-white">Password</label>
                                 <input id="password" type="password" autocomplete="current-password"
                                     class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
                                     placeholder="Enter your password" required />
                             </div>
 
                             <div class="flex items-center justify-between">
-                                <label class="flex items-center gap-2 text-sm">
+                                <label class="flex items-center gap-2 text-sm dark:text-white">
                                     <input type="checkbox" class="rounded" />
                                     <span>Remember me</span>
                                 </label>
@@ -208,24 +231,24 @@
                             </div>
                             <div class="mt-4 text-center">
                                 <a href="change-pass.html"
-                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 text-sm font-medium">
-                                    <i data-lucide="lock" class="w-4 h-4"></i>
+                                    class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 dark:text-white dark:hover:text-gray-300 text-sm font-medium change-password-link">
+                                    <i data-lucide="lock" class="w-4 h-4 dark:text-white"></i>
                                     Change Password
                                 </a>
                             </div>
                         </form>
 
                         <div class="mt-6 text-center">
-                            <p class="text-sm text-slate-500">
+                            <p class="text-sm text-slate-500 dark:text-gray-300">
                                 Don't have an account?
-                                <a href="register.html" class="text-indigo-600 hover:text-indigo-700 font-medium">Sign
+                                <a href="register.html" class="text-indigo-600 hover:text-indigo-700 dark:text-black dark:hover:text-gray-300 font-medium">Sign
                                     up here</a>
                             </p>
                         </div>
                     </div>
 
                     <!-- Right: Dynamic wallpaper panel -->
-                    <div class="relative h-full min-h-[360px]">
+                    <div class="relative h-full min-h-[280px] md:min-h-[360px]">
                         <div
                             class="absolute inset-0 overflow-hidden rounded-none md:rounded-l-2xl bg-gradient-to-br from-blue-500 to-purple-600">
                             <!-- Slideshow images container -->
@@ -233,7 +256,7 @@
                             <!-- Tint overlay above images -->
                             <div class="absolute inset-0 bg-black/20"></div>
                         </div>
-                        <div class="relative z-[1] h-full flex items-end justify-between p-6">
+                        <div class="relative z-[1] h-full flex items-end justify-between p-4 md:p-6">
                             <div class="text-white drop-shadow-md">
                                 <h2 class="text-xl font-semibold !text-white">University of Makati</h2>
                                 <p class="text-sm opacity-90">Noise Comfort Index</p>
@@ -250,12 +273,21 @@
         </div>
     </main>
 
-    <footer class="footer-glass py-4 text-center text-sm">
+    <footer class="footer-glass py-4 text-center text-sm dark:text-black">
         <p>University of Makati - Noise Comfort Index</p>
     </footer>
 
     <script src="https://unpkg.com/lucide@latest" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Dark mode functionality
+        // Load saved theme or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
     <script src="scripts/login-ui.js"></script>
     <script src="scripts/login.js"></script>
 </body>

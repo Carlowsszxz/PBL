@@ -202,31 +202,38 @@
     margin-top: 8px;
     background: white;
     font-size: 0.875rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
 }
 
 .logs-table thead {
-    background: #333;
-    color: white;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: #374151;
 }
 
 .logs-table th {
-    padding: 8px 10px;
+    padding: 12px 16px;
     text-align: left;
     font-weight: 600;
-    font-size: 0.813rem;
+    font-size: 0.875rem;
     white-space: nowrap;
+    border-bottom: 1px solid #d1d5db;
 }
 
 .logs-table td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.813rem;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.875rem;
     word-wrap: break-word;
     max-width: 200px;
+    vertical-align: middle;
 }
 
 .logs-table tbody tr:hover {
-    background: #f5f5f5;
+    background: #f9fafb;
+    transition: background-color 0.15s ease;
 }
 
 .logs-table tbody tr:last-child td {
@@ -234,18 +241,40 @@
 }
 
 .event-login {
-    color: #007bff;
-    font-weight: bold;
+    color: #059669;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #ecfdf5;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .event-logout {
-    color: #dc3545;
-    font-weight: bold;
+    color: #dc2626;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #fef2f2;
+    border-radius: 4px;
+    display: inline-block;
 }
 
 .event-noise {
-    color: #ffc107;
-    font-weight: bold;
+    color: #d97706;
+    font-weight: 600;
+    padding: 4px 8px;
+    background: #fffbeb;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.delete-btn {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .hidden {

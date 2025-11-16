@@ -175,12 +175,14 @@ async function viewAllReports(filters = null, sortColumn = 'created_at', sortDir
             html += '</select>';
             html += '<button class="btn-view" onclick="viewReportDetails(\'' + reportId.replace(/'/g, "\\'") + '\')">View</button>';
             html += '<button class="btn-reply" onclick="replyToReport(\'' + reportId.replace(/'/g, "\\'") + '\')">' + (report.admin_reply ? 'Edit Reply' : 'Reply') + '</button>';
+            html += '<button onclick="deleteReport(\'' + reportId.replace(/'/g, "\\'") + '\')" class="px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors duration-200 flex items-center gap-1 ml-2"><i data-lucide="trash-2" class="w-3 h-3"></i><span class="text-xs">Delete</span></button>';
             html += '</div></td>';
             html += '</tr>';
         });
         
         html += '</tbody></table>';
         document.getElementById('reportsData').innerHTML = html;
+        if (window.lucide) lucide.createIcons();
     } catch (err) {
         document.getElementById('reportsData').innerHTML = '<p style="color:red;padding:20px;">Error: ' + err.message + '</p>';
     }
@@ -725,5 +727,36 @@ async function logout() {
     
     // Redirect to login
     window.location.href = 'login.html';
+}
+
+// Delete all reports function
+async function deleteAllReports() {
+    if (!confirm('Are you sure you want to delete all reports? This action cannot be undone.')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('student_reports').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+        if (error) throw error;
+        alert('All reports deleted successfully.');
+        viewAllReports(); // Reload the reports
+    } catch (err) {
+        console.error('Error deleting all reports:', err);
+        alert('Error deleting reports: ' + err.message);
+    }
+}
+
+// Delete individual report function
+async function deleteReport(reportId) {
+    if (!confirm('Are you sure you want to delete this report?')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('student_reports').delete().eq('id', reportId);
+        if (error) throw error;
+        viewAllReports(); // Reload the reports
+    } catch (err) {
+        console.error('Error deleting report:', err);
+        alert('Error deleting report: ' + err.message);
+    }
 }
 

@@ -271,21 +271,27 @@ function renderNoiseAlertsUI(rows, activeTablesSet) {
         const tableId = row.table_id;
         const db = Math.round(row.decibel || 0);
         const active = activeTablesSet.has(tableId);
-        const color = active ? 'bg-red-50 border-red-300' : (db >= Math.max(55, noiseAlertThreshold - 15) ? 'bg-yellow-50 border-yellow-300' : 'bg-green-50 border-green-300');
-        const icon = active ? '⚠️' : (db >= Math.max(55, noiseAlertThreshold - 15) ? '🟡' : '🟢');
+        const color = active ? 'bg-red-50 border-red-200 hover:bg-red-100' : (db >= Math.max(55, noiseAlertThreshold - 15) ? 'bg-yellow-50 border-yellow-200 hover:bg-yellow-100' : 'bg-green-50 border-green-200 hover:bg-green-100');
+        const icon = active ? 'alert-triangle' : (db >= Math.max(55, noiseAlertThreshold - 15) ? 'alert-circle' : 'check-circle');
+        const iconColor = active ? 'text-red-500' : (db >= Math.max(55, noiseAlertThreshold - 15) ? 'text-yellow-500' : 'text-green-500');
         const pulse = active ? 'animate-pulse' : '';
         const title = formatTableName(tableId);
         const msg = active ? 'Too noisy' : (db >= Math.max(55, noiseAlertThreshold - 15) ? 'Getting loud' : 'Normal');
         return `
-            <div class="p-3 border rounded-lg ${color} ${pulse}">
+            <div class="bg-white dark:bg-gray-800 border rounded-lg p-4 transition-all duration-200 hover:shadow-md ${color} ${pulse}">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-lg">${icon}</span>
-                        <div class="font-semibold">${title}</div>
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="${icon}" class="w-5 h-5 ${iconColor}"></i>
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-white">${title}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">${msg} • Threshold ${noiseAlertThreshold} dB</div>
+                        </div>
                     </div>
-                    <div class="text-sm font-medium">${db} dB</div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-gray-900 dark:text-white">${db}</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">dB</div>
+                    </div>
                 </div>
-                <div class="text-xs text-gray-600 mt-1">${msg} • Threshold ${noiseAlertThreshold} dB</div>
             </div>
         `;
     });
@@ -295,6 +301,7 @@ function renderNoiseAlertsUI(rows, activeTablesSet) {
     const anyActive = activeTablesSet.size > 0;
     empty.classList.toggle('hidden', anyActive || rows.length > 0);
     if (status) status.textContent = 'Updated ' + new Date().toLocaleTimeString();
+    if (window.lucide) lucide.createIcons();
 }
 
 async function pollNoiseAlerts() {
@@ -378,18 +385,23 @@ async function loadNoiseAlertHistory() {
             const title = formatTableName(row.table_name || '');
             const db = row.decibel != null ? Math.round(row.decibel) : '—';
             return `
-                <div class="p-3 border rounded-lg bg-white flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span>🔔</span>
-                        <div>
-                            <div class="text-sm font-medium">${title} exceeded threshold</div>
-                            <div class="text-xs text-gray-500">${when}</div>
+                <div class="flex gap-4 p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
                         </div>
                     </div>
-                    <div class="text-sm font-semibold">${db} dB</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-sm font-semibold text-gray-900 dark:text-white">${title} exceeded threshold</h4>
+                            <span class="text-sm font-bold text-red-600 dark:text-red-400">${db} dB</span>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">${when}</p>
+                    </div>
                 </div>
             `;
         }).join('');
+        if (window.lucide) lucide.createIcons();
     } catch (err) {
         container.innerHTML = `<div class="text-sm text-red-600">Error loading alert history: ${escapeHtml(err.message)}</div>`;
     }
@@ -623,28 +635,190 @@ async function refreshStatisticsReport() {
             problemsChart.update('none');
         }
 
-        // Insights
+        // Generate insights in new card format
         const insightsEl = document.getElementById('statsInsights');
+
+        // Calculate peak hour (moved outside for scope)
+        const peakHour = hours.reduce((best, v, i) => v > best.v ? { i, v } : best, { i: 0, v: 0 });
+
+        // Calculate average session time (moved outside for scope)
+        let totalSessionTime = 0;
+        let sessionCount = 0;
+        const userSessions = {};
+
+        for (const row of activity) {
+            if (!userSessions[row.user_email]) {
+                userSessions[row.user_email] = [];
+            }
+            userSessions[row.user_email].push(row);
+        }
+
+        for (const userEvents of Object.values(userSessions)) {
+            const sortedEvents = userEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            let loginTime = null;
+
+            for (const event of sortedEvents) {
+                if ((event.event === 'login' || event.event === 'transfer') && !loginTime) {
+                    loginTime = new Date(event.created_at);
+                } else if (event.event === 'logout' && loginTime) {
+                    const logoutTime = new Date(event.created_at);
+                    const sessionDuration = (logoutTime - loginTime) / (1000 * 60); // minutes
+                    if (sessionDuration > 0 && sessionDuration < 480) { // reasonable session (under 8 hours)
+                        totalSessionTime += sessionDuration;
+                        sessionCount++;
+                    }
+                    loginTime = null;
+                }
+            }
+        }
+
+        const avgSessionMinutes = sessionCount > 0 ? Math.round(totalSessionTime / sessionCount) : 0;
+
         if (insightsEl) {
             const insights = [];
+
+            // Calculate peak hour first (now using the outer one)
+            // const peakHour = hours.reduce((best, v, i) => v > best.v ? { i, v } : best, { i: 0, v: 0 });
+
+            // Calculate average session time (moved up)
+            let totalSessionTime = 0;
+            let sessionCount = 0;
+            const userSessions = {};
+
+            for (const row of activity) {
+                if (!userSessions[row.user_email]) {
+                    userSessions[row.user_email] = [];
+                }
+                userSessions[row.user_email].push(row);
+            }
+
+            for (const userEvents of Object.values(userSessions)) {
+                const sortedEvents = userEvents.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                let loginTime = null;
+
+                for (const event of sortedEvents) {
+                    if ((event.event === 'login' || event.event === 'transfer') && !loginTime) {
+                        loginTime = new Date(event.created_at);
+                    } else if (event.event === 'logout' && loginTime) {
+                        const logoutTime = new Date(event.created_at);
+                        const sessionDuration = (logoutTime - loginTime) / (1000 * 60); // minutes
+                        if (sessionDuration > 0 && sessionDuration < 480) { // reasonable session (under 8 hours)
+                            totalSessionTime += sessionDuration;
+                            sessionCount++;
+                        }
+                        loginTime = null;
+                    }
+                }
+            }
+
+            const avgSessionMinutes = sessionCount > 0 ? Math.round(totalSessionTime / sessionCount) : 0;
+
+            // Primary insights
             if (topEntries.length > 0) {
                 const [t, c] = topEntries[0];
-                insights.push(`${formatTablePretty(t)} is most active (${c} login${c !== 1 ? 's' : ''}).`);
+                insights.push({
+                    type: 'success',
+                    title: 'Most Popular Table',
+                    description: `${formatTablePretty(t)} leads with ${c} login${c !== 1 ? 's' : ''}`
+                });
             } else {
-                insights.push('No login activity in the selected range.');
+                insights.push({
+                    type: 'warning',
+                    title: 'No Activity Detected',
+                    description: 'Check date filters or system connectivity'
+                });
             }
-            const peakHour = hours.reduce((best, v, i) => v > best.v ? { i, v } : best, { i: 0, v: 0 });
+
             if (peakHour.v > 0) {
-                insights.push(`Peak hour: ${String(peakHour.i).padStart(2, '0')}:00 with ${peakHour.v} login${peakHour.v !== 1 ? 's' : ''}.`);
+                insights.push({
+                    type: 'info',
+                    title: 'Peak Usage Time',
+                    description: `${String(peakHour.i).padStart(2, '0')}:00 with ${peakHour.v} login${peakHour.v !== 1 ? 's' : ''}`
+                });
             }
+
             if (problemLabels.length > 0) {
                 const sortedP = [...problemLabels].sort((a, b) => (problemCounts[b] || 0) - (problemCounts[a] || 0));
-                insights.push(`Top issue: ${sortedP[0]} (${problemCounts[sortedP[0]]}).`);
+                const topIssue = sortedP[0];
+                const topCount = problemCounts[topIssue];
+                insights.push({
+                    type: 'alert',
+                    title: 'Top Issue Type',
+                    description: `${topIssue.charAt(0).toUpperCase() + topIssue.slice(1)} (${topCount} report${topCount !== 1 ? 's' : ''})`
+                });
             } else {
-                insights.push('No student reports in the selected range.');
+                insights.push({
+                    type: 'success',
+                    title: 'No Issues Reported',
+                    description: 'Great! No student problems in this period'
+                });
             }
-            insightsEl.innerHTML = insights.map(i => `<li>${escapeHtml(i)}</li>`).join('');
+
+            // Add session insights if available
+            if (sessionCount > 0) {
+                insights.push({
+                    type: 'info',
+                    title: 'Average Session',
+                    description: `${avgSessionMinutes} minutes per user session`
+                });
+            }
+
+            // Generate HTML for insights cards
+            const insightsHtml = insights.map(insight => {
+                const iconColors = {
+                    success: 'text-green-500',
+                    warning: 'text-yellow-500',
+                    info: 'text-blue-500',
+                    alert: 'text-red-500'
+                };
+
+                const bgColors = {
+                    success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
+                    warning: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800',
+                    info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+                    alert: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                };
+
+                return `
+                    <div class="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-gray-700 ${bgColors[insight.type] || bgColors.info}">
+                        <div class="w-2 h-2 ${iconColors[insight.type] || 'text-blue-500'} rounded-full mt-2 flex-shrink-0"></div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-white">${escapeHtml(insight.title)}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">${escapeHtml(insight.description)}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            insightsEl.innerHTML = insightsHtml;
         }
+
+        // Update metric cards
+        const totalLogins = activity.filter(row => row.event === 'login' || row.event === 'transfer').length;
+        const totalReportsCount = reports.length;
+
+        // Calculate peak hour (moved up)
+        // const peakHour = hours.reduce((best, v, i) => v > best.v ? { i, v } : best, { i: 0, v: 0 });
+        const peakHourStr = peakHour.v > 0 ? `${String(peakHour.i).padStart(2, '0')}:00` : '--:--';
+
+        // Calculate average session time (moved up)
+        // let totalSessionTime = 0;
+        // let sessionCount = 0;
+        // const userSessions = {};
+        // ... (session calculation code moved up)
+        // const avgSessionMinutes = sessionCount > 0 ? Math.round(totalSessionTime / sessionCount) : 0;
+        const avgSessionStr = avgSessionMinutes > 0 ? `${avgSessionMinutes}m` : '--m';
+
+        // Update metric elements
+        const totalLoginsEl = document.getElementById('totalLoginsMetric');
+        const peakHourEl = document.getElementById('peakHourMetric');
+        const totalReportsEl = document.getElementById('totalReportsMetric');
+        const avgSessionEl = document.getElementById('avgSessionMetric');
+
+        if (totalLoginsEl) totalLoginsEl.textContent = totalLogins.toLocaleString();
+        if (peakHourEl) peakHourEl.textContent = peakHourStr;
+        if (totalReportsEl) totalReportsEl.textContent = totalReportsCount.toLocaleString();
+        if (avgSessionEl) avgSessionEl.textContent = avgSessionStr;
 
         const lastEl = document.getElementById('statsLastUpdated');
         if (lastEl) lastEl.textContent = 'Updated ' + new Date().toLocaleTimeString();
@@ -1544,6 +1718,12 @@ async function viewOccupancy() {
 
     const selectedTable = tableSelect.value;
 
+    // Handle "Show All Tables" option
+    if (selectedTable === 'all-tables') {
+        await viewAllTablesOccupancy();
+        return;
+    }
+
     // Check if it's a future expansion table
     const isFutureExpansion = selectedTable.startsWith('table-') &&
         (selectedTable === 'table-3' || selectedTable === 'table-4');
@@ -1627,12 +1807,39 @@ async function viewOccupancy() {
             return;
         }
 
-        let html = '<table border="1" style="width:100%;border-collapse:collapse;margin-top:8px;font-size:0.875rem;"><thead><tr style="background:#333;color:white;"><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">Seat</th><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">Status</th><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">RFID UID</th><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">Type</th><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">Occupied At</th><th style="padding:6px 8px;font-size:0.813rem;font-weight:600;">Actions</th></tr></thead><tbody>';
+        let html = `
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Seat</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">RFID UID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Occupied At</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">`;
 
         filteredSeats.forEach(seat => {
             const seatId = seat.id || (selectedTable + '-seat-' + seat.seat_number);
             const isAdminUse = seat.occupied_by === 'ADMIN';
-            const typeLabel = seat.is_occupied ? (isAdminUse ? '🔧 Admin' : '👤 Student') : '-';
+
+            // Status badge
+            const statusBadge = seat.is_occupied
+                ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>Occupied</span>'
+                : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>Available</span>';
+
+            // Type badge
+            let typeBadge = '-';
+            if (seat.is_occupied) {
+                if (isAdminUse) {
+                    typeBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"><i data-lucide="settings" class="w-3 h-3 mr-1"></i>Admin</span>';
+                } else {
+                    typeBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"><i data-lucide="user" class="w-3 h-3 mr-1"></i>Student</span>';
+                }
+            }
 
             // Determine what to display in RFID UID column
             let rfidDisplay = '-';
@@ -1648,36 +1855,293 @@ async function viewOccupancy() {
                 }
             }
 
-            html += '<tr style="border-bottom:1px solid #ddd;">';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">' + tableName + ' - Seat ' + seat.seat_number + '</td>';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">' + (seat.is_occupied ? '<span style="color:red;font-weight:bold;">🔴 Occupied</span>' : '<span style="color:green;font-weight:bold;">🟢 Available</span>') + '</td>';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">' + rfidDisplay + '</td>';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">' + typeLabel + '</td>';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">' + (seat.occupied_at ? new Date(seat.occupied_at).toLocaleString() : '-') + '</td>';
-            html += '<td style="padding:6px 8px;font-size:0.813rem;">';
-
+            // Action buttons
+            let actionButtons = '';
             if (seat.is_occupied) {
-                html += '<button onclick="toggleSeatOccupancy(\'' + selectedTable + '\', ' + seat.seat_number + ', false, \'' + seatId + '\')" class="danger" style="background:#dc3545;color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:0.75rem;margin-right:4px;">Free Seat</button>';
+                actionButtons = `
+                    <button onclick="toggleSeatOccupancy('${selectedTable}', ${seat.seat_number}, false, '${seatId}')"
+                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors mr-2">
+                        <i data-lucide="log-out" class="w-3 h-3 mr-1"></i>
+                        Free Seat
+                    </button>`;
 
                 // Add "Move User" button for occupied seats
                 if (seat.occupied_by && seat.occupied_by !== 'ADMIN') {
-                    html += '<button onclick="showMoveUserDialog(\'' + selectedTable + '\', ' + seat.seat_number + ', \'' + escapeHtml(seat.occupied_by) + '\')" style="background:#007bff;color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:0.75rem;">Move User</button>';
+                    actionButtons += `
+                        <button onclick="showMoveUserDialog('${selectedTable}', ${seat.seat_number}, '${escapeHtml(seat.occupied_by)}')"
+                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            <i data-lucide="move" class="w-3 h-3 mr-1"></i>
+                            Move User
+                        </button>`;
                 }
             } else {
-                html += '<button onclick="openAssignModal(&quot;' + selectedTable + '&quot;, ' + seat.seat_number + ')" style="background:#667eea;color:white;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:0.75rem;font-weight:600;">👤 Assign Student</button>';
+                actionButtons = `
+                    <button onclick="openAssignModal('${selectedTable}', ${seat.seat_number})"
+                        class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        <i data-lucide="user-plus" class="w-3 h-3 mr-1"></i>
+                        Assign Student
+                    </button>`;
             }
 
-            html += '</td>';
-            html += '</tr>';
+            html += `
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                ${tableName} - Seat ${seat.seat_number}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                ${statusBadge}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 font-mono">
+                                ${rfidDisplay}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                ${typeBadge}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                ${seat.occupied_at ? new Date(seat.occupied_at).toLocaleString() : '-'}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                ${actionButtons}
+                            </td>
+                        </tr>`;
         });
 
-        html += '</tbody></table>';
+        html += `
+                    </tbody>
+                </table>
+            </div>`;
         occupancyDataDiv.innerHTML = html;
+
+        // Initialize Lucide icons for the new table
+        if (window.lucide) lucide.createIcons();
     } catch (err) {
         console.error('Error loading occupancy:', err);
         occupancyDataDiv.innerHTML =
             '<div style="padding:20px;background:#f8d7da;border-radius:5px;border:1px solid #f5c6cb;">' +
             '<p style="color:#721c24;margin:0;">Error loading occupancy data: ' + err.message + '</p>' +
+            '</div>';
+    }
+}
+
+async function viewAllTablesOccupancy() {
+    const occupancyDataDiv = document.getElementById('occupancyData');
+
+    try {
+        // Get all available tables (excluding future expansion)
+        const availableTables = ['table-1', 'table-2'];
+
+        // Fetch data for all tables
+        const allSeatsPromises = availableTables.map(tableId =>
+            supabase
+                .from('occupancy')
+                .select('*')
+                .eq('table_id', tableId)
+                .order('seat_number', { ascending: true })
+        );
+
+        const allSeatsResults = await Promise.all(allSeatsPromises);
+
+        // Check for errors
+        const errors = allSeatsResults.filter(result => result.error);
+        if (errors.length > 0) {
+            throw new Error('Failed to load some table data');
+        }
+
+        // Combine all seats data
+        const allSeatsData = {};
+        availableTables.forEach((tableId, index) => {
+            allSeatsData[tableId] = allSeatsResults[index].data || [];
+        });
+
+        // Get all occupied emails across all tables
+        const allOccupiedEmails = [];
+        Object.values(allSeatsData).forEach(seats => {
+            seats.forEach(seat => {
+                if (seat.is_occupied && seat.occupied_by && seat.occupied_by !== 'ADMIN' && !allOccupiedEmails.includes(seat.occupied_by)) {
+                    allOccupiedEmails.push(seat.occupied_by);
+                }
+            });
+        });
+
+        // Fetch RFID data for all occupied seats
+        let rfidMap = {};
+        if (allOccupiedEmails.length > 0) {
+            const { data: users, error: usersError } = await supabase
+                .from('users')
+                .select('email, id')
+                .in('email', allOccupiedEmails);
+
+            if (!usersError && users) {
+                const userIds = users.map(u => u.id);
+                const { data: rfidCards, error: rfidError } = await supabase
+                    .from('rfid_cards')
+                    .select('user_id, rfid_uid')
+                    .in('user_id', userIds);
+
+                if (!rfidError && rfidCards) {
+                    const rfidByUserId = {};
+                    rfidCards.forEach(card => {
+                        rfidByUserId[card.user_id] = card.rfid_uid;
+                    });
+
+                    users.forEach(user => {
+                        if (rfidByUserId[user.id]) {
+                            rfidMap[user.email] = rfidByUserId[user.id];
+                        }
+                    });
+                }
+            }
+        }
+
+        // Build HTML for all tables
+        let html = '<div class="space-y-8">';
+
+        availableTables.forEach(tableId => {
+            const seats = allSeatsData[tableId];
+            const tableName = tableId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+            // Apply current filter
+            let filteredSeats = seats;
+            if (typeof currentFilter !== 'undefined' && currentFilter !== 'all') {
+                filteredSeats = seats.filter(seat => {
+                    if (currentFilter === 'available') return !seat.is_occupied;
+                    if (currentFilter === 'student') return seat.is_occupied && seat.occupied_by !== 'ADMIN';
+                    if (currentFilter === 'admin') return seat.is_occupied && seat.occupied_by === 'ADMIN';
+                    return true;
+                });
+            }
+
+            if (filteredSeats.length === 0) {
+                html += `
+                    <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <i data-lucide="table" class="w-5 h-5 text-emerald-500"></i>
+                            ${tableName}
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-center py-8">No seats match the current filter.</p>
+                    </div>`;
+                return;
+            }
+
+            html += `
+                <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="table" class="w-5 h-5 text-emerald-500"></i>
+                        ${tableName} (${filteredSeats.length} seats)
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-white dark:bg-gray-900">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Seat</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">RFID UID</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Occupied At</th>
+                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">`;
+
+            filteredSeats.forEach(seat => {
+                const seatId = seat.id || (tableId + '-seat-' + seat.seat_number);
+                const isAdminUse = seat.occupied_by === 'ADMIN';
+
+                // Status badge
+                const statusBadge = seat.is_occupied
+                    ? '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"><i data-lucide="x-circle" class="w-3 h-3 mr-1"></i>Occupied</span>'
+                    : '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"><i data-lucide="check-circle" class="w-3 h-3 mr-1"></i>Available</span>';
+
+                // Type badge
+                let typeBadge = '-';
+                if (seat.is_occupied) {
+                    if (isAdminUse) {
+                        typeBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"><i data-lucide="settings" class="w-3 h-3 mr-1"></i>Admin</span>';
+                    } else {
+                        typeBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"><i data-lucide="user" class="w-3 h-3 mr-1"></i>Student</span>';
+                    }
+                }
+
+                // RFID display
+                let rfidDisplay = '-';
+                if (seat.is_occupied) {
+                    if (isAdminUse) {
+                        rfidDisplay = '-';
+                    } else if (rfidMap[seat.occupied_by]) {
+                        rfidDisplay = escapeHtml(rfidMap[seat.occupied_by]);
+                    } else {
+                        rfidDisplay = '-';
+                    }
+                }
+
+                // Action buttons
+                let actionButtons = '';
+                if (seat.is_occupied) {
+                    actionButtons = `
+                        <button onclick="toggleSeatOccupancy('${tableId}', ${seat.seat_number}, false, '${seatId}')"
+                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors mr-2">
+                            <i data-lucide="log-out" class="w-3 h-3 mr-1"></i>
+                            Free Seat
+                        </button>`;
+
+                    if (seat.occupied_by && seat.occupied_by !== 'ADMIN') {
+                        actionButtons += `
+                            <button onclick="showMoveUserDialog('${tableId}', ${seat.seat_number}, '${escapeHtml(seat.occupied_by)}')"
+                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                                <i data-lucide="move" class="w-3 h-3 mr-1"></i>
+                                Move User
+                            </button>`;
+                    }
+                } else {
+                    actionButtons = `
+                        <button onclick="openAssignModal('${tableId}', ${seat.seat_number})"
+                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            <i data-lucide="user-plus" class="w-3 h-3 mr-1"></i>
+                            Assign Student
+                        </button>`;
+                }
+
+                html += `
+                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    Seat ${seat.seat_number}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    ${statusBadge}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 font-mono">
+                                    ${rfidDisplay}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    ${typeBadge}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                                    ${seat.occupied_at ? new Date(seat.occupied_at).toLocaleString() : '-'}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                    ${actionButtons}
+                                </td>
+                            </tr>`;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        });
+
+        html += '</div>';
+        occupancyDataDiv.innerHTML = html;
+
+        // Initialize Lucide icons
+        if (window.lucide) lucide.createIcons();
+
+    } catch (err) {
+        console.error('Error loading all tables occupancy:', err);
+        occupancyDataDiv.innerHTML =
+            '<div style="padding:20px;background:#f8d7da;border-radius:5px;border:1px solid #f5c6cb;">' +
+            '<p style="color:#721c24;margin:0;">Error loading occupancy data for all tables: ' + err.message + '</p>' +
             '</div>';
     }
 }
@@ -2243,19 +2707,31 @@ function updateRecentAssignmentsUI() {
         const tableName = assignment.tableId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
         const time = new Date(assignment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+        const typeIcon = assignment.mode === 'student' ? 'user' : 'settings';
+        const typeLabel = assignment.mode === 'student' ? 'Student' : 'Admin';
+        const typeColor = assignment.mode === 'student' ? 'purple' : 'blue';
+
         html += `
-            <div class="recent-assignment-item">
-                <div class="recent-assignment-info">
-                    <div class="recent-assignment-student">${escapeHtml(assignment.student)}</div>
-                    <div class="recent-assignment-seat">${tableName} - Seat ${assignment.seatNumber}</div>
-                    <div class="recent-assignment-time">${time}</div>
+            <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div class="flex-1">
+                    <div class="font-medium text-gray-900 dark:text-white">${escapeHtml(assignment.student)}</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">${tableName} - Seat ${assignment.seatNumber}</div>
+                    <div class="text-xs text-gray-500 dark:text-gray-500">${time}</div>
                 </div>
-                <div class="recent-assignment-type ${assignment.mode}">${assignment.mode === 'student' ? '👤 Student' : '🔧 Admin'}</div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${typeColor}-100 text-${typeColor}-800 dark:bg-${typeColor}-900 dark:text-${typeColor}-200">
+                        <i data-lucide="${typeIcon}" class="w-3 h-3 mr-1"></i>
+                        ${typeLabel}
+                    </span>
+                </div>
             </div>
         `;
     });
 
     listDiv.innerHTML = html;
+
+    // Initialize Lucide icons for recent assignments
+    if (window.lucide) lucide.createIcons();
 }
 
 // Clear recent assignments
@@ -2336,60 +2812,59 @@ async function viewNoiseLevel() {
         const percentage = Math.min(Math.round((decibel / maxDb) * 100), 100);
 
         // Determine color and status based on thresholds
-        let gaugeClass = 'level-safe';
-        let statusBadge = '<span class="noise-status-badge safe">Normal</span>';
+        let gaugeClass = 'bg-green-500';
+        let statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Safe</span>';
         let statusColor = '#10b981';
 
         if (decibel >= 81) {
-            gaugeClass = 'level-alert';
-            statusBadge = '<span class="noise-status-badge alert">Alert</span>';
+            gaugeClass = 'bg-red-500';
+            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Alert</span>';
             statusColor = '#ef4444';
         } else if (decibel >= 61) {
-            gaugeClass = 'level-warning';
-            statusBadge = '<span class="noise-status-badge warning">Caution</span>';
+            gaugeClass = 'bg-yellow-500';
+            statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Caution</span>';
             statusColor = '#f59e0b';
         }
 
         noiseDataDiv.innerHTML =
-            '<div class="noise-gauge-container">' +
-            '  <div class="noise-gauge-header">' +
+            '<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">' +
+            '  <div class="flex items-center justify-between mb-4">' +
             '    <div>' +
-            '      <h3 style="margin:0 0 4px 0;color:#1f2937;font-size:1.125rem;">' + tableName + '</h3>' +
-            '      <div class="noise-db-display">' +
-            '        <span style="color:' + statusColor + ';">' + decibel + '</span>' +
-            '        <span class="noise-db-unit">dB</span>' +
+            '      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">' + tableName + '</h3>' +
+            '      <div class="flex items-baseline gap-1 mt-1">' +
+            '        <span class="text-3xl font-bold" style="color:' + statusColor + ';">' + decibel + '</span>' +
+            '        <span class="text-lg text-gray-500 dark:text-gray-400">dB</span>' +
             '      </div>' +
             '    </div>' +
             '    <div>' + statusBadge + '</div>' +
             '  </div>' +
 
-            '  <div class="noise-gauge-bar-wrapper" role="progressbar" aria-valuenow="' + decibel + '" aria-valuemin="0" aria-valuemax="' + maxDb + '" aria-label="Noise level">' +
-            '    <div class="noise-gauge-bar ' + gaugeClass + '" style="width:' + percentage + '%;" data-show-bar="true">' +
-            '      <span class="noise-gauge-bar-label">' + percentage + '%</span>' +
+            '  <div class="mb-4">' +
+            '    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">' +
+            '      <div class="' + gaugeClass + ' h-4 rounded-full transition-all duration-300 ease-out" style="width:' + percentage + '%;"></div>' +
+            '    </div>' +
+            '    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">' +
+            '      <span>0 dB</span>' +
+            '      <span class="text-green-600">≤60 Safe</span>' +
+            '      <span class="text-yellow-600">61-80 Caution</span>' +
+            '      <span class="text-red-600">≥81 Alert</span>' +
+            '      <span>100 dB</span>' +
             '    </div>' +
             '  </div>' +
 
-            '  <div class="noise-gauge-labels">' +
-            '    <span>0 dB</span>' +
-            '    <span style="color:#10b981;">≤60 Safe</span>' +
-            '    <span style="color:#f59e0b;">61-80 Caution</span>' +
-            '    <span style="color:#ef4444;">≥81 Alert</span>' +
-            '    <span>' + maxDb + ' dB</span>' +
-            '  </div>' +
-
-            '  <div class="noise-info-grid">' +
-            '    <div class="noise-info-item">' +
-            '      <div class="noise-info-label">Status</div>' +
-            '      <div class="noise-info-value" style="color:' + statusColor + ';">' +
+            '  <div class="grid grid-cols-3 gap-4 text-center">' +
+            '    <div>' +
+            '      <div class="text-xs text-gray-500 dark:text-gray-400">Status</div>' +
+            '      <div class="text-sm font-medium" style="color:' + statusColor + ';">' +
             (decibel <= 60 ? 'Normal' : decibel <= 80 ? 'Moderate' : 'High') + '</div>' +
             '    </div>' +
-            '    <div class="noise-info-item">' +
-            '      <div class="noise-info-label">Last Updated</div>' +
-            '      <div class="noise-info-value" style="font-size:0.875rem;">' + lastUpdate + '</div>' +
+            '    <div>' +
+            '      <div class="text-xs text-gray-500 dark:text-gray-400">Last Updated</div>' +
+            '      <div class="text-sm text-gray-900 dark:text-white">' + lastUpdate + '</div>' +
             '    </div>' +
-            '    <div class="noise-info-item">' +
-            '      <div class="noise-info-label">Level</div>' +
-            '      <div class="noise-info-value">' + percentage + '%</div>' +
+            '    <div>' +
+            '      <div class="text-xs text-gray-500 dark:text-gray-400">Level</div>' +
+            '      <div class="text-sm font-medium text-gray-900 dark:text-white">' + percentage + '%</div>' +
             '    </div>' +
             '  </div>' +
             '</div>';

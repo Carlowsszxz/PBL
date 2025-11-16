@@ -4,6 +4,84 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Format a timestamp into a human-readable "time ago" string
+ * @param {string} timestamp - ISO timestamp string
+ * @returns {string} - Formatted string like "2 hours ago" or "Just now"
+ */
+function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Recently';
+    
+    const now = new Date();
+    const past = new Date(timestamp);
+    const diffMs = now - past;
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffSecs < 60) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    
+    // For older dates, show the actual date
+    return past.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/**
+ * Escape HTML special characters to prevent XSS attacks
+ * @param {string} text - Raw text that may contain HTML
+ * @returns {string} - Escaped text safe for innerHTML
+ */
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Format duration in seconds to human-readable string
+ * @param {number} seconds - Duration in seconds
+ * @returns {string} - Formatted string like "2h 30m" or "45m"
+ */
+function formatDuration(seconds) {
+    if (!seconds || seconds < 0) return '0m';
+    
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+}
+
+/**
+ * Alternative time ago formatter (used in timeline)
+ * @param {string} dateString - ISO timestamp string
+ * @returns {string} - Formatted string like "2 mins ago" or "Just now"
+ */
+function getTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return Math.floor(seconds / 60) + ' mins ago';
+    if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+    if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ============================================================================
+// RFID CARD MANAGEMENT
+// ============================================================================
+
 // Check if user needs to register RFID card
 async function updateUserRfidStatus() {
     try {
@@ -154,7 +232,6 @@ async function lookupUserByRfid(rfidUid) {
                     first_name,
                     last_name,
                     student_id,
-                    photo_url,
                     is_admin
                 )
             `)
@@ -211,7 +288,6 @@ async function lookupUserByRfid(rfidUid) {
                 lastName: user.last_name,
                 fullName: fullName,
                 studentId: user.student_id,
-                photoUrl: user.photo_url,
                 isAdmin: user.is_admin
             }
         };
@@ -265,7 +341,7 @@ async function assignUserToSeat(userData, tableId, seatNumber) {
                     seat_number: seat.seat_number,
                     event: 'logout',
                     uid: lastScannedRfid,
-                    noise_db: null
+                    decibel: null
                 });
             }
         }
@@ -314,7 +390,7 @@ async function assignUserToSeat(userData, tableId, seatNumber) {
                 seat_number: seatNumber,
                 event: 'login',
                 uid: lastScannedRfid,
-                noise_db: null
+                decibel: null
             });
 
         if (logError) console.warn('Failed to log activity:', logError);
@@ -340,7 +416,17 @@ async function assignUserToSeat(userData, tableId, seatNumber) {
  * @param {Object|null} seatAssignment - Result from assignUserToSeat (optional)
  */
 function displayRfidScan(scanResult, seatAssignment = null) {
+    console.log('🎯 displayRfidScan() called with:', { scanResult, seatAssignment });
+    
+    // Fail-safe: Check if display container exists
     const displayContainer = document.getElementById('rfidScanDisplay');
+    if (!displayContainer) {
+        console.warn('⚠️ RFID Scan Display container not found in DOM. Add #rfidScanDisplay to dashboard.html');
+        return;
+    }
+    
+    console.log('✅ Container found, current hidden state:', displayContainer.classList.contains('hidden'));
+
     const successDiv = document.getElementById('rfidSuccess');
     const inactiveDiv = document.getElementById('rfidInactive');
     const unregisteredDiv = document.getElementById('rfidUnregistered');
@@ -367,54 +453,222 @@ function displayRfidScan(scanResult, seatAssignment = null) {
 
     // Update scan time
     const now = new Date();
-    scanTimeSpan.textContent = `Scanned at ${now.toLocaleTimeString()}`;
+    if (scanTimeSpan) {
+        scanTimeSpan.textContent = `Scanned at ${now.toLocaleTimeString()}`;
+    }
 
-    // Show display container
-    displayContainer?.classList.remove('hidden');
+    // ========================================================================
+    // MANUAL CLOSE RESPECT: Only auto-open if user hasn't manually closed
+    // ========================================================================
+    // If user clicked the X button (userManuallyClosed = true), the panel
+    // stays closed and shows a red notification badge instead.
+    // The flag resets when:
+    // 1. A truly NEW scan arrives (different UID/timestamp)
+    // 2. Panel auto-closes after 8 seconds (timeout expires)
+    // This prevents annoying auto-reopen behavior during polling.
+    // ========================================================================
+    
+    const rfidFloatingBtn = document.getElementById('rfidFloatingBtn');
+    const rfidBadge = document.getElementById('rfidBadge');
+    
+    if (!userManuallyClosed) {
+        // User hasn't manually closed - auto-open the panel
+        displayContainer.classList.remove('hidden');
+        displayContainer.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+        displayContainer.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        
+        // Hide the floating button (it's replaced by the expanded panel)
+        if (rfidFloatingBtn) {
+            rfidFloatingBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+        }
+        
+        // Hide notification badge (no need to show when panel is open)
+        if (rfidBadge) {
+            rfidBadge.classList.add('hidden');
+        }
+        
+        isPanelOpen = true;
+        console.log('🔓 RFID panel auto-opened');
+    } else {
+        // User manually closed - respect their choice, show badge instead
+        console.log('⏸️ Panel stays closed (user manually closed it). Showing badge instead.');
+        displayContainer.classList.add('hidden');
+        if (rfidBadge) {
+            rfidBadge.classList.remove('hidden'); // Show red pulse badge to notify activity
+        }
+    }
 
     // Handle different scan results
     if (scanResult.success) {
         // Success - show user info
         successDiv?.classList.remove('hidden');
-        document.getElementById('rfidUserName').textContent = scanResult.user.fullName;
-        document.getElementById('rfidUserEmail').textContent = scanResult.user.email;
-        document.getElementById('rfidStudentId').textContent = scanResult.user.studentId || 'N/A';
+        
+        // Reset icon to green check mark (in case it was changed to logout icon)
+        const iconContainer = successDiv?.querySelector('.w-10.h-10');
+        if (iconContainer) {
+            iconContainer.className = 'w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0';
+            const icon = iconContainer?.querySelector('i');
+            if (icon) {
+                icon.className = 'w-5 h-5 text-green-600';
+                icon.setAttribute('data-lucide', 'check');
+            }
+        }
+        
+        // Fail-safe: Check if elements exist before setting content
+        const nameEl = document.getElementById('rfidUserName');
+        const emailEl = document.getElementById('rfidUserEmail');
+        const studentIdEl = document.getElementById('rfidStudentId');
+        const seatEl = document.getElementById('rfidSeatNumber');
 
-        if (seatAssignment && seatAssignment.success) {
-            document.getElementById('rfidSeatNumber').textContent = `${seatAssignment.tableId} - Seat ${seatAssignment.seatNumber}`;
-        } else {
-            document.getElementById('rfidSeatNumber').textContent = 'Pending...';
+        if (nameEl) nameEl.textContent = scanResult.user?.fullName || 'Unknown';
+        if (emailEl) emailEl.textContent = scanResult.user?.email || 'N/A';
+        if (studentIdEl) studentIdEl.textContent = scanResult.user?.studentId || 'N/A';
+
+        if (seatEl) {
+            if (seatAssignment && seatAssignment.success) {
+                seatEl.textContent = `${seatAssignment.tableId} - Seat ${seatAssignment.seatNumber}`;
+            } else {
+                seatEl.textContent = 'Pending...';
+            }
         }
 
         // Refresh Lucide icons
         if (window.lucide) lucide.createIcons();
 
-        // Auto-hide after 3 seconds
+        // Auto-hide after 8 seconds (extended for visibility)
         scanDisplayTimeout = setTimeout(() => {
-            displayContainer?.classList.add('hidden');
-        }, 3000);
+            closeRfidPanel(false); // false = auto-close, not manual
+            console.log('✅ RFID scan display auto-hidden (reset manual close flag)');
+        }, 8000);
 
     } else if (scanResult.error === 'inactive') {
         // Inactive card
         inactiveDiv?.classList.remove('hidden');
         if (window.lucide) lucide.createIcons();
 
-        // Auto-hide after 5 seconds
+        // Auto-hide after 8 seconds
         scanDisplayTimeout = setTimeout(() => {
-            displayContainer?.classList.add('hidden');
-        }, 5000);
+            closeRfidPanel(false); // false = auto-close, not manual
+            console.log('⚠️ RFID inactive display auto-hidden (reset manual close flag)');
+        }, 8000);
 
     } else if (scanResult.error === 'unregistered') {
         // Unregistered card
         unregisteredDiv?.classList.remove('hidden');
-        document.getElementById('rfidUnknownUid').textContent = scanResult.rfidUid;
+        const uidEl = document.getElementById('rfidUnknownUid');
+        if (uidEl) uidEl.textContent = scanResult.rfidUid || 'Unknown';
         if (window.lucide) lucide.createIcons();
 
-        // Auto-hide after 5 seconds
+        // Auto-hide after 8 seconds
         scanDisplayTimeout = setTimeout(() => {
-            displayContainer?.classList.add('hidden');
-        }, 5000);
+            closeRfidPanel(false); // false = auto-close, not manual
+            console.log('❌ RFID unregistered display auto-hidden (reset manual close flag)');
+        }, 8000);
     }
+    
+    // Log display state for debugging
+    console.log('🎫 RFID scan display updated:', {
+        visible: !displayContainer.classList.contains('hidden'),
+        state: scanResult.success ? 'success' : scanResult.error || 'unknown'
+    });
+}
+
+/**
+ * Display logout notification in the RFID panel
+ * Shows when a user logs out by tapping their card
+ */
+function displayLogoutNotification(logoutData) {
+    console.log('👋 Displaying logout notification:', logoutData);
+    
+    const displayContainer = document.getElementById('rfidScanDisplay');
+    if (!displayContainer) {
+        console.warn('⚠️ RFID Scan Display container not found');
+        return;
+    }
+
+    const successDiv = document.getElementById('rfidSuccess');
+    const inactiveDiv = document.getElementById('rfidInactive');
+    const unregisteredDiv = document.getElementById('rfidUnregistered');
+    const scanTimeSpan = document.getElementById('rfidScanTime');
+
+    // Clear previous timeout
+    if (scanDisplayTimeout) {
+        clearTimeout(scanDisplayTimeout);
+        scanDisplayTimeout = null;
+    }
+
+    // Hide all state divs
+    successDiv?.classList.add('hidden');
+    inactiveDiv?.classList.add('hidden');
+    unregisteredDiv?.classList.add('hidden');
+
+    // Update scan time
+    const now = new Date();
+    if (scanTimeSpan) {
+        scanTimeSpan.textContent = `Logged out at ${now.toLocaleTimeString()}`;
+    }
+
+    // Show logout message in success div (reuse for logout)
+    if (successDiv) {
+        successDiv.classList.remove('hidden');
+        
+        // Update elements to show logout info
+        const nameEl = document.getElementById('rfidUserName');
+        const emailEl = document.getElementById('rfidUserEmail');
+        const studentIdEl = document.getElementById('rfidStudentId');
+        const seatEl = document.getElementById('rfidSeatNumber');
+
+        if (nameEl) nameEl.textContent = logoutData.userName;
+        if (emailEl) emailEl.textContent = 'Logged Out';
+        if (studentIdEl) studentIdEl.textContent = '—';
+        if (seatEl) seatEl.textContent = `Seat ${logoutData.seatNumber || '—'} freed`;
+
+        // Change icon to logout icon (reuse check icon area)
+        const iconContainer = successDiv.querySelector('.w-10.h-10');
+        if (iconContainer) {
+            iconContainer.className = 'w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0';
+            const icon = iconContainer.querySelector('i');
+            if (icon) {
+                icon.className = 'w-5 h-5 text-blue-600';
+                icon.setAttribute('data-lucide', 'log-out');
+            }
+        }
+    }
+
+    // Auto-open panel if user hasn't manually closed it
+    const rfidFloatingBtn = document.getElementById('rfidFloatingBtn');
+    const rfidBadge = document.getElementById('rfidBadge');
+    
+    if (!userManuallyClosed) {
+        displayContainer.classList.remove('hidden');
+        displayContainer.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+        displayContainer.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+        
+        if (rfidFloatingBtn) {
+            rfidFloatingBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+        }
+        
+        if (rfidBadge) {
+            rfidBadge.classList.add('hidden');
+        }
+        
+        isPanelOpen = true;
+        console.log('👋 Logout panel auto-opened');
+    } else {
+        displayContainer.classList.add('hidden');
+        if (rfidBadge) {
+            rfidBadge.classList.remove('hidden');
+        }
+    }
+
+    // Refresh Lucide icons
+    if (window.lucide) lucide.createIcons();
+
+    // Auto-hide after 6 seconds (shorter for logout)
+    scanDisplayTimeout = setTimeout(() => {
+        closeRfidPanel(false);
+        console.log('👋 Logout notification auto-hidden');
+    }, 6000);
 }
 
 /**
@@ -422,73 +676,207 @@ function displayRfidScan(scanResult, seatAssignment = null) {
  * This function is called by the polling system when a new scan is detected
  */
 async function handleRfidScan(rfidUid, tableId, seatNumber) {
-    console.log('🎫 RFID Scan Detected:', { rfidUid, tableId, seatNumber });
+    try {
+        console.log('🎫 RFID Scan Detected:', { rfidUid, tableId, seatNumber });
 
-    lastScannedRfid = rfidUid;
+        lastScannedRfid = rfidUid;
 
-    // Step 1: Look up user by RFID
-    const userLookup = await lookupUserByRfid(rfidUid);
+        // Step 1: Look up user by RFID (always returns an object, never throws)
+        const userLookup = await lookupUserByRfid(rfidUid);
 
-    // Step 2: If user found, assign to seat
-    let seatAssignment = null;
-    if (userLookup.success) {
-        seatAssignment = await assignUserToSeat(userLookup.user, tableId, seatNumber);
-    }
+        // Step 2: If user found, assign to seat
+        let seatAssignment = null;
+        if (userLookup && userLookup.success) {
+            try {
+                seatAssignment = await assignUserToSeat(userLookup.user, tableId, seatNumber);
+            } catch (seatErr) {
+                console.error('❌ Error assigning seat:', seatErr);
+                // Continue anyway to show user lookup result
+            }
+        }
 
-    // Step 3: Display result in UI
-    displayRfidScan(userLookup, seatAssignment);
+        // Step 3: Display result in UI (fail-safe function with null checks)
+        displayRfidScan(userLookup, seatAssignment);
 
-    // Step 4: Refresh dashboard data
-    const userEmail = sessionStorage.getItem('userEmail');
-    if (userEmail) {
-        loadUserInfo(userEmail);
+        // Step 4: Refresh dashboard data
+        const userEmail = sessionStorage.getItem('userEmail');
+        if (userEmail) {
+            loadUserInfo(userEmail);
+        }
+    } catch (err) {
+        console.error('❌ Unexpected error in handleRfidScan:', err);
+        // Don't throw - just log and continue polling
     }
 }
 
-// Track last processed scan to avoid duplicates
-let lastProcessedScanId = null;
+// ============================================================================
+// RFID SCAN DEDUPLICATION & PANEL STATE MANAGEMENT
+// ============================================================================
+// These variables prevent the panel from reopening repeatedly when polling
+// detects the same scan multiple times from the backend.
+//
+// Problem: Backend polling (every 1.5s) returns the same scan row repeatedly,
+// causing the panel to flicker or reopen even after the user closes it.
+//
+// Solution: Track event history per UID to determine true state changes:
+// 1. lastProcessedScanId - Database row ID (may change on each insert)
+// 2. lastProcessedScanTimestamp - Exact timestamp of scan creation
+// 3. lastProcessedScanUid - RFID card UID (the actual card being scanned)
+// 4. lastEventByUid - Map of UID -> last event type (login/logout)
+//
+// A scan is only considered "new" if it represents a STATE CHANGE for that UID.
+// This prevents duplicate processing and logout->login flicker.
+// ============================================================================
+
+let lastProcessedScanId = null;        // Last processed database row ID
+let lastProcessedScanTimestamp = null; // Last processed scan timestamp
+let lastProcessedScanUid = null;       // Last processed RFID card UID
+let lastEventByUid = new Map();        // Track last event type per UID (login/logout)
+let userManuallyClosed = false;        // Flag: User clicked X button to close panel
+let isPanelOpen = false;               // Current panel visibility state
 
 /**
+ * ============================================================================
  * Poll actlog_iot table for new RFID scans
- * This function runs every 1.5 seconds to detect new scans
+ * ============================================================================
+ * This function runs every 1.5 seconds to detect new scans from the Arduino.
+ * 
+ * STATE CHANGE DETECTION LOGIC:
+ * Instead of processing every event, we track the LAST EVENT TYPE per UID.
+ * An event is only processed if it represents a STATE CHANGE:
+ * 
+ * Example Flow:
+ * 1. User taps card (not logged in) → 'login' event → Process (show login panel)
+ * 2. Polling continues → Still sees 'login' → Skip (no state change)
+ * 3. User taps card again (logged in) → 'logout' event → Process (show logout panel)
+ * 4. Polling continues → Still sees 'logout' → Skip (no state change)
+ * 
+ * Why This Works:
+ * - Prevents duplicate processing of same event
+ * - Handles rapid login/logout sequences correctly
+ * - No flicker from processing both logout and login in quick succession
+ * - Only shows notification when user's actual state changes
+ * 
+ * Transfer Handling:
+ * During transfers, Arduino creates: logout (old table) → login (new table)
+ * Since these have SAME UID but DIFFERENT timestamps, we detect both.
+ * We process the LATEST event (login), which is correct for transfers.
+ * 
+ * MANUAL CLOSE RESPECT:
+ * When a state change is detected, userManuallyClosed resets to false,
+ * allowing the panel to auto-open for the new event.
+ * ============================================================================
  */
 async function checkForNewRfidScans() {
     try {
-        // Get the most recent login event from actlog_iot
+        // ====================================================================
+        // FETCH LAST 5 EVENTS: Get multiple events to handle rapid login/logout
+        // During transfers, Arduino creates logout then login events quickly.
+        // We need to see the full sequence to determine the final state.
+        // ====================================================================
         const { data: recentScans, error } = await supabase
             .from('actlog_iot')
-            .select('id, seat_number, event, uid, created_at')
-            .eq('event', 'login')
+            .select('id, seat_number, event, uid, created_at, name')
+            .in('event', ['login', 'logout'])
             .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
+            .limit(5); // Get last 5 events to see full context
 
         if (error) {
             console.error('Error checking for RFID scans:', error);
             return;
         }
 
-        // No scans found
-        if (!recentScans) return;
+        if (!recentScans || recentScans.length === 0) return;
 
-        // Check if this is a new scan (not processed yet)
-        if (lastProcessedScanId !== recentScans.id) {
-            // Check if scan is recent (within last 10 seconds to avoid processing old scans on page load)
-            const scanTime = new Date(recentScans.created_at);
+        // ====================================================================
+        // GROUP EVENTS BY UID: Find the most recent event for each unique UID
+        // ====================================================================
+        const latestEventByUid = new Map();
+        
+        for (const scan of recentScans) {
+            const uid = scan.uid;
+            
+            // Only process recent scans (within 10 seconds)
+            const scanTime = new Date(scan.created_at);
             const now = new Date();
             const ageInSeconds = (now - scanTime) / 1000;
+            
+            if (ageInSeconds > 10) continue; // Skip old scans
+            
+            // Store the first (most recent) event for this UID
+            if (!latestEventByUid.has(uid)) {
+                latestEventByUid.set(uid, scan);
+            }
+        }
 
-            if (ageInSeconds <= 10) {
-                console.log('🆕 New RFID scan detected!', recentScans);
-                lastProcessedScanId = recentScans.id;
+        // ====================================================================
+        // PROCESS EACH UID: Check if event represents a state change
+        // ====================================================================
+        if (latestEventByUid.size > 0) {
+            console.log('📋 Found', latestEventByUid.size, 'unique UID(s) with recent events');
+        }
+        
+        for (const [uid, scan] of latestEventByUid) {
+            const lastKnownEvent = lastEventByUid.get(uid);
+            const currentEvent = scan.event;
+            
+            // ============================================================
+            // STATE CHANGE DETECTION: Only process if event type changed
+            // Example: Last was 'login', now is 'logout' → Process logout
+            //          Last was 'logout', now is 'login' → Process login
+            //          Last was 'login', now is 'login' → Skip (duplicate)
+            // ============================================================
+            const isStateChange = lastKnownEvent !== currentEvent;
+            
+            if (isStateChange) {
+                console.log('🔄 State change detected for UID:', uid);
+                console.log('📊 Event details:', {
+                    uid: uid,
+                    previousState: lastKnownEvent || 'unknown',
+                    newState: currentEvent,
+                    seat: scan.seat_number,
+                    timestamp: scan.created_at
+                });
+                
+                // Update tracking: Remember this event for this UID
+                lastEventByUid.set(uid, currentEvent);
+                
+                // Update global tracking (for backwards compatibility)
+                lastProcessedScanId = scan.id;
+                lastProcessedScanTimestamp = scan.created_at;
+                lastProcessedScanUid = uid;
+                
+                // Reset manual close flag for new state changes
+                userManuallyClosed = false;
 
-                // Process the scan (table ID derived from seat number pattern if needed)
-                const tableId = 'table-1'; // Default table, adjust as needed
-                await handleRfidScan(
-                    recentScans.uid,
-                    tableId,
-                    recentScans.seat_number
-                );
+                // ========================================================
+                // HANDLE EVENT TYPE: Process login vs logout
+                // ========================================================
+                if (currentEvent === 'login') {
+                    console.log('✅ Processing LOGIN for UID:', uid);
+                    const tableId = 'table-1';
+                    await handleRfidScan(
+                        uid,
+                        tableId,
+                        scan.seat_number
+                    );
+                } else if (currentEvent === 'logout') {
+                    console.log('👋 Processing LOGOUT for UID:', uid);
+                    displayLogoutNotification({
+                        rfidUid: uid,
+                        userName: scan.name || 'User',
+                        seatNumber: scan.seat_number
+                    });
+                    
+                    // Refresh dashboard to update occupancy
+                    const userEmail = sessionStorage.getItem('userEmail');
+                    if (userEmail) {
+                        loadUserInfo(userEmail);
+                    }
+                }
+            } else {
+                // No state change - same event as last time (duplicate)
+                // Skip silently to avoid console spam
             }
         }
 
@@ -501,6 +889,35 @@ async function checkForNewRfidScans() {
 window.toggleRfidAdminMode = function () {
     rfidAdminMode = !rfidAdminMode;
     console.log(`🔧 Admin Mode: ${rfidAdminMode ? 'ENABLED' : 'DISABLED'}`);
+};
+
+// Test function to manually trigger RFID display (call from console)
+window.testRfidDisplay = function() {
+    console.log('🧪 Testing RFID display...');
+    
+    const testScanResult = {
+        success: true,
+        rfidUid: 'TEST123456',
+        isActive: true,
+        user: {
+            id: 'test-id',
+            email: 'test@example.com',
+            firstName: 'Test',
+            lastName: 'User',
+            fullName: 'Test User',
+            studentId: 'S12345',
+            isAdmin: false
+        }
+    };
+    
+    const testSeatAssignment = {
+        success: true,
+        tableId: 'table-1',
+        seatNumber: 5
+    };
+    
+    displayRfidScan(testScanResult, testSeatAssignment);
+    console.log('✅ Test display triggered - check top-right corner!');
 
     const adminModeDiv = document.getElementById('rfidAdminMode');
     if (rfidAdminMode) {
@@ -1068,25 +1485,52 @@ async function loadAnnouncementsAndActivity(rfidUid) {
         if (container) {
             if (!activeAnnouncements || activeAnnouncements.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="text-4xl mb-2">📢</div>
-                        <p class="text-gray-500 text-sm font-medium">No announcements</p>
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
+                            <i data-lucide="inbox" class="w-8 h-8 text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm font-medium">No announcements yet</p>
                         <p class="text-gray-400 text-xs mt-1">Check back later for updates</p>
                     </div>
                 `;
+                if (window.lucide) lucide.createIcons();
             } else {
-                container.innerHTML = activeAnnouncements.map(ann => `
-                    <div class="p-3 rounded-lg border ${ann.is_priority ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-slate-50'}">
-                        <div class="flex items-center justify-between gap-2 text-sm mb-1">
-                            <div class="flex items-center gap-2">
-                                <span class="font-medium ${ann.is_priority ? 'text-rose-700' : 'text-slate-700'}">${escapeHtml(ann.title || 'Announcement')}</span>
-                                ${ann.is_priority ? '<span class="px-1.5 py-0.5 text-xs rounded bg-rose-200 text-rose-800 font-medium">Priority</span>' : ''}
-                            </div>
-                            <span class="text-xs text-gray-500">${ann.created_at ? new Date(ann.created_at).toLocaleDateString() : ''}</span>
+                container.innerHTML = activeAnnouncements.map(ann => {
+                    const timeAgo = formatTimeAgo(ann.created_at);
+                    return `
+                    <div class="group relative backdrop-blur-sm rounded-xl p-4 border border-indigo-100/50 dark:border-indigo-300/50 hover:border-indigo-300 dark:hover:border-indigo-400 hover:shadow-md transition-all duration-300">
+                        ${ann.is_priority ? `
+                        <div class="absolute top-3 right-3">
+                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-semibold rounded-full">
+                                <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                                Important
+                            </span>
                         </div>
-                        <div class="text-gray-800 whitespace-pre-wrap text-sm">${escapeHtml(ann.message || '')}</div>
+                        ` : ''}
+                        
+                        <div class="flex items-start gap-3 mb-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-800 dark:to-purple-800 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i data-lucide="${ann.is_priority ? 'alert-triangle' : 'bell'}" class="w-4 h-4 text-indigo-600 dark:text-indigo-300"></i>
+                            </div>
+                            <div class="flex-1 min-w-0 ${ann.is_priority ? 'pr-20' : ''}">
+                                <h4 class="font-bold text-gray-900 dark:text-gray-100 text-base leading-tight mb-1">
+                                    ${escapeHtml(ann.title || 'Announcement')}
+                                </h4>
+                                <p class="text-gray-600 dark:text-gray-300 text-base leading-relaxed whitespace-pre-wrap">
+                                    ${escapeHtml(ann.message || '')}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                <i data-lucide="clock" class="w-3 h-3"></i>
+                                ${timeAgo}
+                            </span>
+                        </div>
                     </div>
-                `).join('');
+                `}).join('');
+                if (window.lucide) lucide.createIcons();
             }
         }
     } catch (e) {
@@ -1101,13 +1545,18 @@ async function loadAnnouncementsAndActivity(rfidUid) {
     try {
         if (!rfidUid) {
             const tl = document.getElementById('activityTimeline');
-            if (tl) tl.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="text-4xl mb-2">📊</div>
-                    <p class="text-gray-500 text-sm font-medium">No activity yet</p>
-                    <p class="text-gray-400 text-xs mt-1">Register your access device to start tracking</p>
-                </div>
-            `;
+            if (tl) {
+                tl.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
+                            <i data-lucide="radio" class="w-8 h-8 text-gray-400"></i>
+                        </div>
+                        <p class="text-gray-500 text-sm font-medium">No RFID device registered</p>
+                        <p class="text-gray-400 text-xs mt-1">Register your access card to start tracking</p>
+                    </div>
+                `;
+                if (window.lucide) lucide.createIcons();
+            }
             return;
         }
         // Fetch a larger slice for grouping (last 40 events)
@@ -1124,10 +1573,12 @@ async function loadAnnouncementsAndActivity(rfidUid) {
 
         if (!rawEvents || rawEvents.length === 0) {
             tl.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="text-4xl mb-2">📊</div>
-                    <p class="text-gray-500 text-sm font-medium">No activity yet</p>
-                    <p class="text-gray-400 text-xs mt-1">Your session activity will appear here</p>
+                <div class="flex flex-col items-center justify-center py-8 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
+                        <i data-lucide="calendar-x" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    <p class="text-gray-500 text-sm font-medium">No activity today</p>
+                    <p class="text-gray-400 text-xs mt-1">Your sessions will appear here</p>
                 </div>
             `;
             return;
@@ -1240,23 +1691,7 @@ async function loadAnnouncementsAndActivity(rfidUid) {
     }
 }
 
-// Utilities
-function getTimeAgo(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
-    if (seconds < 60) return 'Just now';
-    if (seconds < 3600) return Math.floor(seconds / 60) + ' mins ago';
-    if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
-    if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text || '';
-    return div.innerHTML;
-}
+// Utilities (moved to top of file with other helper functions)
 
 // Locate on map action
 document.addEventListener('click', function (e) {
@@ -1629,6 +2064,112 @@ document.addEventListener('DOMContentLoaded', function() {
     const updateForm = document.getElementById('updateInfoForm');
     if (updateForm) {
         updateForm.addEventListener('submit', submitUpdatedInfo);
+    }
+    
+    // ========================================================================
+    // RFID PANEL CONTROL HELPER FUNCTIONS
+    // ========================================================================
+    // These functions provide explicit control over panel visibility and
+    // manage the state flags that prevent unwanted reopening.
+    // ========================================================================
+    
+    /**
+     * Open the RFID scan panel (triggered by user clicking floating button)
+     * This resets the userManuallyClosed flag, allowing future scans to auto-open.
+     */
+    window.openRfidPanel = function() {
+        const displayContainer = document.getElementById('rfidScanDisplay');
+        const rfidFloatingBtn = document.getElementById('rfidFloatingBtn');
+        const rfidBadge = document.getElementById('rfidBadge');
+        
+        if (displayContainer) {
+            // Show panel with smooth transition (scale + opacity)
+            displayContainer.classList.remove('hidden', 'opacity-0', 'scale-95', 'pointer-events-none');
+            displayContainer.classList.add('opacity-100', 'scale-100', 'pointer-events-auto');
+        }
+        
+        if (rfidFloatingBtn) {
+            // Hide floating button (replaced by expanded panel)
+            rfidFloatingBtn.classList.add('scale-0', 'opacity-0', 'pointer-events-none');
+        }
+        
+        if (rfidBadge) {
+            // Hide notification badge (no need when panel is open)
+            rfidBadge.classList.add('hidden');
+        }
+        
+        isPanelOpen = true;
+        userManuallyClosed = false; // Reset flag - user wants to see notifications
+        console.log('👤 User manually opened panel');
+    };
+    
+    /**
+     * Close the RFID scan panel
+     * @param {boolean} isManualClose - true if user clicked X button, false if auto-closed by timeout
+     * 
+     * Manual close (X button clicked):
+     * - Sets userManuallyClosed = true
+     * - Panel stays closed until next NEW scan
+     * - Clears any pending auto-hide timeout
+     * 
+     * Auto-close (8-second timeout expired):
+     * - Sets userManuallyClosed = false
+     * - Panel can auto-open on next scan
+     * - Shows notification badge to indicate activity
+     */
+    window.closeRfidPanel = function(isManualClose = true) {
+        const displayContainer = document.getElementById('rfidScanDisplay');
+        const rfidFloatingBtn = document.getElementById('rfidFloatingBtn');
+        const rfidBadge = document.getElementById('rfidBadge');
+        
+        if (displayContainer) {
+            // Hide panel with smooth transition
+            displayContainer.classList.add('hidden', 'opacity-0', 'scale-95', 'pointer-events-none');
+            displayContainer.classList.remove('opacity-100', 'scale-100', 'pointer-events-auto');
+        }
+        
+        if (rfidFloatingBtn) {
+            // Show floating button again
+            rfidFloatingBtn.classList.remove('scale-0', 'opacity-0', 'pointer-events-none');
+        }
+        
+        if (rfidBadge && !isManualClose) {
+            // Show notification badge after auto-close (not manual close)
+            rfidBadge.classList.remove('hidden');
+        }
+        
+        isPanelOpen = false;
+        
+        if (isManualClose) {
+            // User clicked X button - prevent auto-reopen on same scan
+            userManuallyClosed = true;
+            console.log('🚫 User manually closed panel - will not auto-reopen until new scan');
+            
+            // Clear any pending auto-hide timeout (user dismissed early)
+            if (scanDisplayTimeout) {
+                clearTimeout(scanDisplayTimeout);
+                scanDisplayTimeout = null;
+            }
+        } else {
+            // Auto-closed by timeout - allow auto-reopen on next scan
+            userManuallyClosed = false;
+        }
+    };
+    
+    // Event Listeners
+    const rfidFloatingBtn = document.getElementById('rfidFloatingBtn');
+    const rfidCloseBtn = document.getElementById('rfidCloseBtn');
+    
+    if (rfidFloatingBtn) {
+        rfidFloatingBtn.addEventListener('click', function() {
+            openRfidPanel();
+        });
+    }
+    
+    if (rfidCloseBtn) {
+        rfidCloseBtn.addEventListener('click', function() {
+            closeRfidPanel(true); // true = manual close
+        });
     }
 });
 

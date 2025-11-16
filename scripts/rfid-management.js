@@ -419,14 +419,20 @@ async function viewAllRfid() {
                     </td>
                     <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">${createdDate}</td>
                     <td class="px-4 py-3">
-                        <button 
-                            onclick="toggleRfidStatus('${card.id}', ${!card.is_active})"
-                            class="px-3 py-1.5 rounded-md text-sm font-medium text-white transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${card.is_active ?
+                        <div class="flex gap-2">
+                            <button 
+                                onclick="toggleRfidStatus('${card.id}', ${!card.is_active})"
+                                class="px-3 py-1.5 rounded-md text-sm font-medium text-white transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${card.is_active ?
                     'bg-red-500 hover:bg-red-600' :
                     'bg-green-500 hover:bg-green-600'
                 }">
-                            ${card.is_active ? 'Deactivate' : 'Activate'}
-                        </button>
+                                ${card.is_active ? 'Deactivate' : 'Activate'}
+                            </button>
+                            <button onclick="deleteRfid('${card.id}')" class="px-3 py-1.5 rounded-md bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors duration-200 flex items-center gap-1">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                <span class="text-xs">Delete</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -439,6 +445,7 @@ async function viewAllRfid() {
             </div>
         `;
         allRfidData.innerHTML = html;
+        lucide.createIcons();
 
     } catch (err) {
         console.error('Error loading RFID cards:', err);
@@ -517,6 +524,38 @@ async function toggleRfidStatus(rfidId, activate) {
     } catch (err) {
         console.error('Error updating device status:', err);
         showNotification('error', err.message || 'Failed to update device status');
+    }
+}
+
+// Delete all RFID devices function
+async function deleteAllRfid() {
+    if (!confirm('Are you sure you want to delete all RFID devices? This action cannot be undone.')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('rfid_cards').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+        if (error) throw error;
+        showNotification('success', 'All RFID devices deleted successfully.');
+        viewAllRfid(); // Reload the devices
+    } catch (err) {
+        console.error('Error deleting all RFID devices:', err);
+        showNotification('error', 'Error deleting devices: ' + err.message);
+    }
+}
+
+// Delete individual RFID device function
+async function deleteRfid(cardId) {
+    if (!confirm('Are you sure you want to delete this RFID device?')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('rfid_cards').delete().eq('id', cardId);
+        if (error) throw error;
+        showNotification('success', 'RFID device deleted successfully.');
+        viewAllRfid(); // Reload the devices
+    } catch (err) {
+        console.error('Error deleting RFID device:', err);
+        showNotification('error', 'Error deleting device: ' + err.message);
     }
 }
 

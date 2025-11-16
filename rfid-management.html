@@ -593,12 +593,18 @@
         <section class="admin-card card-fadein all-access-devices-card">
           <div class="admin-card-header flex items-center justify-between">
             <h2 class="text-lg font-semibold setup-title-color">All Access Devices</h2>
-            <button onclick="viewAllRfid()"
-              class="btn btn-sm setup-btn flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
-              aria-label="Refresh devices list">
-              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-              Refresh
-            </button>
+            <div class="flex gap-3">
+              <button onclick="viewAllRfid()"
+                class="btn btn-sm setup-btn flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
+                aria-label="Refresh devices list">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Refresh
+              </button>
+              <button onclick="deleteAllRfid()" class="px-4 py-2 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-sm transition-colors duration-200 flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span class="text-sm font-medium">Delete All</span>
+              </button>
+            </div>
           </div>
           <div id="allRfidData" class="flex-1 min-h-0 overflow-auto transition-colors duration-200"></div>
         </section>

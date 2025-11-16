@@ -4,6 +4,10 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// Track currently selected table
+let currentTable = null;
+let pollingInterval = null;
+
 // Check authentication on page load
 document.addEventListener('DOMContentLoaded', async function () {
     // Check for Supabase Auth session
@@ -46,15 +50,196 @@ document.addEventListener('DOMContentLoaded', async function () {
         return;
     }
 
-    // User exists and is not admin. Start polling and show seat occupancy data to all users.
-    loadMap();
-    setInterval(loadMap, 2000);
+    // User exists and is not admin. Check if user has an assigned seat.
+    await autoSelectUserTable(userEmail);
 
     // Prevent navigation away from student pages
     setupNavigationGuard();
+    
+    // Initialize Lucide icons for empty state
+    if (window.lucide) lucide.createIcons();
 });
 
-async function loadMap() {
+/**
+ * Auto-select user's assigned table and load their seat map
+ * Checks both occupancy table and activity logs to find user's seat
+ */
+async function autoSelectUserTable(userEmail) {
+    try {
+        // Method 1: Check occupancy table for assigned seat
+        const { data: occupancyData, error: occupancyError } = await supabase
+            .from('occupancy')
+            .select('table_id, seat_number, occupied_by, is_occupied')
+            .eq('occupied_by', userEmail)
+            .eq('is_occupied', true)
+            .maybeSingle();
+
+        let assignedTable = null;
+        let assignedSeat = null;
+
+        if (occupancyData) {
+            assignedTable = occupancyData.table_id;
+            assignedSeat = occupancyData.seat_number;
+            console.log('Found assigned seat from occupancy:', { table: assignedTable, seat: assignedSeat });
+        } else {
+            // Method 2: Check activity logs for active RFID session
+            const { data: userData } = await supabase
+                .from('users')
+                .select('id')
+                .eq('email', userEmail)
+                .single();
+
+            if (userData) {
+                const { data: rfidCards } = await supabase
+                    .from('rfid_cards')
+                    .select('rfid_uid')
+                    .eq('user_id', userData.id)
+                    .eq('is_active', true);
+
+                if (rfidCards && rfidCards.length > 0) {
+                    const { data: latestLog } = await supabase
+                        .from('actlog_iot')
+                        .select('event, seat_number, table_name')
+                        .eq('uid', rfidCards[0].rfid_uid)
+                        .order('created_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    if (latestLog && latestLog.event === 'login') {
+                        assignedTable = latestLog.table_name || 'table-1';
+                        assignedSeat = latestLog.seat_number;
+                        console.log('Found active session from activity log:', { table: assignedTable, seat: assignedSeat });
+                    }
+                }
+            }
+        }
+
+        // If user has an assigned table and seat, auto-select and load
+        if (assignedTable && assignedSeat) {
+            const tableSelector = document.getElementById('tableSelector');
+            if (tableSelector) {
+                // Set dropdown value to assigned table
+                tableSelector.value = assignedTable;
+                
+                // Store assigned seat for highlighting
+                sessionStorage.setItem('assignedSeat', assignedSeat);
+                sessionStorage.setItem('assignedTable', assignedTable);
+                
+                // Trigger table change to load the map
+                handleTableChange();
+            }
+        } else {
+            // No assigned seat - clear any stored values and show empty state
+            sessionStorage.removeItem('assignedSeat');
+            sessionStorage.removeItem('assignedTable');
+            console.log('No assigned seat found - waiting for manual table selection');
+        }
+    } catch (err) {
+        console.error('Error auto-selecting table:', err);
+        // On error, just show empty state
+        sessionStorage.removeItem('assignedSeat');
+        sessionStorage.removeItem('assignedTable');
+    }
+}
+
+/**
+ * Handle table selection change
+ * Called when user selects a table from dropdown
+ */
+function handleTableChange() {
+    const selector = document.getElementById('tableSelector');
+    const selectedTable = selector.value;
+    
+    // Clear any existing polling
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
+    
+    if (!selectedTable) {
+        // No table selected - show empty state
+        currentTable = null;
+        showEmptyState();
+        return;
+    }
+    
+    // Update current table
+    currentTable = selectedTable;
+    
+    // Extract table number for display (e.g., "table-1" -> "Table 1")
+    const tableNumber = selectedTable.split('-')[1];
+    const mapTitle = document.getElementById('mapTitle');
+    if (mapTitle) {
+        mapTitle.textContent = `Seat Map – Table ${tableNumber}`;
+    }
+    
+    // Hide empty state, show loading
+    const emptyState = document.getElementById('emptyState');
+    const seatMap = document.getElementById('seatMap');
+    if (emptyState) emptyState.classList.add('hidden');
+    if (seatMap) seatMap.classList.remove('hidden');
+    
+    // Show stats bar and user banner
+    const statsBar = document.getElementById('statsBar');
+    const userBanner = document.getElementById('userBanner');
+    if (statsBar) {
+        statsBar.innerHTML = `
+            <div class="flex items-center justify-center gap-3 sm:gap-6 flex-wrap text-sm sm:text-base">
+                <span class="text-gray-500 text-sm">Loading stats...</span>
+            </div>
+        `;
+    }
+    if (userBanner) {
+        userBanner.classList.remove('hidden');
+        userBanner.innerHTML = `
+            <div class="flex items-center justify-center gap-2 text-sm sm:text-base">
+                <span class="text-gray-500 text-sm">Loading status...</span>
+            </div>
+        `;
+    }
+    
+    // Load map for selected table
+    loadMap(selectedTable);
+    
+    // Start polling every 2 seconds
+    pollingInterval = setInterval(() => loadMap(selectedTable), 2000);
+}
+
+/**
+ * Show empty state (no table selected)
+ */
+function showEmptyState() {
+    const emptyState = document.getElementById('emptyState');
+    const seatMap = document.getElementById('seatMap');
+    const mapButtons = document.getElementById('mapButtons');
+    const mapLegend = document.getElementById('mapLegend');
+    const statsBar = document.getElementById('statsBar');
+    const userBanner = document.getElementById('userBanner');
+    const mapTitle = document.getElementById('mapTitle');
+    
+    if (emptyState) emptyState.classList.remove('hidden');
+    if (seatMap) seatMap.classList.add('hidden');
+    if (mapButtons) mapButtons.classList.add('hidden');
+    if (mapLegend) mapLegend.classList.add('hidden');
+    if (mapTitle) mapTitle.textContent = 'Seat Map';
+    
+    if (statsBar) {
+        statsBar.innerHTML = `
+            <div class="flex items-center justify-center gap-3 sm:gap-6 flex-wrap text-sm sm:text-base">
+                <span class="text-gray-500 text-sm">Select a table to view occupancy stats</span>
+            </div>
+        `;
+    }
+    
+    if (userBanner) {
+        userBanner.classList.add('hidden');
+    }
+    
+    // Reinitialize Lucide icons
+    if (window.lucide) lucide.createIcons();
+}
+
+async function loadMap(tableId = currentTable) {
     try {
         // Add loading indicator
         const refreshBtn = document.getElementById('refreshBtn');
@@ -106,11 +291,17 @@ async function loadMap() {
             }
         }
 
-        // Get all seats for table-1 (always show, regardless of login status)
+        // If no table selected, don't load anything
+        if (!tableId) {
+            showEmptyState();
+            return;
+        }
+        
+        // Get all seats for selected table
         const { data: seats, error: seatsError } = await supabase
             .from('occupancy')
             .select('*')
-            .eq('table_id', 'table-1')
+            .eq('table_id', tableId)
             .order('seat_number', { ascending: true });
 
         // Handle case where seats might not exist yet or error occurs
@@ -223,48 +414,72 @@ async function loadMap() {
 
             const seatDiv = document.createElement('div');
 
-            // Check if this is the user's seat
-            const isUserSeat = isLoggedIn && userSeatNumber === i;
+            // Check if this seat is occupied by the current user
+            // Compare by: (1) email in occupancy, (2) seat number from activity log, (3) assigned seat in storage
+            const isUserSeat = seat.is_occupied && seat.occupied_by === userEmail;
+            const isUserSeatByActivity = isLoggedIn && userSeatNumber === i;
+            const assignedSeatNumber = parseInt(sessionStorage.getItem('assignedSeat'));
+            const isAssignedSeat = assignedSeatNumber && assignedSeatNumber === i;
+            const isCurrentUserSeat = isUserSeat || isUserSeatByActivity || isAssignedSeat;
 
             // Check if this seat should be highlighted (from URL parameter)
             const urlParams = new URLSearchParams(window.location.search);
             const highlightSeat = urlParams.get('highlight');
             const isHighlighted = highlightSeat && (seat.seat_number === highlightSeat || i === highlightSeat);
 
-            if (isUserSeat) {
+            if (isCurrentUserSeat) {
+                // This is the logged-in user's seat - show as "Your Seat"
                 seatDiv.className = 'seat user-seat';
                 seatDiv.innerHTML = `
-                    <div class="seat-badge">YOU</div>
-                    <div class="seat-number">Seat ${i}</div>
-                    <div class="seat-details">🎯 Your Seat</div>
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-indigo-100"></i>
+                        <div class="seat-number">Seat ${i}</div>
+                        <div class="seat-details">Your Seat</div>
+                    </div>
                 `;
             } else if (isHighlighted) {
                 seatDiv.className = 'seat user-seat';
                 seatDiv.style.animation = 'pulse 2s ease-in-out infinite';
                 seatDiv.innerHTML = `
                     <div class="seat-badge">HERE</div>
-                    <div class="seat-number">Seat ${i}</div>
-                    <div class="seat-details">📍 Highlighted</div>
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <i data-lucide="navigation" class="w-5 h-5 text-indigo-100"></i>
+                        <div class="seat-number">Seat ${i}</div>
+                        <div class="seat-details">Highlighted</div>
+                    </div>
                 `;
                 // Scroll this seat into view after a short delay
                 setTimeout(() => {
                     seatDiv.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
                 }, 300);
             } else if (seat.is_occupied) {
+                // Seat is occupied by someone else - show as "Occupied"
                 seatDiv.className = 'seat occupied';
                 seatDiv.innerHTML = `
-                    <div class="seat-number">Seat ${i}</div>
-                    <div class="seat-details">🔒 Occupied</div>
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <i data-lucide="user" class="w-5 h-5 text-white opacity-90"></i>
+                        <div class="seat-number">Seat ${i}</div>
+                        <div class="seat-details">Occupied</div>
+                    </div>
                 `;
             } else {
+                // Seat is available
                 seatDiv.className = 'seat available';
                 seatDiv.innerHTML = `
-                    <div class="seat-number">Seat ${i}</div>
-                    <div class="seat-details">✅ Available</div>
+                    <div class="flex flex-col items-center justify-center gap-1.5">
+                        <i data-lucide="circle" class="w-5 h-5 text-white opacity-75"></i>
+                        <div class="seat-number">Seat ${i}</div>
+                        <div class="seat-details">Available</div>
+                    </div>
                 `;
             }
 
             mapDiv.appendChild(seatDiv);
+        }
+
+        // Reinitialize Lucide icons for seat elements
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
         }
 
         console.log('Rendered', mapDiv.children.length, 'seats to mapDiv');

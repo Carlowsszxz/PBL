@@ -8,25 +8,39 @@
 /* Guide Section */
 .guide-section {
     background: #ffffff;
-    padding: 32px;
-    margin-bottom: 24px;
+    padding: 16px;
+    margin-bottom: 16px;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
+}
+
+@media (min-width: 640px) {
+    .guide-section {
+        padding: 32px;
+        margin-bottom: 24px;
+    }
 }
 
 /* Section Headings */
 .guide-section h2 {
     color: #0e163e;
-    margin: 0 0 24px 0;
-    font-size: 1.25rem;
+    margin: 0 0 16px 0;
+    font-size: 1.125rem;
     font-weight: 600;
     letter-spacing: -0.02em;
 }
 
+@media (min-width: 640px) {
+    .guide-section h2 {
+        margin: 0 0 24px 0;
+        font-size: 1.25rem;
+    }
+}
+
 /* Step Container */
 .step {
-    margin: 0 0 24px 0;
-    padding-bottom: 24px;
+    margin: 0 0 16px 0;
+    padding-bottom: 16px;
     border-bottom: 1px solid #f3f4f6;
 }
 
@@ -34,6 +48,13 @@
     margin-bottom: 0;
     padding-bottom: 0;
     border-bottom: none;
+}
+
+@media (min-width: 640px) {
+    .step {
+        margin: 0 0 24px 0;
+        padding-bottom: 24px;
+    }
 }
 
 /* Step Headings */
@@ -429,6 +450,83 @@ code {
 @media (min-width: 1280px) {
     .toc-sidebar {
         display: block;
+    }
+}
+
+/* Feature List and Cards */
+.feature-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+@media (min-width: 640px) {
+    .feature-list {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+.feature-card {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #0e163e;
+}
+
+.feature-card p {
+    font-size: 0.85rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+@media (min-width: 640px) {
+    .feature-card {
+        padding: 16px;
+    }
+
+    .feature-card h4 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .feature-card p {
+        font-size: 0.875rem;
+    }
+}
+
+/* Highlight Box */
+.highlight-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 16px;
+}
+
+.highlight-box strong {
+    color: #92400e;
+}
+
+.highlight-box-margin {
+    margin-top: 20px;
+}
+
+@media (min-width: 640px) {
+    .highlight-box {
+        padding: 16px;
     }
 }
 

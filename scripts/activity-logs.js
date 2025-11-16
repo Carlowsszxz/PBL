@@ -173,26 +173,27 @@ async function viewLogs(filters = null) {
             return;
         }
 
-        let html = '<table class="logs-table"><thead><tr><th>Time</th><th>Event</th><th>User</th><th>Seat</th><th>Noise (dB)</th><th>RFID UID</th></tr></thead><tbody>';
+        let html = '<table class="logs-table"><thead><tr><th>Time</th><th>Event</th><th>User</th><th>Seat</th><th>Noise (dB)</th><th>RFID UID</th><th>Actions</th></tr></thead><tbody>';
 
         logs.forEach(log => {
             const time = new Date(log.created_at).toLocaleString();
-            const eventIcon = log.event === 'login' ? '🔵' : log.event === 'logout' ? '🔴' : '🔊';
             const eventText = log.event === 'login' ? 'LOGIN' : log.event === 'logout' ? 'LOGOUT' : log.event.toUpperCase();
             const eventClass = log.event === 'login' ? 'event-login' : log.event === 'logout' ? 'event-logout' : 'event-noise';
 
             html += '<tr>';
             html += '<td>' + time + '</td>';
-            html += '<td class="' + eventClass + '">' + eventIcon + ' ' + escapeHtml(eventText) + '</td>';
+            html += '<td class="' + eventClass + '">' + escapeHtml(eventText) + '</td>';
             html += '<td>' + escapeHtml(log.name || 'N/A') + '</td>';
             html += '<td>' + (log.seat_number ? 'Seat ' + log.seat_number : '-') + '</td>';
             html += '<td>' + (log.decibel !== null && log.decibel !== undefined ? log.decibel + ' dB' : '-') + '</td>';
             html += '<td>' + escapeHtml(log.uid || 'N/A') + '</td>';
+            html += '<td><button onclick="deleteLog(\'' + log.id + '\')" class="delete-btn px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 transition-colors duration-200 flex items-center gap-1"><i data-lucide="trash-2" class="w-3 h-3"></i><span class="text-xs">Delete</span></button></td>';
             html += '</tr>';
         });
 
         html += '</tbody></table>';
         document.getElementById('logData').innerHTML = html;
+        if (window.lucide) lucide.createIcons();
     } catch (err) {
         console.error('Error loading logs:', err);
         document.getElementById('logData').innerHTML = '<p style="color:red;padding:20px;">Error loading logs: ' + err.message + '</p>';
@@ -313,4 +314,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (window.lucide) lucide.createIcons();
 });
+
+// Delete all logs function
+async function deleteAllLogs() {
+    if (!confirm('Are you sure you want to delete all logs? This action cannot be undone.')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('actlog_iot').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+        if (error) throw error;
+        alert('All logs deleted successfully.');
+        viewLogs(); // Reload the logs
+    } catch (err) {
+        console.error('Error deleting all logs:', err);
+        alert('Error deleting logs: ' + err.message);
+    }
+}
+
+// Delete individual log function
+async function deleteLog(logId) {
+    if (!confirm('Are you sure you want to delete this log entry?')) {
+        return;
+    }
+    try {
+        const { error } = await supabase.from('actlog_iot').delete().eq('id', logId);
+        if (error) throw error;
+        viewLogs(); // Reload the logs
+    } catch (err) {
+        console.error('Error deleting log:', err);
+        alert('Error deleting log: ' + err.message);
+    }
+}
 
