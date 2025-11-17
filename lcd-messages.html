@@ -15,21 +15,138 @@
     <link rel="stylesheet" href="styles/setup.css">
     <link rel="stylesheet" href="styles/lcd-messages.css">
     <style>
-            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
-            border: 1px solid rgba(60, 60, 80, 0.4) !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+        /* Layout tweaks for lcd-messages page */
+        .lcd-messages-full-width {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        /* Disable hover effects on cards */
-        .admin-card:hover {
-            transform: none !important;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        /* Card adjustments: a little more breathing room */
+        .admin-card {
+            padding: 1.25rem; /* 20px */
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            border: 1px solid rgba(100,100,120,0.06);
         }
 
-            background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-            transform: none !important;
+        .admin-card-header {
+            margin-bottom: 0.75rem;
         }
+
+        /* Form styles */
+        .message-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        #messageInput {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.75rem 0.9rem;
+            border-radius: 10px;
+            border: 1px solid rgba(100,100,120,0.12);
+            resize: vertical;
+            font-size: 0.95rem;
+            line-height: 1.25;
+            background-color: rgba(255,255,255,0.02);
+            color: inherit;
+            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+
+        .table-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(100,100,120,0.12);
+            background-color: rgba(255,255,255,0.02);
+            font-size: 0.95rem;
+        }
+
+        .character-count {
+            margin-top: 0.35rem;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        /* LCD preview styling to emulate a 20x4 screen */
+        .message-preview {
+            margin-top: 1rem;
+        }
+
+        #previewContent {
+            width: 100%;
+            max-width: 420px;
+            height: auto;
+            min-height: 88px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #02180b 0%, #052215 100%);
+            color: #b9f6b9;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.6), 0 8px 24px rgba(2,18,11,0.45);
+            border: 1px solid rgba(0,0,0,0.45);
+            white-space: pre-wrap;
+        }
+
+        .preview-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Recent messages list items */
+        .message-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid rgba(100,100,120,0.06);
+            background-color: rgba(255,255,255,0.01);
+            margin-bottom: 0.6rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .message-item .meta {
+            font-size: 0.82rem;
+            color: #9aa4b2;
+        }
+
+        /* Refresh button icon + text alignment */
+        .btn-refresh {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .lcd-messages-full-width { padding: 0 1rem; }
+            #previewContent { max-width: 100%; }
+        }
+        /* One-time popup (appears once after delay) */
+        .one-time-popup{
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 9999;
+            display: none;
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .28s ease, transform .28s ease;
+            background: linear-gradient(180deg, #ffffff, #fbfbfb);
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(2,6,23,0.12);
+            min-width: 260px;
+        }
+        .one-time-popup.show{ display: block; opacity: 1; transform: none; }
+        .one-time-popup .popup-inner{ display:flex; align-items:center; gap:0.5rem; }
+        .one-time-popup .popup-message{ font-size:0.95rem; color:#0f172a; }
+        .one-time-popup .popup-close{ margin-left:auto; background:transparent; border:none; font-size:1.1rem; line-height:1; cursor:pointer; color:#64748b; }
     </style>
 </head>
 
@@ -92,7 +209,7 @@
                     <form id="messageForm" class="message-form">
                         <div class="form-group">
                             <label for="tableSelect" class="form-label">Select Table:</label>
-                            <select id="tableSelect" class="table-select">
+                            <select id="tableSelect" class="table-select px-3 py-2 text-sm">
                                 <option value="table-1">Table 1</option>
                                 <option value="table-2" disabled>Table 2 (Future Expansion)</option>
                                 <option value="table-3" disabled>Table 3 (Future Expansion)</option>
@@ -102,29 +219,26 @@
 
                         <div class="form-group">
                             <label for="messageInput" class="form-label">Message (max 80 characters, 4 lines):</label>
-                            <textarea id="messageInput"
+                            <textarea id="messageInput" class="message-textarea mt-2"
                                 placeholder="Enter your message here...&#10;Example:&#10;Welcome to Lab!&#10;Please maintain&#10;quiet environment"
                                 maxlength="80"></textarea>
                             <div class="character-count"><span id="charCount">0</span> / 80 characters</div>
                         </div>
 
-                        <div class="checkbox-group"><label><input type="checkbox" id="priorityCheck"> Priority (display
-                                immediately, override current screen)</label></div>
+                        <div class="checkbox-group flex items-center gap-2 mb-3"><label><input type="checkbox" id="priorityCheck"> <span class="ml-1">Priority (display immediately, override current screen)</span></label></div>
 
-                        <div class="checkbox-group"><label><input type="number" id="displayDuration" value="10" min="1"
-                                    max="300" class="duration-input"> Display Duration (seconds, 1-300)</label></div>
+                        <div class="checkbox-group flex items-center gap-2 mb-3"><label><input type="number" id="displayDuration" value="10" min="1" max="300" class="duration-input ml-2" style="width:6rem;"> <span class="ml-2">Display Duration (seconds, 1-300)</span></label></div>
 
                         <div class="button-group flex gap-3 flex-wrap">
-                            <button type="submit" class="setup-btn btn btn-primary">Send to LCD</button>
-                            <button type="button" onclick="clearMessage()"
-                                class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear
-                                Message</button>
+                            <button type="submit" class="setup-btn btn btn-primary px-5 py-3">Send to LCD</button>
+                            <button type="button" id="oneTimeBtn" class="px-5 py-3 rounded-xl text-slate-800 font-semibold shadow hover:bg-slate-100">Send One-Time Message</button>
+                            <button type="button" onclick="clearMessage()" class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear Message</button>
                         </div>
                     </form>
 
                     <div id="messagePreview" class="message-preview hidden">
                         <div class="preview-label">LCD Preview (20 chars × 4 lines):</div>
-                        <div id="previewContent"></div>
+                        <div id="previewContent" aria-live="polite"></div>
                     </div>
 
                     <div id="messageStatus" class="message-status hidden"></div>
@@ -134,14 +248,13 @@
                 <section class="admin-card card-fadein lcd-messages-full-width">
                     <div class="admin-card-header flex items-center justify-between">
                         <h2 class="text-lg font-semibold setup-title-color">Recent Messages</h2>
-                        <button onclick="loadMessages()" class="btn btn-sm setup-btn"
-                            aria-label="Refresh messages list">
+                        <button onclick="loadMessages()" class="btn btn-sm setup-btn btn-refresh" aria-label="Refresh messages list">
                             <i data-lucide="refresh-cw"></i>
-                            Refresh
+                            <span>Refresh</span>
                         </button>
                     </div>
                     <div id="messageList" class="message-list">
-                        <p>Loading messages...</p>
+                        <div class="p-4 text-sm text-slate-400">Loading messages...</div>
                     </div>
                 </section>
             </div>
@@ -149,6 +262,112 @@
     </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- One-time popup markup and behavior: shows after 10s, hides after a few seconds, then never shows again -->
+    <div id="oneTimePopup" class="one-time-popup" role="status" aria-live="polite" aria-hidden="true">
+        <div class="popup-inner">
+            <div class="popup-message">Welcome to LCD Messages — this popup shows just once.</div>
+            <button id="oneTimePopupClose" class="popup-close" aria-label="Dismiss">×</button>
+        </div>
+    </div>
+
+    <!-- One-time message div triggered by button -->
+    <div id="oneTimeMessage" class="one-time-popup" role="status" aria-live="polite" aria-hidden="true" style="left: 24px; bottom: 24px;">
+        <div class="popup-inner">
+            <div class="popup-message">This is a one-time message displayed only once when the button is clicked.</div>
+            <button id="oneTimeMessageClose" class="popup-close" aria-label="Dismiss">×</button>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        const KEY = 'lcd_messages_popup_shown_v1';
+        try {
+            if (localStorage.getItem(KEY)) return;
+        } catch (e) { /* ignore storage errors */ }
+
+        function showPopup() {
+            const popup = document.getElementById('oneTimePopup');
+            if (!popup) return;
+            popup.setAttribute('aria-hidden','false');
+            // reveal with class for transition
+            requestAnimationFrame(() => popup.classList.add('show'));
+
+            // auto-hide after 5 seconds
+            const hideTimer = setTimeout(hidePopup, 5000);
+
+            // manual close
+            const closeBtn = document.getElementById('oneTimePopupClose');
+            if (closeBtn) closeBtn.addEventListener('click', () => { clearTimeout(hideTimer); hidePopup(); });
+
+            // mark as shown so it won't appear again
+            try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        }
+
+        function hidePopup() {
+            const popup = document.getElementById('oneTimePopup');
+            if (!popup) return;
+            popup.classList.remove('show');
+            popup.setAttribute('aria-hidden','true');
+            popup.addEventListener('transitionend', function cleanup() { try{ popup.style.display = 'none'; } catch(e){} popup.removeEventListener('transitionend', cleanup); }, { once: true });
+        }
+
+        // show after 10 seconds (page load)
+        window.addEventListener('load', function(){
+            const params = new URLSearchParams(window.location.search);
+            const force = params.get('showPopup') === '1' || params.get('debug_popup') === '1';
+            if (force) {
+                // ignore stored flag and show immediately for debugging
+                try { localStorage.removeItem(KEY); } catch(e){}
+                showPopup();
+                return;
+            }
+            setTimeout(showPopup, 10000);
+        });
+    })();
+
+    // One-time message triggered by button
+    (function(){
+        const KEY = 'one_time_message_shown_v1';
+        let hasShown = false;
+        try {
+            hasShown = !!localStorage.getItem(KEY);
+        } catch (e) { /* ignore */ }
+
+        function showOneTimeMessage() {
+            if (hasShown) return; // already shown, do nothing
+
+            const popup = document.getElementById('oneTimeMessage');
+            if (!popup) return;
+            popup.setAttribute('aria-hidden','false');
+            requestAnimationFrame(() => popup.classList.add('show'));
+
+            // auto-hide after 5 seconds
+            const hideTimer = setTimeout(hideOneTimeMessage, 5000);
+
+            // manual close
+            const closeBtn = document.getElementById('oneTimeMessageClose');
+            if (closeBtn) closeBtn.addEventListener('click', () => { clearTimeout(hideTimer); hideOneTimeMessage(); });
+
+            // mark as shown
+            hasShown = true;
+            try { localStorage.setItem(KEY, '1'); } catch (e) {}
+        }
+
+        function hideOneTimeMessage() {
+            const popup = document.getElementById('oneTimeMessage');
+            if (!popup) return;
+            popup.classList.remove('show');
+            popup.setAttribute('aria-hidden','true');
+            popup.addEventListener('transitionend', function cleanup() { try{ popup.style.display = 'none'; } catch(e){} popup.removeEventListener('transitionend', cleanup); }, { once: true });
+        }
+
+        // Attach to button
+        document.addEventListener('DOMContentLoaded', function(){
+            const btn = document.getElementById('oneTimeBtn');
+            if (btn) btn.addEventListener('click', showOneTimeMessage);
+        });
+    })();
+    </script>
     <script src="scripts/login-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts/lcd-messages.js"></script>

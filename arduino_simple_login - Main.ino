@@ -28,12 +28,11 @@ const unsigned long LED_BLINK_INTERVAL = 400UL; // ms (between 300-500)
 static unsigned long lastLedToggle = 0;
 static bool ledOutputState = false; // current physical LED output state
 
+static void refreshLed();
+static void setLedNoise(bool v) { ledNoise = v; refreshLed(); }
+static void setLedLogin(bool v) { ledLogin = v; refreshLed(); }
 
-void refreshLed();
-void setLedNoise(bool v) { ledNoise = v; refreshLed(); }
-void setLedLogin(bool v) { ledLogin = v; refreshLed(); }
-
-void refreshLed() {
+static void refreshLed() {
   // Behavior:
   // - If login requests LED (ledLogin == true), show steady ON.
   // - Else if noise requests LED (ledNoise == true), blink at LED_BLINK_INTERVAL.
@@ -62,7 +61,7 @@ void refreshLed() {
 }
 
 // Non-blocking RFID suppression (used to replace long blocking delays)
-unsigned long ignoreRfidUntil = 0;
+static unsigned long ignoreRfidUntil = 0;
 
 
 // ================================================================
@@ -165,62 +164,9 @@ bool showingNoiseWarning = false;  // Whether we're currently showing a noise wa
 unsigned long noiseWarningStartTime = 0;  // When noise warning started
 const unsigned long NOISE_WARNING_DURATION = 5000;  // Show warning for 5 seconds
 int lastNoiseLevel = 0;  // Track last noise level for threshold detection
-// How often to send noise updates to the DB (ms). Lower = more realtime but more network usage.
-const unsigned long NOISE_LOG_INTERVAL_MS = 1000UL; // send updates roughly every 1 second
-int lastLoggedNoise = -1; // value last sent to DB (avoid sending duplicates)
 
 // How long to display unregistered-card message (ms)
 const unsigned long UNREGISTERED_DISPLAY_DURATION = 20000UL; // 20 seconds
-
-// How long to display the transient welcome message after login (ms)
-const unsigned long WELCOME_MESSAGE_DURATION = 1500UL; // 1.5 seconds
-// Tuneable HTTP timeout for faster failures during poor connectivity
-const unsigned long HTTP_TIMEOUT_MS = 800UL; // ms
-
-// Track transient welcome/short-status text written to the LCD so we can detect
-// and clear/replace it if an admin message should be shown instead.
-bool transientWelcomeDisplayed = false;
-unsigned long transientWelcomeStart = 0;
-
-// Check if a transient welcome is currently visible and replace it if needed.
-void checkAndReplaceTransientWelcome() {
-  if (!transientWelcomeDisplayed) return;
-
-  // If an admin LCD message became active while a transient welcome was showing,
-  // restore the admin message immediately.
-  if (showingLcdMessage && lcdMessage.length() > 0) {
-    displayLcdMessage();
-    transientWelcomeDisplayed = false;
-    return;
-  }
-
-  // If the transient welcome has overstayed its intended duration, clear it and
-  // replace with the appropriate fallback display (admin message already handled above).
-  if (millis() - transientWelcomeStart > (WELCOME_MESSAGE_DURATION + 500)) {
-    transientWelcomeDisplayed = false;
-
-    // If a noise warning is active, re-draw it
-    if (showingNoiseWarning) {
-      // Re-display current noise warning (uses lastNoiseLevel for context)
-      String msg = "Noise: " + String(lastNoiseLevel) + " dB";
-      displayNoiseWarning(msg);
-      return;
-    }
-
-    // Switch to idle display: clear LCD and let loop show noise on line 3 if logged in,
-    // or show ready state if not logged in
-    if (loggedInUser != "") {
-      // Logged in: clear LCD, loop will show noise on line 3
-      lcd.clear();
-    } else {
-      // Not logged in: show ready state
-      lcd.clear();
-      lcd.print("Ready for RFID...");
-      lcd.setCursor(0, 1);
-      lcd.print("Tap your card");
-    }
-  }
-}
 
 // ================================================================
 // ====== Log Event to Database ======
@@ -239,10 +185,10 @@ void logEvent(String rfidUid, String userName, String eventType, int seatNum = 0
   
   Serial.println("Sound level: " + String(decibel) + " dB");
   
-    HTTPClient http;
-    String url = String(supabaseUrl) + "/rest/v1/actlog_iot";
-    http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  HTTPClient http;
+  String url = String(supabaseUrl) + "/rest/v1/actlog_iot";
+  http.begin(url);
+  http.setTimeout(2000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
@@ -313,11 +259,11 @@ String getUserFromRfid(String rfidUid) {
   
   HTTPClient http;
   // Query: Get user_id and user name from rfid_cards and users tables
-    String url = String(supabaseUrl) + "/rest/v1/rfid_cards?rfid_uid=eq." + rfidUid + 
-                 "&select=user_id,users(first_name,last_name,email)&is_active=eq.true";
+  String url = String(supabaseUrl) + "/rest/v1/rfid_cards?rfid_uid=eq." + rfidUid + 
+               "&select=user_id,users(first_name,last_name,email)&is_active=eq.true";
   
   http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  http.setTimeout(2000);
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
   
@@ -373,9 +319,9 @@ int findAvailableSeat() {
   Serial.println("Finding available seat...");
   
   HTTPClient http;
-    String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq.table-1&is_occupied=eq.true&select=seat_number";
-    http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq.table-1&is_occupied=eq.true&select=seat_number";
+  http.begin(url);
+  http.setTimeout(2000);
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
   
@@ -415,15 +361,14 @@ int findAvailableSeat() {
   return -1;
 }
 
-// Attempt to mark a seat as occupied in the backend. Returns true on success.
-bool occupySeat(int seatNumber, String identifier) {
+void occupySeat(int seatNumber, String identifier) {
   // identifier should be the user's email (fallback to UID if email unavailable)
   Serial.println("Occupying seat " + String(seatNumber) + " by " + identifier);
   
   HTTPClient http;
-    String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq.table-1&seat_number=eq." + String(seatNumber);
-    http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq.table-1&seat_number=eq." + String(seatNumber);
+  http.begin(url);
+  http.setTimeout(2000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
@@ -444,15 +389,12 @@ bool occupySeat(int seatNumber, String identifier) {
   int code = http.sendRequest("PATCH", body);
   Serial.println("HTTP Code: " + String(code));
   
-  if (code == 204 || code == 200) {
-    http.end();
-    return true;
-  } else {
+  if (code != 204 && code != 200) {
     String response = http.getString();
-    Serial.println("✗ Occupy seat failed, response: " + response);
-    http.end();
-    return false;
+    Serial.println("Response: " + response);
   }
+  
+  http.end();
 }
 
 // ================================================================
@@ -489,7 +431,7 @@ String findUserInOtherTable(String email, String uidFallback) {
     HTTPClient http2;
     String url2 = String(supabaseUrl) + "/rest/v1/occupancy?occupied_by=eq." + uidFallback + "&is_occupied=eq.true&select=table_id,seat_number";
     http2.begin(url2);
-    http2.setTimeout(HTTP_TIMEOUT_MS);
+    http2.setTimeout(2000);
     http2.addHeader("apikey", supabaseKey);
     http2.addHeader("Authorization", "Bearer " + String(supabaseKey));
     int code2 = http2.GET();
@@ -521,9 +463,9 @@ void freeSeatInTable(String table, int seatNumber) {
   Serial.println("Freeing seat " + String(seatNumber) + " in " + table);
   
   HTTPClient http;
-    String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq." + table + "&seat_number=eq." + String(seatNumber);
-    http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq." + table + "&seat_number=eq." + String(seatNumber);
+  http.begin(url);
+  http.setTimeout(2000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
@@ -552,10 +494,10 @@ void freeSeatInTable(String table, int seatNumber) {
 // Returns seat number (>0) if this user is currently seated in tableId, else 0
 int findSeatInThisTable(String email, String uidFallback) {
   HTTPClient http;
-    String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq." + String(tableId) +
-                 "&is_occupied=eq.true&occupied_by=eq." + email + "&select=seat_number";
+  String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq." + String(tableId) +
+               "&is_occupied=eq.true&occupied_by=eq." + email + "&select=seat_number";
   http.begin(url);
-    http.setTimeout(HTTP_TIMEOUT_MS);
+  http.setTimeout(2000);
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
   int code = http.GET();
@@ -574,7 +516,7 @@ int findSeatInThisTable(String email, String uidFallback) {
     String url2 = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq." + String(tableId) +
                  "&is_occupied=eq.true&occupied_by=eq." + uidFallback + "&select=seat_number";
     http2.begin(url2);
-    http2.setTimeout(HTTP_TIMEOUT_MS);
+    http2.setTimeout(2000);
     http2.addHeader("apikey", supabaseKey);
     http2.addHeader("Authorization", "Bearer " + String(supabaseKey));
     int code2 = http2.GET();
@@ -601,7 +543,7 @@ int findMySeat(String uid) {
   HTTPClient http;
   String url = String(supabaseUrl) + "/rest/v1/actlog_iot?uid=eq." + uid + "&order=created_at.desc&limit=10";
   http.begin(url);
-  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.setTimeout(2000);
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
   
@@ -656,7 +598,7 @@ void freeSeat(int seatNumber) {
   HTTPClient http;
   String url = String(supabaseUrl) + "/rest/v1/occupancy?table_id=eq.table-1&seat_number=eq." + String(seatNumber);
   http.begin(url);
-  http.setTimeout(HTTP_TIMEOUT_MS);
+  http.setTimeout(2000);
   http.addHeader("Content-Type", "application/json");
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
@@ -689,7 +631,7 @@ void logNoiseUpdate(int db) {
   
   // Try PATCH first (update existing record)
   HTTPClient http;
-  http.setTimeout(1000);  // 1 second timeout - fail faster for realtime behavior
+  http.setTimeout(2000);  // 2 second timeout
   
   String url = String(supabaseUrl) + "/rest/v1/noise_log?table_id=eq." + tableId;
   if (!http.begin(url)) {
@@ -711,7 +653,7 @@ void logNoiseUpdate(int db) {
   
   // If PATCH failed (404 = record doesn't exist), create it with POST
   if (code == 404 || code < 200 || code >= 300) {
-    http.setTimeout(1000);
+    http.setTimeout(2000);
     if (!http.begin(String(supabaseUrl) + "/rest/v1/noise_log")) {
       return;
     }
@@ -941,7 +883,7 @@ void checkLcdMessage() {
   http.begin(url);
   http.addHeader("apikey", supabaseKey);
   http.addHeader("Authorization", "Bearer " + String(supabaseKey));
-  http.setTimeout(HTTP_TIMEOUT_MS);  // request timeout
+  http.setTimeout(2000);  // 2 second timeout
   
   int code = http.GET();
   
@@ -960,20 +902,20 @@ void checkLcdMessage() {
         
         // If we got a non-empty message and it's new or priority
         if (newMessage.length() > 0) {
-          // If it's a priority message, always show it.
-          // If it's not priority, only set it if we're not already showing a message.
+          // If it's a priority message, always show it
+          // If it's not priority, only show if we're not already showing a message
           if (isPriority || !showingLcdMessage) {
             lcdMessage = newMessage;
             lcdMessagePriority = isPriority;
             lcdMessageDuration = (unsigned long)duration * 1000;  // Convert to milliseconds
             lcdMessageStartTime = millis();
             showingLcdMessage = true;
-
-            // Always display the admin message immediately when it is accepted.
-            // Previously this only displayed when no user was logged in or when it was priority,
-            // which prevented non-priority admin messages from appearing while a user was logged in.
-            displayLcdMessage();
-
+            
+            // Display the message immediately if priority, or if not currently showing anything important
+            if (isPriority || loggedInUser == "") {
+              displayLcdMessage();
+            }
+            
             Serial.println("✓ LCD Message received: " + newMessage.substring(0, min(20, (int)newMessage.length())));
             Serial.println("  Priority: " + String(isPriority ? "YES" : "NO"));
             Serial.println("  Duration: " + String(duration) + " seconds");
@@ -1004,9 +946,6 @@ void checkLcdMessage() {
                 lcd.setCursor(0, 3);
                 lcd.print("Seat: " + String(currentSeat));
               }
-              // Track that we printed a transient welcome so the checker can replace it
-              transientWelcomeDisplayed = true;
-              transientWelcomeStart = millis();
             }
           }
         }
@@ -1240,9 +1179,6 @@ void clearNoiseWarning() {
         lcd.setCursor(0, 3);
         lcd.print("Seat: " + String(currentSeat));
       }
-      // Track that we printed a transient welcome so the checker can replace it
-      transientWelcomeDisplayed = true;
-      transientWelcomeStart = millis();
     }
   }
   
@@ -1328,7 +1264,7 @@ void loop() {
   
   // If showing priority message, don't update noise display or process RFID
   if (showingLcdMessage && lcdMessagePriority && lcdMessage.length() > 0) {
-    delay(20);
+    delay(100);
     return;  // Skip normal operations while priority message is showing
   }
   
@@ -1337,37 +1273,40 @@ void loop() {
   static unsigned long lastNoiseLog = 0;
   static bool showingIdle = true;
   
-  if (millis() - lastSoundCheck > 500) {  // Check more frequently (every 500ms)
-    // Use a single quicker reading for more realtime updates
-    int avgDb = readSoundLevel();
-
-    // Check for noise threshold warnings (only if not showing admin message or admin message is not priority)
-    if (!showingLcdMessage || !lcdMessagePriority) {
-      checkNoiseThresholds(avgDb);
+  if (millis() - lastSoundCheck > 2000) {  // Check every 2 seconds for stability
+    // Take average of 5 readings for stable value
+    float totalDb = 0;
+    int samples = 0;
+    for (int i = 0; i < 5; i++) {
+      int db = readSoundLevel();
+      totalDb += db;  // Include all readings, even 0 (quiet = 0 dB, not an error)
+      samples++;
     }
-
-    // ALWAYS show noise level on line 3 when idle (never hide it)
-    // But only if we're not showing an LCD message or noise warning
-    if (showingIdle && !showingLcdMessage && !showingNoiseWarning) {
-      lcd.setCursor(0, 3);
-      lcd.print("Noise: " + String(avgDb) + " dB    ");
-      Serial.println("Average noise: " + String(avgDb) + " dB");
-    }
-
-    // Log noise to database at a faster interval but avoid sending duplicate values
-    if (millis() - lastNoiseLog > NOISE_LOG_INTERVAL_MS) {
-      // Only send if value changed since last sent, or force-send every 5s to ensure occasional heartbeat
-      if (avgDb != lastLoggedNoise || (millis() - lastNoiseLog) > 5000) {
+    
+    if (samples > 0) {
+      int avgDb = (int)(totalDb / samples);
+      
+      // Check for noise threshold warnings (only if not showing admin message or admin message is not priority)
+      if (!showingLcdMessage || !lcdMessagePriority) {
+        checkNoiseThresholds(avgDb);
+      }
+      
+      // ALWAYS show noise level on line 3 when idle (never hide it)
+      // But only if we're not showing an LCD message or noise warning
+      if (showingIdle && !showingLcdMessage && !showingNoiseWarning) {
+        lcd.setCursor(0, 3);
+        lcd.print("Noise: " + String(avgDb) + " dB    ");
+        Serial.println("Average noise: " + String(avgDb) + " dB");
+      }
+      
+      // Log noise to database every 5 seconds (continuously, even when no user logged in)
+      if (millis() - lastNoiseLog > 5000) {
         logNoiseUpdate(avgDb);
-        lastLoggedNoise = avgDb;
-        lastNoiseLog = millis();
-      } else {
-        // update timestamp without sending so we still evaluate future timeouts
         lastNoiseLog = millis();
       }
+      
+      lastNoiseLevel = avgDb;  // Store for threshold detection
     }
-
-    lastNoiseLevel = avgDb;  // Store for threshold detection
     lastSoundCheck = millis();
   }
   
@@ -1396,8 +1335,6 @@ void loop() {
     
     Serial.println("\n=================================");
     Serial.println("RFID Card Detected: " + uid);
-    // short debounce to avoid duplicate rapid reads
-    ignoreRfidUntil = millis() + 500;
     
     // Store whether we were showing an LCD message before processing RFID
     bool wasShowingLcdMessage = showingLcdMessage;
@@ -1427,16 +1364,13 @@ void loop() {
 
       if (AUTO_TRANSFER_ENABLED && otherTableId.length() > 0) {
         // User is in another table - TRANSFER them to this table
-        // Only update the LCD if there was no admin message showing before the tap.
-        if (!wasShowingLcdMessage) {
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Transferring...");
-          lcd.setCursor(0, 1);
-          lcd.print("From " + otherTableId);
-          lcd.setCursor(0, 2);
-          lcd.print("To " + String(tableId));
-        }
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Transferring...");
+        lcd.setCursor(0, 1);
+        lcd.print("From " + otherTableId);
+        lcd.setCursor(0, 2);
+        lcd.print("To " + String(tableId));
 
         Serial.println("✓ Transferring " + userName + " from " + otherTableId + " to " + String(tableId));
 
@@ -1444,7 +1378,7 @@ void loop() {
         HTTPClient http;
         String checkUrl = String(supabaseUrl) + "/rest/v1/occupancy?occupied_by=eq." + email + "&is_occupied=eq.true&select=seat_number";
         http.begin(checkUrl);
-        http.setTimeout(HTTP_TIMEOUT_MS);
+        http.setTimeout(2000);
         http.addHeader("apikey", supabaseKey);
         http.addHeader("Authorization", "Bearer " + String(supabaseKey));
 
@@ -1459,7 +1393,7 @@ void loop() {
             // Fallback to UID for legacy rows
             http.end();
             http.begin(String(supabaseUrl) + "/rest/v1/occupancy?occupied_by=eq." + uid + "&is_occupied=eq.true&select=seat_number");
-            http.setTimeout(HTTP_TIMEOUT_MS);
+            http.setTimeout(2000);
             http.addHeader("apikey", supabaseKey);
             http.addHeader("Authorization", "Bearer " + String(supabaseKey));
             if (http.GET() == 200) {
@@ -1485,42 +1419,28 @@ void loop() {
         logEvent(uid, userName, "logout", oldSeatNum);
         logEvent(uid, userName, "transfer", oldSeatNum);
 
-        // Brief pause after transfer actions. Only pause/show welcome when there was
-        // no admin LCD message active before the tap (so we don't override it).
-        if (!wasShowingLcdMessage) {
-          // Show welcome immediately but do not block the loop; mark transient
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Welcome!");
-          lcd.setCursor(0, 1);
-          lcd.print(userName);
-          lcd.setCursor(0, 2);
-          lcd.print("Transferred!");
-          transientWelcomeDisplayed = true;
-          transientWelcomeStart = millis();
-        }
+        delay(1500);
+
+        // Now assign them to this table
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Welcome!");
+        lcd.setCursor(0, 1);
+        lcd.print(userName);
+        lcd.setCursor(0, 2);
+        lcd.print("Transferred!");
 
         // Find and occupy a seat in this table
         int availableSeat = findAvailableSeat();
         if (availableSeat > 0) {
-          bool ok = occupySeat(availableSeat, email); // write email to occupancy
-          if (ok) {
-            currentSeat = availableSeat;
-            if (!wasShowingLcdMessage) {
-              lcd.setCursor(0, 3);
-              lcd.print("Seat: " + String(availableSeat));
-            }
+          occupySeat(availableSeat, email); // write email to occupancy
+          currentSeat = availableSeat;
+          lcd.setCursor(0, 3);
+          lcd.print("Seat: " + String(availableSeat));
 
-            // Log login event with seat number
-            logEvent(uid, userName, "login", availableSeat);
-            Serial.println("Transferred FROM " + otherTableId + " → TO " + String(tableId) + " | OldSeat=" + String(oldSeatNum) + " NewSeat=" + String(availableSeat));
-          } else {
-            Serial.println("✗ Occupy seat failed during transfer for seat " + String(availableSeat));
-            if (!wasShowingLcdMessage) {
-              lcd.setCursor(0, 3);
-              lcd.print("Seat err");
-            }
-          }
+          // Log login event with seat number
+          logEvent(uid, userName, "login", availableSeat);
+          Serial.println("Transferred FROM " + otherTableId + " → TO " + String(tableId) + " | OldSeat=" + String(oldSeatNum) + " NewSeat=" + String(availableSeat));
         } else {
           lcd.setCursor(0, 3);
           lcd.print("No free seats!");
@@ -1555,42 +1475,26 @@ void loop() {
 
       } else {
         // LOGIN - User doesn't have a seat anywhere
-        // If an admin LCD message was showing before the tap, do not override it with welcome text.
-        if (!wasShowingLcdMessage) {
-          lcd.clear();
-          lcd.setCursor(0, 0);
-          lcd.print("Welcome!");
-          lcd.setCursor(0, 1);
-          lcd.print(userName);
-          lcd.setCursor(0, 2);
-          lcd.print("Logged IN");
-          // Mark transient welcome displayed so checker can clear it if needed
-          transientWelcomeDisplayed = true;
-          transientWelcomeStart = millis();
-        }
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Welcome!");
+        lcd.setCursor(0, 1);
+        lcd.print(userName);
+        lcd.setCursor(0, 2);
+        lcd.print("Logged IN");
 
         Serial.println("✓ Logged IN: " + userName);
 
         // Find and occupy a seat
         int availableSeat = findAvailableSeat();
         if (availableSeat > 0) {
-          bool ok = occupySeat(availableSeat, email); // write email to occupancy
-          if (ok) {
-            currentSeat = availableSeat;
-            if (!wasShowingLcdMessage) {
-              lcd.setCursor(0, 3);
-              lcd.print("Seat: " + String(availableSeat));
-            }
+          occupySeat(availableSeat, email); // write email to occupancy
+          currentSeat = availableSeat;
+          lcd.setCursor(0, 3);
+          lcd.print("Seat: " + String(availableSeat));
 
-            // Log login event with seat number
-            logEvent(uid, userName, "login", availableSeat);
-          } else {
-            Serial.println("✗ Occupy seat failed for seat " + String(availableSeat));
-            if (!wasShowingLcdMessage) {
-              lcd.setCursor(0, 3);
-              lcd.print("Seat err");
-            }
-          }
+          // Log login event with seat number
+          logEvent(uid, userName, "login", availableSeat);
         } else {
           lcd.setCursor(0, 3);
           lcd.print("No free seats!");
@@ -1606,16 +1510,14 @@ void loop() {
         currentRfidUid = uid;  // Store for noise logging
         currentUserName = userName;  // Store for noise logging
 
-        // Do not block here; we already set transientWelcomeDisplayed when printing
-
+        delay(3000);
         if (wasShowingLcdMessage && savedLcdMessage.length() > 0) {
           // Restore LCD message
           lcdMessage = savedLcdMessage;
           lcdMessagePriority = savedLcdMessagePriority;
           showingLcdMessage = true;
           displayLcdMessage();
-        } else if (!showingLcdMessage && !transientWelcomeDisplayed) {
-          // Only clear and show ready if no transient welcome is active
+        } else if (!showingLcdMessage) {
           lcd.clear();
           lcd.print("Ready for RFID...");
           lcd.setCursor(0, 1);
@@ -1623,14 +1525,15 @@ void loop() {
         }
         showingIdle = true;
 
-        // Immediately show current noise level (if not showing LCD message and no transient)
-        if (!showingLcdMessage && !transientWelcomeDisplayed) {
+        // Immediately show current noise level (if not showing LCD message)
+        if (!showingLcdMessage) {
           int currentNoise = readSoundLevel();
           lcd.setCursor(0, 3);
           lcd.print("Noise: " + String(currentNoise) + " dB    ");
         }
       } else {
-        // Logout case: do not block the loop; mark transient ready state and continue
+        // Logout case: show ready and do not mark user as active
+        delay(3000);
         if (wasShowingLcdMessage && savedLcdMessage.length() > 0) {
           lcdMessage = savedLcdMessage;
           lcdMessagePriority = savedLcdMessagePriority;
@@ -1641,9 +1544,6 @@ void loop() {
           lcd.print("Ready for RFID...");
           lcd.setCursor(0, 1);
           lcd.print("Tap your card");
-          // mark a short transient so UI doesn't get immediately overwritten
-          transientWelcomeDisplayed = true;
-          transientWelcomeStart = millis();
         }
         showingIdle = true;
 
@@ -1690,10 +1590,6 @@ void loop() {
       // Refresh LED state so blinking works even when no setLed* call occurs
       refreshLed();
 
-      // Check for transient welcome text and clear/replace it if an admin message
-      // should be shown (or if the transient has timed out).
-      checkAndReplaceTransientWelcome();
-
-      delay(20);
+      delay(100);
 }
 

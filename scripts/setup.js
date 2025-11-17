@@ -2242,6 +2242,8 @@ window.openAssignModal = function openAssignModal(tableId, seatNumber) {
 
     title.textContent = `Assign ${tableName} - Seat ${seatNumber}`;
     modal.classList.add('active');
+    // Ensure overlay is visible for browsers that may override stylesheet rules
+    try { modal.style.display = 'flex'; } catch (e) { /* ignore */ }
     document.body.style.overflow = 'hidden';
 
     // Reset modal state
@@ -2256,6 +2258,8 @@ window.openAssignModal = function openAssignModal(tableId, seatNumber) {
 window.closeAssignModal = function closeAssignModal() {
     const modal = document.getElementById('assignModal');
     modal.classList.remove('active');
+    // Hide overlay completely to avoid it appearing unexpectedly
+    try { modal.style.display = ''; } catch (e) { /* ignore */ }
     document.body.style.overflow = '';
     currentAssignSeat = null;
     selectedStudent = null;

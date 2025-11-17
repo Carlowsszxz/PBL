@@ -434,7 +434,7 @@
                             </label>
                         </div>
                         <button type="submit"
-                            class="btn setup-btn w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg">Add
+                            class="btn setup-btn w-full sm:w-auto px-4 py-2 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg">Add
                             User & Send
                             Confirmation Email</button>
                     </form>
@@ -494,8 +494,8 @@
     </div>
 
     <!-- Correction Request Modal -->
-    <div id="correctionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white">
+    <div id="correctionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999] hidden px-4">
+        <div class="bg-white w-full max-w-5xl max-h-[90vh] overflow-auto rounded-xl shadow-lg mx-4 sm:mx-auto">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-xl font-semibold text-slate-900">
@@ -591,14 +591,14 @@
                         </div>
                     </div>
 
-                    <div class="flex gap-3 pt-4">
+                    <div class="flex gap-3 pt-4 items-center justify-end">
                         <button type="button" onclick="submitCorrectionRequest()" 
-                            class="flex-1 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            class="w-auto px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-md transition duration-150 hover:shadow-sm inline-flex items-center justify-center gap-2">
                             <i data-lucide="send" class="w-4 h-4"></i>
-                            Send Correction Request
+                            <span class="whitespace-nowrap">Send Correction</span>
                         </button>
                         <button type="button" onclick="closeCorrectionModal()" 
-                            class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+                            class="w-auto px-3 py-1.5 bg-gray-500 hover:bg-gray-600 text-white text-sm font-semibold rounded-md transition duration-150 hover:shadow-sm">
                             Cancel
                         </button>
                     </div>

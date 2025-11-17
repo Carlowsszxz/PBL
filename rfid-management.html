@@ -465,7 +465,7 @@
                     class="w-full p-3 pr-10 rounded-lg border border-gray-300"
                     oninput="filterUsers()" onfocus="showUserDropdown()" required>
                   <button type="button" id="clearUserBtn" onclick="clearUserSelection()" title="Clear selection"
-                    class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <i data-lucide="x" class="w-5 h-5"></i>
                   </button>
                 </div>
@@ -479,12 +479,12 @@
               <!-- Action Buttons -->
               <div class="flex items-center space-x-3 pt-2">
                 <button type="submit"
-                  class="flex items-center px-4 py-2 bg-indigo-600">
+                  class="flex items-center px-4 py-2 text-indigo-600 hover:bg-indigo-50">
                   <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>
                   Register Device
                 </button>
                 <button type="button" onclick="loadUsers()"
-                  class="flex items-center px-4 py-2 bg-gray-100">
+                  class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50">
                   <i data-lucide="refresh-cw" class="w-4 h-4 mr-2"></i>
                   Refresh Users
                 </button>

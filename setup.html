@@ -244,6 +244,20 @@
             font-weight: 600;
         }
 
+        /* Outline button style (no fill, only border) */
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            border-radius: 8px;
+            transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(79,70,229,0.06);
+            color: #3730a3; /* slightly darker on hover */
+        }
+
         .noise-status-badge.safe {
             background: #d1fae5;
             color: #065f46;
@@ -1958,7 +1972,7 @@
                             </div>
                             <div class="flex gap-3 pt-2">
                                 <button type="submit"
-                                    class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700"
+                                    class="flex items-center gap-2 px-6 py-3 btn-outline"
                                     aria-label="Post new announcement">
                                     <i data-lucide="send" class="w-4 h-4"></i>
                                     Post Announcement
@@ -2068,7 +2082,7 @@
     </div>
 
     <!-- Student Assignment Modal -->
-    <div id="assignModal" class="assign-modal-overlay" onclick="if(event.target === this) { closeAssignModal(); }">
+    <div id="assignModal" class="assign-modal-overlay" style="display:none;" onclick="if(event.target === this) { closeAssignModal(); }" aria-hidden="true">
         <div class="assign-modal">
             <div class="assign-modal-header">
                 <h3 id="assignModalTitle">Assign Seat</h3>

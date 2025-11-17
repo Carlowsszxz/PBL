@@ -778,10 +778,32 @@ async function submitCorrectionRequest() {
     }
 }
 
+// Modal helpers: show / close and body scroll lock
+function showCorrectionModal() {
+    const modal = document.getElementById('correctionModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    // prevent background scroll
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    // focus first checkbox if present
+    const firstInput = modal.querySelector('.correction-checkbox');
+    if (firstInput) firstInput.focus();
+}
+
+function closeCorrectionModal() {
+    const modal = document.getElementById('correctionModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    // restore scroll
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+}
+
 // Close modal when clicking outside
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('correctionModal');
-    if (event.target === modal) {
+    if (modal && event.target === modal) {
         closeCorrectionModal();
     }
 });
@@ -790,7 +812,7 @@ document.addEventListener('click', function(event) {
 document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         const modal = document.getElementById('correctionModal');
-        if (!modal.classList.contains('hidden')) {
+        if (modal && !modal.classList.contains('hidden')) {
             closeCorrectionModal();
         }
     }

@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         e.preventDefault();
         await sendMessage();
     });
+
+    // One-time message button
+    document.getElementById('oneTimeBtn').addEventListener('click', async function () {
+        await sendOneTimeMessage();
+    });
 });
 
 async function checkAdminAuth() {
@@ -99,11 +104,20 @@ function updatePreview() {
     preview.textContent = previewText.trim();
 }
 
-async function sendMessage() {
+async function sendOneTimeMessage() {
+    await sendMessage(true);
+}
+
+async function sendMessage(isOneTime = false) {
     const message = document.getElementById('messageInput').value.trim();
     const tableId = document.getElementById('tableSelect').value;
-    const isPriority = document.getElementById('priorityCheck').checked;
-    const duration = parseInt(document.getElementById('displayDuration').value) || 10;
+    let isPriority = document.getElementById('priorityCheck').checked;
+    let duration = parseInt(document.getElementById('displayDuration').value) || 10;
+
+    if (isOneTime) {
+        isPriority = true;
+        duration = 5;
+    }
 
     if (!message) {
         showStatus('Please enter a message', 'error');
@@ -129,11 +143,12 @@ async function sendMessage() {
         const senderName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || userEmail : userEmail;
 
         // Insert or update LCD message
+        const finalMessage = isOneTime ? message + ' (One-Time)' : message;
         const { data, error } = await supabase
             .from('lcd_messages')
             .upsert({
                 table_id: tableId,
-                message: message,
+                message: finalMessage,
                 is_priority: isPriority,
                 duration_seconds: duration,
                 sent_by: senderName,
@@ -147,12 +162,21 @@ async function sendMessage() {
 
         if (error) throw error;
 
-        showStatus('Message sent successfully! It will appear on the LCD screen.', 'success');
+        const statusMsg = isOneTime ? 'One-time message sent successfully! It will appear on the LCD screen briefly.' : 'Message sent successfully! It will appear on the LCD screen.';
+        showStatus(statusMsg, 'success');
         document.getElementById('messageInput').value = '';
         document.getElementById('charCount').textContent = '0';
         document.getElementById('messagePreview').classList.add('hidden');
         document.getElementById('priorityCheck').checked = false;
         document.getElementById('displayDuration').value = '10';
+
+        if (isOneTime) {
+            // Disable the one-time button after sending
+            const btn = document.getElementById('oneTimeBtn');
+            btn.disabled = true;
+            btn.textContent = 'One-Time Message Sent';
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
 
         // Refresh message list
         loadMessages();
