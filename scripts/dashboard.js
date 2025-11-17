@@ -1328,8 +1328,9 @@ function setNoiseUI(payload) {
     const tipEl = document.getElementById('noiseTip');
     const gaugeEl = document.getElementById('noiseGauge');
     const comfortEl = document.getElementById('noiseComfort');
+    const containerEl = document.getElementById('myNoise');
 
-    if (!emojiEl || !dbEl || !updEl || !tipEl || !gaugeEl || !comfortEl) return;
+    if (!emojiEl || !dbEl || !updEl || !tipEl || !gaugeEl || !comfortEl || !containerEl) return;
 
     if (!payload) {
         emojiEl.textContent = '—';
@@ -1338,6 +1339,7 @@ function setNoiseUI(payload) {
         tipEl.textContent = 'Tap your device at the reader to start monitoring noise levels';
         comfortEl.textContent = '';
         gaugeEl.style.width = '0%';
+        containerEl.className = 'p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl border border-green-100';
         return;
     }
 
@@ -1348,21 +1350,31 @@ function setNoiseUI(payload) {
     // Update comfort level text
     let comfortText = '';
     let comfortColor = '';
-    if (db <= 40) {
+    if (db < 30) {
         comfortText = 'Comfortable';
         comfortColor = 'text-green-600';
+    } else if (db <= 40) {
+        comfortText = 'Lower Noise';
+        comfortColor = 'text-yellow-600';
     } else if (db <= 55) {
         comfortText = 'Moderate';
-        comfortColor = 'text-yellow-600';
+        comfortColor = 'text-orange-600';
     } else if (db <= 70) {
         comfortText = 'Loud';
-        comfortColor = 'text-orange-600';
+        comfortColor = 'text-red-600';
     } else {
         comfortText = 'Very Loud';
         comfortColor = 'text-red-600';
     }
     comfortEl.textContent = comfortText;
     comfortEl.className = `ml-2 text-sm font-medium ${comfortColor}`;
+
+    // Update container background and border for warning
+    if (db < 30) {
+        containerEl.className = 'p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl border border-green-100';
+    } else {
+        containerEl.className = 'p-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border border-yellow-200';
+    }
 
     // Update gauge (0-100dB scale, max 100%)
     const gaugePercent = Math.min((db / 100) * 100, 100);
@@ -1372,7 +1384,7 @@ function setNoiseUI(payload) {
     tipEl.textContent = payload.tip || '';
 }
 
-function updateStatsApprox(loginAt) {
+async function updateStatsApprox(loginAt) {
     const sessionEl = document.getElementById('statSessionTime');
     const weekEl = document.getElementById('statWeekSessions');
     const avgEl = document.getElementById('statAvgLength');
@@ -1388,11 +1400,45 @@ function updateStatsApprox(loginAt) {
     // Calculate real stats if we have rfidUid
     const rfidUid = sessionStorage.getItem('rfidUid') || '';
     if (rfidUid) {
-        calculateRealStats(rfidUid, weekEl, avgEl);
-    } else {
-        if (weekEl) weekEl.textContent = '0';
-        if (avgEl) avgEl.textContent = '0m';
+        await calculateRealStats(rfidUid, weekEl, avgEl);
+        return;
     }
+
+    // If no RFID UID, try to resolve the current logged-in user's registered RFID
+    const userEmail = sessionStorage.getItem('userEmail') || '';
+    if (userEmail) {
+        try {
+            const { data: user, error: userError } = await supabase
+                .from('users')
+                .select('id')
+                .eq('email', userEmail)
+                .maybeSingle();
+
+            if (!userError && user && user.id) {
+                const { data: card, error: cardError } = await supabase
+                    .from('rfid_cards')
+                    .select('rfid_uid')
+                    .eq('user_id', user.id)
+                    .maybeSingle();
+
+                if (!cardError && card && card.rfid_uid) {
+                    // Cache the found rfidUid for faster subsequent loads
+                    sessionStorage.setItem('rfidUid', card.rfid_uid);
+                    await calculateRealStats(card.rfid_uid, weekEl, avgEl);
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error('Error resolving user RFID:', err);
+        }
+    }
+
+    // Fallback: show site-wide weekly sessions
+    if (weekEl) {
+        weekEl.textContent = '...';
+        await fetchWeeklySessions(weekEl);
+    }
+    if (avgEl) avgEl.textContent = '0m';
 }
 
 async function calculateRealStats(rfidUid, weekEl, avgEl) {
@@ -1460,6 +1506,33 @@ async function calculateRealStats(rfidUid, weekEl, avgEl) {
         console.error('Error calculating stats:', err);
         if (weekEl) weekEl.textContent = '—';
         if (avgEl) avgEl.textContent = '—';
+    }
+}
+
+// Fetch site-wide count of login sessions in the last 7 days and set the element text
+async function fetchWeeklySessions(weekEl) {
+    try {
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        // Use Supabase to count login events in the last 7 days
+        const { count, error } = await supabase
+            .from('actlog_iot')
+            .select('id', { count: 'exact', head: true })
+            .eq('event', 'login')
+            .gte('created_at', oneWeekAgo.toISOString());
+
+        if (error) {
+            console.error('Error fetching weekly sessions:', error);
+            weekEl.textContent = '—';
+            return;
+        }
+
+        // Supabase returns count as a number when head:true is used
+        weekEl.textContent = (typeof count === 'number') ? count.toString() : '0';
+    } catch (err) {
+        console.error('Unexpected error fetching weekly sessions:', err);
+        weekEl.textContent = '—';
     }
 }
 

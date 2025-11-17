@@ -121,8 +121,8 @@ static unsigned long ignoreRfidUntil = 0;
 // ================================================================
 
 // ====== WiFi Credentials ======
-const char* ssid = "JOSHUA 24:15/ 4G";        // Change to your WiFi
-const char* password = "Tend@wifi";          // Change to your WiFi password
+const char* ssid = "Lhen";        // Change to your WiFi
+const char* password = "Asdfghjkl098";          // Change to your WiFi password
 
 // ====== Supabase Configuration ======
 const char* supabaseUrl = "https://xnqffcutsadthghqxeha.supabase.co";
@@ -1316,6 +1316,16 @@ void loop() {
       // Respect temporary RFID ignore window (non-blocking replacement for long delay)
       if (millis() < ignoreRfidUntil) {
         Serial.println("Ignoring RFID input for a short cooldown");
+        // Prevent immediate re-reads: ensure a short cooldown after handling this card
+        // Do not shorten an existing longer ignore window (e.g., unregistered card display)
+        {
+          const unsigned long COOLDOWN_MS = 3000UL; // 3 seconds
+          unsigned long newUntil = millis() + COOLDOWN_MS;
+          if (ignoreRfidUntil < newUntil) {
+            ignoreRfidUntil = newUntil;
+          }
+        }
+
         rfid.PICC_HaltA();
         rfid.PCD_StopCrypto1();
         showingIdle = true;

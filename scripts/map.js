@@ -273,21 +273,27 @@ async function loadMap(tableId = currentTable) {
         // Check if user has an active session
         let isLoggedIn = false;
         let userSeatNumber = null;
+        // Table name where the user's latest login occurred (used to scope highlighting)
+        let userSeatTable = null;
 
         if (rfidCards && rfidCards.length > 0) {
             // Check latest activity log to see if user has an active session
             const { data: latestLog, error: logError } = await supabase
                 .from('actlog_iot')
-                .select('event, seat_number')
+                .select('event, seat_number, table_name')
                 .eq('uid', rfidCards[0].rfid_uid)
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .single();
 
             // User is logged in if latest event is 'login'
+            // Also capture the table name where the login happened so we only highlight
+            // the user's seat when viewing the same table.
+            let userSeatTable = null;
             if (latestLog && latestLog.event === 'login') {
                 isLoggedIn = true;
                 userSeatNumber = latestLog.seat_number;
+                userSeatTable = latestLog.table_name || null;
             }
         }
 
@@ -417,9 +423,11 @@ async function loadMap(tableId = currentTable) {
             // Check if this seat is occupied by the current user
             // Compare by: (1) email in occupancy, (2) seat number from activity log, (3) assigned seat in storage
             const isUserSeat = seat.is_occupied && seat.occupied_by === userEmail;
-            const isUserSeatByActivity = isLoggedIn && userSeatNumber === i;
-            const assignedSeatNumber = parseInt(sessionStorage.getItem('assignedSeat'));
-            const isAssignedSeat = assignedSeatNumber && assignedSeatNumber === i;
+            const isUserSeatByActivity = isLoggedIn && userSeatNumber === i && userSeatTable === tableId;
+            const assignedSeatNumber = parseInt(sessionStorage.getItem('assignedSeat') || '0', 10);
+            const assignedTableStored = sessionStorage.getItem('assignedTable') || '';
+            // Only consider assigned seat as the user's seat when viewing the same table
+            const isAssignedSeat = assignedSeatNumber && assignedSeatNumber === i && assignedTableStored === tableId;
             const isCurrentUserSeat = isUserSeat || isUserSeatByActivity || isAssignedSeat;
 
             // Check if this seat should be highlighted (from URL parameter)
@@ -484,10 +492,11 @@ async function loadMap(tableId = currentTable) {
 
         console.log('Rendered', mapDiv.children.length, 'seats to mapDiv');
 
-        // Update title - always show table name
+        // Update title - show the currently selected table
         const mapTitle = document.getElementById('mapTitle');
         if (mapTitle) {
-            mapTitle.textContent = `Seat Map - Table 1`;
+            const tableNumber = (tableId || currentTable || '').split('-')[1] || '';
+            mapTitle.textContent = tableNumber ? `Seat Map - Table ${tableNumber}` : 'Seat Map';
             mapTitle.style.display = 'block';
         }
 

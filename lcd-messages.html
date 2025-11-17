@@ -15,40 +15,6 @@
     <link rel="stylesheet" href="styles/setup.css">
     <link rel="stylesheet" href="styles/lcd-messages.css">
     <style>
-        /* Dark mode toggle button styling */
-        .dark-mode-toggle-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .dark-mode-toggle-btn:hover {
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .dark .dark-mode-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .dark-mode-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: #6b7280;
-            transition: color 0.2s ease;
-        }
-
-        .dark .dark-mode-icon {
-            color: #fbbf24;
-        }
-
-        /* Dark mode cards - Premium styling with layered depth */
-        .dark .admin-card {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
             border: 1px solid rgba(60, 60, 80, 0.4) !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -60,7 +26,6 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .dark .admin-card:hover {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
             transform: none !important;
@@ -110,10 +75,6 @@
                     <h1 class="page-title">LCD Messages</h1>
                 </div>
                 <div class="top-nav-right">
-                    <button id="darkModeToggle" class="dark-mode-toggle-btn" aria-label="Toggle dark mode"
-                        title="Toggle dark mode">
-                        <i data-lucide="moon" class="dark-mode-icon"></i>
-                    </button>
                     <div class="top-nav-profile">
                         <div class="profile-avatar">A</div>
                     </div>
@@ -191,37 +152,6 @@
     <script src="scripts/login-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts/lcd-messages.js"></script>
-    <script>
-        // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const html = document.documentElement;
-
-        // Check for saved dark mode preference or default to light mode
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') {
-            html.classList.add('dark');
-            updateDarkModeIcon(true);
-        }
-
-        darkModeToggle.addEventListener('click', function () {
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateDarkModeIcon(isDark);
-        });
-
-        function updateDarkModeIcon(isDark) {
-            const icon = darkModeToggle.querySelector('i');
-            if (isDark) {
-                icon.setAttribute('data-lucide', 'sun');
-            } else {
-                icon.setAttribute('data-lucide', 'moon');
-            }
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        }
-    </script>
 </body>
 
 </html>

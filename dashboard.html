@@ -9,19 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        // Initialize dark mode before page renders to prevent flash
-        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
-    <script>
-        // Configure Tailwind dark mode (must be defined before loading the CDN)
-        tailwind = window.tailwind || {};
-        tailwind.config = {
-            darkMode: 'class',
-        };
-    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="styles/login.css">
@@ -300,7 +287,7 @@
                         class="p-6 bg-gradient-to-br from-green-50 to-teal-50 rounded-xl border border-green-100">
                         <div class="flex items-center justify-between mb-3">
                             <h3 class="text-xl font-semibold text-gray-900">Current Noise Level</h3>
-                            <span id="noiseUpdated" class="text-xs text-gray-600">—</span>
+                            <span id="noiseUpdated" class="text-[10px] sm:text-xs text-gray-600">—</span>
                         </div>
                         <div class="flex items-center gap-3 mb-4">
                             <div id="noiseEmoji" class="text-2xl">—</div>
@@ -379,13 +366,13 @@
                                         <p class="text-xs text-gray-500">Latest updates</p>
                                     </div>
                                 </div>
-                                <span class="text-xs text-gray-500 bg-white/70 px-2.5 py-1 rounded-full" id="annUpdated">—</span>
+                                <span class="text-[10px] sm:text-xs text-gray-500 bg-white/70 px-1.5 py-0.5 rounded-full" id="annUpdated">—</span>
                             </div>
                         </div>
                         
                         <!-- Announcements List with Modern Cards -->
                         <div class="p-5">
-                            <div id="announcements" class="space-y-3 announcements-scrollable max-h-[320px] overflow-y-auto pr-2 bg-white/10 dark:bg-gray-800/10 rounded-lg border border-indigo-200/30 dark:border-indigo-700/30 p-4">
+                            <div id="announcements" class="space-y-3 announcements-scrollable max-h-[320px] overflow-y-auto pr-2 bg-white/10 rounded-lg border border-indigo-200/30 p-4">
                                 <!-- Empty State (will be replaced by JS) -->
                                 <div class="flex flex-col items-center justify-center py-8 text-center">
                                     <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
@@ -460,10 +447,10 @@
                                     <div class="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10"></div>
                                     <div class="relative">
                                         <div class="flex items-center justify-center w-8 h-8 bg-blue-500/20 rounded-lg mb-2">
-                                            <i data-lucide="clock" class="w-4 h-4 text-black dark:text-white"></i>
+                                            <i data-lucide="clock" class="w-4 h-4 text-black"></i>
                                         </div>
-                                        <div id="statSessionTime" class="text-2xl font-bold text-black dark:text-white mb-1">0m</div>
-                                        <div class="text-xs text-black dark:text-white font-medium">Current Session</div>
+                                        <div id="statSessionTime" class="text-2xl font-bold text-black mb-1">0m</div>
+                                        <div class="text-xs text-black font-medium">Current Session</div>
                                     </div>
                                 </div>
 
@@ -472,10 +459,10 @@
                                     <div class="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10"></div>
                                     <div class="relative">
                                         <div class="flex items-center justify-center w-8 h-8 bg-indigo-500/20 rounded-lg mb-2">
-                                            <i data-lucide="calendar" class="w-4 h-4 text-black dark:text-white"></i>
+                                            <i data-lucide="calendar" class="w-4 h-4 text-black"></i>
                                         </div>
-                                        <div id="statWeekSessions" class="text-2xl font-bold text-black dark:text-white mb-1">0</div>
-                                        <div class="text-xs text-black dark:text-white font-medium">This Week</div>
+                                        <div id="statWeekSessions" class="text-2xl font-bold text-black mb-1">0</div>
+                                        <div class="text-xs text-black font-medium">This Week</div>
                                     </div>
                                 </div>
 
@@ -484,10 +471,10 @@
                                     <div class="absolute top-0 right-0 w-20 h-20 rounded-full -mr-10 -mt-10"></div>
                                     <div class="relative">
                                         <div class="flex items-center justify-center w-8 h-8 bg-emerald-500/20 rounded-lg mb-2">
-                                            <i data-lucide="trending-up" class="w-4 h-4 text-black dark:text-white"></i>
+                                            <i data-lucide="trending-up" class="w-4 h-4 text-black"></i>
                                         </div>
-                                        <div id="statAvgLength" class="text-2xl font-bold text-black dark:text-white mb-1">0m</div>
-                                        <div class="text-xs text-black dark:text-white font-medium">Avg Length</div>
+                                        <div id="statAvgLength" class="text-2xl font-bold text-black mb-1">0m</div>
+                                        <div class="text-xs text-black font-medium">Avg Length</div>
                                     </div>
                                 </div>
                             </div>
@@ -652,14 +639,6 @@
 
     <!-- RFID Floating Button & Expandable Panel (Persists across tab changes) -->
     <div id="rfidFloatingRoot" class="fixed bottom-6 left-6 z-[100]">
-        <!-- Floating Circular Button -->
-        <button id="rfidFloatingBtn"
-               class="relative flex items-center justify-center w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white rounded-full shadow-lg cursor-pointer transition-all duration-300 hover:scale-110 hover:shadow-xl">
-            <i data-lucide="radio" class="w-6 h-6"></i>
-            <!-- New Activity Badge -->
-            <span id="rfidBadge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
-        </button>
-
         <!-- Expandable Panel (hidden by default) -->
         <div id="rfidScanDisplay" 
              class="hidden absolute bottom-0 left-0 w-80 bg-white rounded-2xl border border-gray-200 shadow-2xl transition-all duration-300">
@@ -749,28 +728,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts/dashboard.js"></script>
-
-    <script>
-        // ============================================
-        // Dark Mode Toggle
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function () {
-            const html = document.documentElement;
-
-            // Get initial theme: localStorage or prefers-color-scheme
-            let currentTheme = localStorage.getItem('theme');
-            if (!currentTheme) {
-                currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-
-            // Apply initial theme
-            if (currentTheme === 'dark') {
-                html.classList.add('dark');
-            } else {
-                html.classList.remove('dark');
-            }
-        });
-    </script>
 </body>
 
 </html>

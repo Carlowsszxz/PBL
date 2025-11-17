@@ -177,12 +177,6 @@
     </div>
 
     <main class="main-with-sidebar flex-1 w-full px-4 sm:px-6 lg:px-8 py-12 relative">
-        <!-- Dark Mode Toggle (Fixed Position) -->
-        <button id="themeToggle"
-            class="fixed top-4 right-4 z-50 p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 transition-all duration-300 shadow-lg"
-            aria-label="Toggle dark mode" title="Toggle dark mode">
-            <i data-lucide="moon" class="w-5 h-5 text-gray-700 dark:text-yellow-400"></i>
-        </button>
         
         <div class="fade-content max-w-6xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -517,43 +511,6 @@
             });
         });
 
-        // Dark Mode Toggle Functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
-
-        // Check for saved theme preference or default to light mode
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') {
-            html.classList.add('dark');
-            updateDarkModeIcon(true);
-        }
-
-        // Function to update dark mode icon
-        function updateDarkModeIcon(isDark) {
-            const icon = themeToggle.querySelector('i');
-            if (isDark) {
-                icon.setAttribute('data-lucide', 'sun');
-            } else {
-                icon.setAttribute('data-lucide', 'moon');
-            }
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        }
-
-        // Toggle theme on button click
-        if (themeToggle) {
-            themeToggle.addEventListener('click', function () {
-                html.classList.toggle('dark');
-
-                // Save theme preference
-                const isDark = html.classList.contains('dark');
-                localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-                // Update icon
-                updateDarkModeIcon(isDark);
-            });
-        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

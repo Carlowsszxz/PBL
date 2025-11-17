@@ -128,7 +128,6 @@
                 transition: all 0.2s !important;
             }
 
-            .dark #burgerMenuBtn {
                 background: rgba(31, 41, 55, 0.95) !important;
                 border-color: rgba(75, 85, 99, 0.5) !important;
             }
@@ -144,88 +143,41 @@
             }
         }
 
-        /* Dark Mode Styles */
-        .dark-mode-toggle-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            padding: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-        }
-
-        .dark-mode-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
-        }
-
-        .dark-mode-icon {
-            width: 20px;
-            height: 20px;
-            color: #0e163e;
-            transition: all 0.3s;
-        }
-
-        .dark .dark-mode-icon {
-            color: #fbbf24;
-        }
-
-        /* Dark mode form inputs - Enhanced contrast and depth */
-        .dark input[type="email"],
-        .dark input[type="text"],
-        .dark input[type="password"],
-        .dark select {
             background: #1a1a24 !important;
             border: 1px solid #2d2d3a !important;
             color: #f3f4f6 !important;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
-        .dark input::placeholder {
             color: #9ca3af !important;
         }
 
-        .dark input:focus,
-        .dark select:focus {
             border-color: #a78bfa !important;
             background: #1f1f2e !important;
             box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15), inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
         }
 
-        .dark select option {
             background: #1a1a24 !important;
             color: #f3f4f6 !important;
         }
 
-        /* Dark mode labels - Better readability */
-        .dark label {
             color: #f3f4f6 !important;
             font-weight: 500;
         }
 
-        .dark small {
             color: #d1d5db !important;
         }
 
-        /* Dark mode buttons - Enhanced with glow */
-        .dark .setup-btn {
             background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
             border-color: #8b5cf6 !important;
             box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
         }
 
-        .dark .setup-btn:hover {
             background: linear-gradient(135deg, #9d6dff 0%, #8b5cf6 100%) !important;
             box-shadow: 0 6px 20px rgba(139, 92, 246, 0.45), 0 0 30px rgba(139, 92, 246, 0.3) !important;
             transform: translateY(-1px);
         }
 
-        /* Dark mode cards - Layered depth */
-        .dark .admin-card {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
             border: 1px solid rgba(60, 60, 80, 0.4) !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -238,49 +190,37 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1) !important;
         }
 
-        .dark .admin-card:hover {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.95) 0%, rgba(31, 31, 46, 0.95) 100%) !important;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
             transform: none !important;
         }
 
-        /* Dark mode table styles - Premium look */
-        .dark #allUsersData table {
             border: 1px solid rgba(60, 60, 80, 0.4) !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .dark #allUsersData thead tr {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.98) 0%, rgba(31, 31, 46, 0.98) 100%) !important;
             border-bottom: 2px solid rgba(139, 92, 246, 0.3);
         }
 
-        .dark #allUsersData thead th {
             color: #f3f4f6 !important;
             font-weight: 600;
         }
 
-        .dark #allUsersData tbody tr {
             border-bottom: 1px solid rgba(60, 60, 80, 0.25) !important;
         }
 
-        .dark #allUsersData td {
             color: #e5e7eb !important;
         }
 
-        /* Dark mode action buttons in table - Distinct styling */
-        .dark #allUsersData button {
             transition: all 0.15s ease;
             border: 1px solid rgba(60, 60, 80, 0.5);
         }
 
-        .dark #allUsersData button:hover {
             border-color: rgba(139, 92, 246, 0.5);
             box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3) !important;
         }
 
-        /* Dark mode status badges - Enhanced visibility */
-        .dark #allUsersData span[style*="color:green"] {
             color: #86efac !important;
             background: rgba(34, 197, 94, 0.15);
             padding: 2px 8px;
@@ -288,7 +228,6 @@
             font-weight: 500;
         }
 
-        .dark #allUsersData span[style*="color:red"] {
             color: #fca5a5 !important;
             background: rgba(239, 68, 68, 0.15);
             padding: 2px 8px;
@@ -296,26 +235,19 @@
             font-weight: 500;
         }
 
-        /* Dark mode notifications - Premium style */
-        .dark .notification {
             background: linear-gradient(135deg, rgba(26, 26, 36, 0.98) 0%, rgba(31, 31, 46, 0.98) 100%) !important;
             border: 1px solid rgba(139, 92, 246, 0.3) !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 40px rgba(139, 92, 246, 0.2);
             color: #f3f4f6 !important;
         }
 
-        /* Dark mode result messages */
-        .dark #userResult {
             color: #f3f4f6 !important;
         }
 
-        /* Dark mode checkbox styling */
-        .dark input[type="checkbox"] {
             background: #1a1a24;
             border: 1px solid #2d2d3a;
         }
 
-        .dark input[type="checkbox"]:checked {
             background: #8b5cf6;
             border-color: #8b5cf6;
         }
@@ -340,7 +272,7 @@
 </head>
 
 <body
-    class="text-slate-900 dark:text-gray-100 min-h-screen flex flex-col relative setup-body-bg dark:bg-[#0a0a0f] transition-colors duration-300"
+    class="text-slate-900"
     data-page="user-management">
     <!-- Visual Effects -->
     <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
@@ -405,10 +337,6 @@
                     <h1 class="page-title">User Management</h1>
                 </div>
                 <div class="top-nav-right">
-                    <button id="darkModeToggle" class="dark-mode-toggle-btn" aria-label="Toggle dark mode"
-                        title="Toggle dark mode">
-                        <i data-lucide="moon" class="dark-mode-icon"></i>
-                    </button>
                     <div class="top-nav-profile">
                         <div class="profile-avatar">A</div>
                     </div>
@@ -425,42 +353,42 @@
                     <form class="space-y-5" onsubmit="event.preventDefault(); addUser();">
                         <div>
                             <label for="userEmail"
-                                class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Email
+                                class="block mb-2 text-sm font-semibold text-slate-700">Email
                                 Address:</label>
                             <input type="email" id="userEmail" required placeholder="user@example.com"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300">
                         </div>
                         <div class="sm:flex sm:gap-4">
                             <div class="sm:flex-1">
                                 <label for="userFirstName"
-                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">First
+                                    class="block mb-2 text-sm font-semibold text-slate-700">First
                                     Name:</label>
                                 <input type="text" id="userFirstName" placeholder="John"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300">
                             </div>
                             <div class="sm:flex-1">
                                 <label for="userLastName"
-                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Last
+                                    class="block mb-2 text-sm font-semibold text-slate-700">Last
                                     Name:</label>
                                 <input type="text" id="userLastName" placeholder="Doe"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300">
                             </div>
                         </div>
                         <div class="sm:flex sm:gap-4">
                             <div class="sm:flex-1">
                                 <label for="userStudentId"
-                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Student
+                                    class="block mb-2 text-sm font-semibold text-slate-700">Student
                                     ID:</label>
                                 <input type="text" id="userStudentId"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300"
                                     placeholder="e.g., 2025-12345">
                             </div>
                             <div class="sm:flex-1">
                                 <label for="userDepartment"
-                                    class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">College
+                                    class="block mb-2 text-sm font-semibold text-slate-700">College
                                     Department:</label>
                                 <select id="userDepartment" title="Select college department"
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200">
+                                    class="w-full px-4 py-3 rounded-xl border-2 border-slate-300">
                                     <option value="">Select a department…</option>
                                     <option value="College of Liberal Arts and Sciences (CLAS)">College of Liberal Arts
                                         and Sciences (CLAS)</option>
@@ -488,30 +416,30 @@
                         </div>
                         <div>
                             <label for="userPassword"
-                                class="block mb-2 text-sm font-semibold text-slate-700 dark:text-gray-100 transition-colors duration-200">Password:</label>
+                                class="block mb-2 text-sm font-semibold text-slate-700">Password:</label>
                             <input type="password" id="userPassword" required
                                 placeholder="User's password (they can change it later)"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-[#1a1a24] dark:text-gray-100 focus:border-indigo-600 dark:focus:border-purple-400 focus:ring-2 focus:ring-indigo-100 dark:focus:ring-purple-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500">
+                                class="w-full px-4 py-3 rounded-xl border-2 border-slate-300">
                             <small
-                                class="text-slate-600 dark:text-gray-400 transition-colors duration-200 block mt-1">Confirmation
+                                class="text-slate-600">Confirmation
                                 email will be sent to the user</small>
                         </div>
                         <div
-                            class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-[#1a1a24] rounded-xl border border-gray-200 dark:border-gray-700">
+                            class="flex items-center gap-3 p-4 bg-gray-50">
                             <input type="checkbox" id="makeAdmin"
-                                class="w-5 h-5 rounded border-gray-300 dark:border-gray-600 text-indigo-600 dark:text-purple-500 focus:ring-indigo-500 dark:focus:ring-purple-500 transition-colors duration-200 cursor-pointer">
+                                class="w-5 h-5 rounded border-gray-300">
                             <label for="makeAdmin"
-                                class="text-sm font-medium text-slate-700 dark:text-gray-100 cursor-pointer transition-colors duration-200">
+                                class="text-sm font-medium text-slate-700">
                                 Grant administrator privileges
                             </label>
                         </div>
                         <button type="submit"
-                            class="btn setup-btn w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg dark:hover:shadow-purple-500/30 active:scale-[0.98]">Add
+                            class="btn setup-btn w-full px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:shadow-lg">Add
                             User & Send
                             Confirmation Email</button>
                     </form>
                     <p id="userResult"
-                        class="mt-4 text-center text-slate-700 dark:text-gray-300 transition-colors duration-200"></p>
+                        class="mt-4 text-center text-slate-700"></p>
                 </section>
                 <!-- Pending Validation Card -->
                 <section class="admin-card card-fadein all-users-card" id="pendingValidationSection">
@@ -520,10 +448,10 @@
                             <i data-lucide="user-check" class="w-5 h-5"></i>
                             Pending Student Validation
                         </h2>
-                        <span id="pendingCount" class="text-sm text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-full"></span>
+                        <span id="pendingCount" class="text-sm text-orange-600"></span>
                     </div>
                     <div class="flex justify-between items-center mb-4">
-                        <p class="text-sm text-slate-600 dark:text-gray-400">Review and validate newly registered student accounts</p>
+                        <p class="text-sm text-slate-600">Review and validate newly registered student accounts</p>
                         <button onclick="loadPendingValidation()"
                             class="btn btn-sm setup-btn flex items-center gap-2 transition-all duration-200 hover:shadow-lg"
                             aria-label="Refresh pending validation list">
@@ -567,93 +495,93 @@
 
     <!-- Correction Request Modal -->
     <div id="correctionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="bg-white">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-gray-100 flex items-center gap-2">
+                    <h3 class="text-xl font-semibold text-slate-900">
                         <i data-lucide="edit-3" class="w-5 h-5 text-orange-500"></i>
                         Request Student Data Correction
                     </h3>
-                    <button onclick="closeCorrectionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                    <button onclick="closeCorrectionModal()" class="text-gray-400 hover:text-gray-600">
                         <i data-lucide="x" class="w-6 h-6"></i>
                     </button>
                 </div>
 
-                <div id="correctionStudentInfo" class="bg-gray-50 dark:bg-slate-700 rounded-lg p-4 mb-6">
+                <div id="correctionStudentInfo" class="bg-gray-50">
                     <!-- Student info will be populated here -->
                 </div>
 
                 <form id="correctionForm" class="space-y-6">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-gray-200 mb-3">
+                        <label class="block text-sm font-semibold text-slate-700">
                             Select the issues that need correction:
                         </label>
                         <div class="space-y-3">
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="student_id" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="student_id" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Student ID Format</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">Student ID doesn't match the required format (e.g., a12345027)</div>
+                                    <div class="font-medium text-slate-900">Student ID Format</div>
+                                    <div class="text-sm text-slate-600">Student ID doesn't match the required format (e.g., a12345027)</div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="email_format" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="email_format" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Email Address</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">Email should use official university domain (@umak.edu.ph)</div>
+                                    <div class="font-medium text-slate-900">Email Address</div>
+                                    <div class="text-sm text-slate-600">Email should use official university domain (@umak.edu.ph)</div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="name_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="name_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Name Verification</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">First name or last name appears incorrect or incomplete</div>
+                                    <div class="font-medium text-slate-900">Name Verification</div>
+                                    <div class="text-sm text-slate-600">First name or last name appears incorrect or incomplete</div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="department_mismatch" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="department_mismatch" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Department Verification</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">College department doesn't match student ID or records</div>
+                                    <div class="font-medium text-slate-900">Department Verification</div>
+                                    <div class="text-sm text-slate-600">College department doesn't match student ID or records</div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="missing_information" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="missing_information" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Missing Information</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">Required fields are empty or incomplete</div>
+                                    <div class="font-medium text-slate-900">Missing Information</div>
+                                    <div class="text-sm text-slate-600">Required fields are empty or incomplete</div>
                                 </div>
                             </label>
                             
-                            <label class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-                                <input type="checkbox" value="document_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-orange-500 focus:ring-orange-500">
+                            <label class="flex items-start gap-3 p-3 bg-gray-50">
+                                <input type="checkbox" value="document_verification" class="correction-checkbox mt-0.5 w-4 h-4 rounded border-gray-300">
                                 <div>
-                                    <div class="font-medium text-slate-900 dark:text-gray-100">Document Verification Required</div>
-                                    <div class="text-sm text-slate-600 dark:text-gray-400">Additional documents needed to verify identity/enrollment</div>
+                                    <div class="font-medium text-slate-900">Document Verification Required</div>
+                                    <div class="text-sm text-slate-600">Additional documents needed to verify identity/enrollment</div>
                                 </div>
                             </label>
                         </div>
                     </div>
 
                     <div>
-                        <label for="customCorrectionReason" class="block text-sm font-semibold text-slate-700 dark:text-gray-200 mb-2">
+                        <label for="customCorrectionReason" class="block text-sm font-semibold text-slate-700">
                             Additional Instructions (Optional):
                         </label>
                         <textarea id="customCorrectionReason" rows="4" 
-                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 dark:border-gray-700 dark:bg-slate-700 dark:text-gray-100 focus:border-orange-500 dark:focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:focus:ring-orange-900/30 outline-none transition-all duration-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 resize-none"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-slate-300"
                             placeholder="Provide specific details about what needs to be corrected or any additional instructions for the student..."></textarea>
                     </div>
 
-                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div class="bg-blue-50">
                         <div class="flex items-start gap-3">
-                            <i data-lucide="info" class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"></i>
+                            <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
                             <div class="text-sm">
-                                <div class="font-medium text-blue-800 dark:text-blue-300 mb-1">Correction Process:</div>
-                                <ul class="text-blue-700 dark:text-blue-400 space-y-1">
+                                <div class="font-medium text-blue-800">Correction Process:</div>
+                                <ul class="text-blue-700">
                                     <li>• Student will be notified via email about required corrections</li>
                                     <li>• They will have 7 days to make the necessary changes</li>
                                     <li>• Account access will remain limited until corrections are approved</li>
@@ -684,36 +612,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts/user-management.js"></script>
     <script>
-        // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const html = document.documentElement;
-
-        // Check for saved dark mode preference or default to light mode
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme === 'dark') {
-            html.classList.add('dark');
-            updateDarkModeIcon(true);
-        }
-
-        darkModeToggle.addEventListener('click', function () {
-            html.classList.toggle('dark');
-            const isDark = html.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateDarkModeIcon(isDark);
-        });
-
-        function updateDarkModeIcon(isDark) {
-            const icon = darkModeToggle.querySelector('i');
-            if (isDark) {
-                icon.setAttribute('data-lucide', 'sun');
-            } else {
-                icon.setAttribute('data-lucide', 'moon');
-            }
-            if (window.lucide) {
-                lucide.createIcons();
-            }
-        }
-
         // Sidebar Toggle Functionality
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarToggle = document.getElementById('sidebarToggle');
