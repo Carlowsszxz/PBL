@@ -1,0 +1,273 @@
+/* Assignment modal overlay/dialog styles - loaded after setup.css to override defaults */
+.assign-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 3000;
+    padding: 24px;
+}
+
+.assign-modal-overlay.active,
+.assign-modal-overlay[style*="display:flex"] {
+    display: flex !important;
+}
+
+.assign-modal {
+    width: 720px;
+    max-width: calc(100% - 48px);
+    background: white;
+    color: #111827;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(2,6,23,0.3), 0 6px 20px rgba(2,6,23,0.12);
+    overflow: hidden;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(14,22,62,0.08);
+}
+
+/* Entrance animation */
+.assign-modal.animate-in {
+    animation: modalIn 220ms cubic-bezier(0.2,0,0,1) both;
+}
+
+@keyframes modalIn {
+    from { transform: translateY(10px) scale(0.995); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Backdrop blur for modern look */
+.assign-modal-overlay {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+/* Header styling */
+.assign-modal-header { background: linear-gradient(90deg,#fff 0%, #fbfdff 100%); }
+.assign-modal-close { color: #374151; border-radius: 8px; }
+.assign-modal-close:hover { background: rgba(14,22,62,0.04); color: #0e163e; }
+
+/* Selected student card */
+#selectedStudentDisplay {
+    display: block; /* controlled via JS; default to block for CSS rules */
+}
+.search-result-avatar, #selectedStudentAvatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    box-shadow: 0 6px 16px rgba(2,6,23,0.12);
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    /* Preserve any inline background color but add a subtle overlay
+       using a pseudo element so inline `style="background: #..."` still works */
+}
+
+.search-result-avatar::before,
+#selectedStudentAvatar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0.06));
+    mix-blend-mode: overlay;
+    pointer-events: none;
+}
+
+/* Allow avatars to contain an <img> for profile pictures */
+.search-result-avatar img,
+#selectedStudentAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Avatar size helpers */
+.avatar-sm { width: 32px; height: 32px; font-size: 0.75rem; }
+.avatar-md { width: 40px; height: 40px; font-size: 0.875rem; }
+.avatar-lg { width: 56px; height: 56px; font-size: 1.1rem; }
+
+/* If an inline background is present (e.g. style="background:#10b981"), ensure initials remain readable */
+.search-result-avatar {
+    color: #ffffff;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+}
+
+/* Search results list */
+.search-results {
+    margin-top: 8px; display: grid; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 6px;
+}
+.search-result-item {
+    display:flex; gap:12px; align-items:center; padding:8px; border-radius:10px; cursor:pointer; background: #ffffff; border:1px solid rgba(14,22,62,0.04);
+}
+.search-result-item:hover { background: #f1f5f9; }
+
+/* Assign buttons */
+.assign-btn { padding: 8px 12px; border-radius: 8px; font-weight:600; cursor:pointer; }
+.assign-btn-cancel { background: transparent; border: 1px solid rgba(14,22,62,0.08); color: #374151; }
+.assign-btn-confirm { background: linear-gradient(90deg,#4f46e5,#6366f1); color: white; border: none; }
+.assign-btn-confirm:disabled { opacity: 0.5; cursor:not-allowed; filter: grayscale(0.05); }
+
+/* Small spinner for loading state */
+.assign-loading { display:flex; gap:10px; align-items:center; }
+.assign-spinner {
+    width:18px; height:18px; border-radius:50%; border:3px solid rgba(0,0,0,0.08); border-top-color: rgba(79,70,229,0.9); animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive tweaks */
+@media (max-width: 720px) {
+    .assign-modal { width: 92%; }
+    .search-result-avatar, #selectedStudentAvatar { width:40px; height:40px; }
+}
+
+/* Move User Dialog / Generic Dialog Card styles */
+.dialog-card {
+    background: linear-gradient(180deg,#ffffff,#fbfdff);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 560px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(2,6,23,0.08);
+    border: 1px solid rgba(14,22,62,0.05);
+}
+
+.dialog-title {
+    margin: 0 0 12px 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.dialog-desc {
+    margin: 0 0 16px 0;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.form-group { margin-bottom: 14px; }
+.form-label { display:block; margin-bottom:6px; font-weight:600; color:#374151; }
+.form-select {
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid rgba(14,22,62,0.08); background:white; color:#0f172a;
+    box-shadow: inset 0 1px 2px rgba(2,6,23,0.02);
+}
+.form-select:focus { outline:none; border-color: rgba(79,70,229,0.35); box-shadow:0 6px 20px rgba(79,70,229,0.06); }
+
+.dialog-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:6px; }
+
+/* Button variants (compatible with existing .assign-btn) */
+.btn-secondary {
+    background: transparent; border:1px solid rgba(14,22,62,0.08); color:#374151; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:600;
+}
+.btn-secondary:hover { background: rgba(14,22,62,0.03); }
+
+.btn-primary {
+    background: linear-gradient(90deg,#2563eb,#4f46e5); color:white; border:none; padding:8px 14px; border-radius:8px; cursor:pointer; font-weight:700;
+}
+.btn-primary:active { transform: translateY(1px); }
+
+@media (max-width:520px) {
+    .dialog-card { padding: 14px; max-width: 92%; }
+    .dialog-actions { flex-direction: column-reverse; gap:8px; }
+    .dialog-actions .btn-primary, .dialog-actions .btn-secondary { width:100%; }
+}
+
+.assign-modal-header {
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(14,22,62,0.04);
+}
+
+.assign-modal-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.assign-modal-close {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+.assign-modal-body {
+    padding: 16px;
+    overflow-y: auto;
+    flex: 1 1 auto;
+}
+
+.assign-modal-footer {
+    padding: 12px 16px;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(14,22,62,0.04);
+}
+
+.assign-mode-selector {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.assign-mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #f8fafc;
+    border: 1px solid rgba(14,22,62,0.04);
+}
+
+.assign-mode-btn.active {
+    background: linear-gradient(90deg,#eef2ff,#eef2ff);
+    border-color: rgba(79,70,229,0.12);
+}
+
+@media (max-width: 520px) {
+    .assign-modal { width: 100%; max-width: calc(100% - 24px); border-radius: 10px; }
+    .assign-modal-body { padding: 12px; }
+    .assign-modal-header, .assign-modal-footer { padding-left: 12px; padding-right: 12px; }
+}
+
+.dark .assign-modal { background: rgba(17,24,39,0.95); color: #e5e7eb; border-color: rgba(255,255,255,0.06); }
+.dark .assign-modal-body { background: transparent }
+
+/* Utility: force all descendant text/icon colors to white
+   Use by adding `text-all-white` to the container you want to style. */
+.text-all-white,
+.text-all-white * {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+}
+
+/* Ensure SVG elements that rely on `currentColor` inherit the white color */
+.text-all-white svg { color: #ffffff !important; }
+
+/* Slightly reduce opacity for secondary text to keep hierarchy */
+.text-all-white .text-slate-600,
+.text-all-white .text-slate-900,
+.text-all-white .text-gray-400,
+.text-all-white .text-gray-200 {
+    color: rgba(255,255,255,0.9) !important;
+}

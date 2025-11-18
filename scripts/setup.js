@@ -22,6 +22,27 @@ function getThemeColors() {
     };
 }
 
+// Add this to the script section in setup.html or setup.js
+function showAssignModal() {
+    const modal = document.getElementById('assignModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        // Focus the close button for accessibility
+        const closeBtn = modal.querySelector('.assign-modal-close');
+        if (closeBtn) closeBtn.focus();
+    }
+}
+
+function closeAssignModal() {
+    const modal = document.getElementById('assignModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+}
 // Check if user is admin on page load
 document.addEventListener('DOMContentLoaded', async function () {
     // Check for Supabase Auth session
@@ -57,7 +78,28 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // User is admin, initialize data and polling
     initializePolling();
+    // Ensure user/info cards use white text where appropriate
+    try {
+        ensureWhiteTextForUserCards();
+    } catch (e) { /* ignore */ }
 });
+
+// Auto-apply `.text-all-white` to card-like containers that contain user info labels
+function ensureWhiteTextForUserCards() {
+    const selectors = ['.bg-white', '.admin-card', '.dash-card', '.setup-container', '.card-fadein'];
+    const candidates = new Set();
+    selectors.forEach(s => document.querySelectorAll(s).forEach(el => candidates.add(el)));
+
+    candidates.forEach(el => {
+        try {
+            const txt = el.innerText || '';
+            // If the element contains common user-info labels, mark it
+            if (/\bEmail:\b|\bStudent ID:\b|\bRegistered:\b|\bDepartment:\b|\bStatus:\b/i.test(txt)) {
+                el.classList.add('text-all-white');
+            }
+        } catch (e) { /* ignore parsing errors */ }
+    });
+}
 
 // Compact UI toggle
 function setupCompactToggle() {
@@ -3351,18 +3393,24 @@ async function switchUserTable(userEmail, fromTableId, fromSeatNumber, toTableId
         console.log(`Occupied ${toTableId} Seat ${toSeatNumber}`);
 
         // Step 3: Log the table switch in activity log
+        const logPayload = {
+            user_email: userEmail,
+            event: 'table_switch',
+            table_id: toTableId,
+            seat_number: toSeatNumber,
+            uid: null, // Can be filled if RFID is available
+            created_at: new Date().toISOString()
+        };
+
+        // Debug: show the payload being sent to actlog_iot
+        console.log('actlog_iot insert payload:', logPayload);
+
         const { error: logError } = await supabase
             .from('actlog_iot')
-            .insert({
-                user_email: userEmail,
-                event_type: 'table_switch',
-                seat_number: toSeatNumber,
-                rfid_card_id: null, // Can be filled if RFID is available
-                created_at: new Date().toISOString()
-            });
+            .insert(logPayload);
 
         if (logError) {
-            console.warn('Error logging table switch:', logError);
+            console.warn('Error logging table switch:', logError, logPayload);
         }
 
         // Step 4: Refresh the UI

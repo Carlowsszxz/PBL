@@ -45,7 +45,7 @@ void refreshLed() {
     digitalWrite(LED_PIN, HIGH);
     return;
   }
-
+  
   if (ledNoise) {
     unsigned long now = millis();
     if (now - lastLedToggle >= LED_BLINK_INTERVAL) {
@@ -157,7 +157,8 @@ unsigned long lastLcdCheck = 0;  // Last time we checked for new messages
 const unsigned long LCD_CHECK_INTERVAL = 5000;  // Check for new messages every 5 seconds
 
 // ====== Noise Threshold Warnings ======
-const int NOISE_THRESHOLD = 30;    // LED and warning threshold (changed to 30 dB)
+const int NOISE_THRESHOLD = 30;    // Warning threshold (unchanged, for displaying warnings)
+const int LED_BLINK_THRESHOLD = 50; // LED blink threshold (new, for LED control)
 const int NOISE_THRESHOLD_MEDIUM = 55; // Above this: Moderate noise (yellow)
 const int NOISE_THRESHOLD_HIGH = 70;   // Above this: Too noisy (red)
 const int NOISE_THRESHOLD_CRITICAL = 85; // Above this: Very loud (red warning)
@@ -1082,14 +1083,17 @@ void checkNoiseThresholds(int db) {
   String warningMessage = "";
   bool shouldShowWarning = false;
 
-  // Control LED based on threshold (centralized via helper)
+  // Control LED based on new LED blink threshold (separate from warnings)
+  if (db >= LED_BLINK_THRESHOLD) {
+    setLedNoise(true);  // Turn on LED when above LED blink threshold
+  } else {
+    setLedNoise(false);   // Turn off LED when below LED blink threshold
+  }
+  
+  // Check for warnings starting from NOISE_THRESHOLD (independent of LED)
   if (db >= NOISE_THRESHOLD) {
-    setLedNoise(true);  // Turn on LED when above threshold
-    // generic low-level warning message (specific levels override below)
     warningMessage = "Noise Level High\nPlease be quiet\nNoise: " + String(db) + " dB";
     shouldShowWarning = true;
-  } else {
-    setLedNoise(false);   // Turn off LED when below threshold
   }
   
   if (db >= NOISE_THRESHOLD_CRITICAL) {
@@ -1216,8 +1220,8 @@ void clearNoiseWarning() {
   showingNoiseWarning = false;
   noiseWarningStartTime = 0;
   
-  // Only turn off LED if current noise level is below threshold
-  if (lastNoiseLevel < NOISE_THRESHOLD) {
+  // Only turn off LED if current noise level is below LED blink threshold
+  if (lastNoiseLevel < LED_BLINK_THRESHOLD) {
     setLedNoise(false);
   }
   
