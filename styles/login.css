@@ -485,7 +485,7 @@ html {
     inset: 0;
 }
 
-#loginSlideshow .slide {
+#loginSlideshow .login-slide {
     position: absolute;
     inset: 0;
     background-size: cover;
@@ -496,7 +496,28 @@ html {
     will-change: opacity;
 }
 
-#loginSlideshow .slide.active {
+#loginSlideshow .login-slide.active {
+    opacity: 1;
+}
+
+/* Register slideshow (right panel) */
+#registerSlideshow {
+    position: absolute;
+    inset: 0;
+}
+
+#registerSlideshow .login-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 800ms ease;
+    will-change: opacity;
+}
+
+#registerSlideshow .login-slide.active {
     opacity: 1;
 }
 

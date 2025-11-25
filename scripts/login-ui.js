@@ -86,6 +86,25 @@
         const container = document.getElementById('loginSlideshow');
         if (!container) return;
 
+        const existingSlides = container.querySelectorAll('.login-slide');
+        if (existingSlides.length > 0) {
+            // Slides already exist in HTML, just set up the slideshow
+            let current = 0;
+            // Ensure first is active
+            existingSlides.forEach((slide, i) => {
+                if (i === 0) slide.classList.add('active');
+                else slide.classList.remove('active');
+            });
+            if (existingSlides.length > 1) {
+                setInterval(() => {
+                    existingSlides[current].classList.remove('active');
+                    current = (current + 1) % existingSlides.length;
+                    existingSlides[current].classList.add('active');
+                }, 5000);
+            }
+            return;
+        }
+
         // Only check existing images to avoid console spam
         const existingImages = ['images/library1.jpg', 'images/library2.jpg', 'images/library3.jpg'];
         const found = [];

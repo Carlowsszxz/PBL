@@ -51,4 +51,84 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         item.addEventListener('mouseleave',()=>{navLabel.classList.remove('visible');});
     });
+
+    // Initialize register slideshow
+    initRegisterSlideshow();
 });
+
+// Register slideshow: cycles through available library images
+function initRegisterSlideshow() {
+    const container = document.getElementById('registerSlideshow');
+    if (!container) return;
+
+    const existingSlides = container.querySelectorAll('.login-slide');
+    if (existingSlides.length > 0) {
+        // Slides already exist in HTML, just set up the slideshow
+        let current = 0;
+        // Ensure first is active
+        existingSlides.forEach((slide, i) => {
+            if (i === 0) slide.classList.add('active');
+            else slide.classList.remove('active');
+        });
+        if (existingSlides.length > 1) {
+            setInterval(() => {
+                existingSlides[current].classList.remove('active');
+                current = (current + 1) % existingSlides.length;
+                existingSlides[current].classList.add('active');
+            }, 5000);
+        }
+        return;
+    }
+
+    // Fallback: dynamically build slides if not present
+    const existingImages = ['images/library1.jpg', 'images/library2.jpg', 'images/library3.jpg'];
+    const found = [];
+    let loadedCount = 0;
+    
+    if (existingImages.length === 0) {
+        buildSlides([]);
+        return;
+    }
+    
+    existingImages.forEach(src => {
+        const img = new Image();
+        img.onload = () => {
+            found.push(src);
+            loadedCount++;
+            if (loadedCount === existingImages.length) buildSlides(found);
+        };
+        img.onerror = () => {
+            loadedCount++;
+            if (loadedCount === existingImages.length) buildSlides(found);
+        };
+        img.src = src;
+    });
+    
+    function buildSlides(images) {
+        if (!images.length) {
+            const fallback = 'images/library1.jpg';
+            const div = document.createElement('div');
+            div.className = 'login-slide active';
+            div.style.backgroundImage = `url(${fallback})`;
+            container.appendChild(div);
+            return;
+        }
+        
+        images.forEach((src, i) => {
+            const div = document.createElement('div');
+            div.className = `login-slide${i === 0 ? ' active' : ''}`;
+            div.style.backgroundImage = `url(${src})`;
+            container.appendChild(div);
+        });
+        
+        if (images.length > 1) {
+            let current = 0;
+            setInterval(() => {
+                const slides = container.querySelectorAll('.login-slide');
+                slides[current].classList.remove('active');
+                current = (current + 1) % slides.length;
+                slides[current].classList.add('active');
+            }, 5000);
+        }
+    }
+}
