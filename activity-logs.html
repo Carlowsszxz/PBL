@@ -282,6 +282,60 @@
     <script src="scripts/login-ui.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="scripts/activity-logs.js"></script>
+        <script>
+            let __activity_logs_blocked = false;
+            function blockIfMobileOrTablet() {
+                if (__activity_logs_blocked) return;
+                function isMobileOrTablet() {
+                    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+                    const isSmallScreen = window.innerWidth <= 1024;
+                    const ua = navigator.userAgent.toLowerCase();
+                    const isMobileUA = /android|iphone|ipad|ipod|blackberry|windows phone|opera mini|mobile|tablet/.test(ua);
+                    return (hasTouch && isSmallScreen) || isMobileUA || isSmallScreen;
+                }
+                if (isMobileOrTablet()) {
+                    __activity_logs_blocked = true;
+                    document.body.innerHTML = `
+                        <div style="
+                            min-height:100vh;
+                            display:flex;
+                            flex-direction:column;
+                            justify-content:center;
+                            align-items:center;
+                            background:linear-gradient(135deg,#f8fafc 0%,#e0e7ef 100%);
+                            color:#222;
+                            font-family:Inter,sans-serif;
+                            text-align:center;
+                            padding:2rem;
+                        ">
+                            <div style="
+                                background:#fff;
+                                border-radius:1.25rem;
+                                box-shadow:0 4px 24px rgba(0,0,0,0.07);
+                                padding:2.5rem 1.5rem;
+                                max-width:400px;
+                                width:100%;
+                            ">
+                                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" style="margin-bottom:1.5rem;display:block;margin-left:auto;margin-right:auto;">
+                                    <rect width="24" height="24" rx="12" fill="#f3f4f6"/>
+                                    <path d="M8 17h8M9 7h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" stroke="#64748b" stroke-width="1.5"/>
+                                    <path d="M12 15v2" stroke="#64748b" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <h1 style="font-size:1.25rem;font-weight:600;margin-bottom:0.75rem;">This page is only accessible on a PC.</h1>
+                                <p style="font-size:1rem;color:#64748b;">Please open this on a computer.</p>
+                            </div>
+                        </div>
+                    `;
+                    document.body.style.overflow = 'hidden';
+                    window.addEventListener('resize', function () {}, { once: true });
+                    window.addEventListener('scroll', function (e) { window.scrollTo(0,0); }, { passive: false });
+                    document.addEventListener('touchmove', function(e){ e.preventDefault(); }, { passive: false });
+                    document.addEventListener('wheel', function(e){ e.preventDefault(); }, { passive: false });
+                }
+            }
+            document.addEventListener('DOMContentLoaded', blockIfMobileOrTablet);
+            window.addEventListener('resize', blockIfMobileOrTablet);
+        </script>
 </body>
 
 </html>

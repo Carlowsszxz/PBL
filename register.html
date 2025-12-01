@@ -55,8 +55,9 @@
 </head>
 <body class="text-slate-900 min-h-screen flex flex-col relative" data-page="register">
     <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
-    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="library-background" class="library-background lazy-bg" aria-hidden="true" data-bg="images/Wallpaper.jpg"></div>
     <div id="paper-background" class="paper-background" aria-hidden="true"></div>
+    <div id="background-spotlight" class="background-spotlight" aria-hidden="true"></div>
 
     <!-- Header Trigger Button (Peek Arrow) -->
     <button id="headerTrigger" class="header-trigger" aria-label="Toggle header navigation">
@@ -187,10 +188,126 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                                <input id="signupPassword" type="password" autocomplete="new-password"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition"
-                                    placeholder="Create a password" required />
+                                                                <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                                                                <style>
+                                                                    .password-toggle-wrapper {
+                                                                        position: relative;
+                                                                        width: 100%;
+                                                                        display: flex;
+                                                                        align-items: center;
+                                                                    }
+                                                                    .password-toggle-input {
+                                                                        width: 100%;
+                                                                        padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+                                                                        border-radius: 0.5rem;
+                                                                        border: 1px solid #cbd5e1;
+                                                                        outline: none;
+                                                                        transition: border-color 0.2s;
+                                                                        font-size: 1rem;
+                                                                        box-sizing: border-box;
+                                                                        height: 3rem;
+                                                                    }
+                                                                    .password-toggle-btn {
+                                                                        position: absolute;
+                                                                        right: 0.75rem;
+                                                                        top: 0;
+                                                                        bottom: 0;
+                                                                        margin: auto 0;
+                                                                        background: none;
+                                                                        border: none;
+                                                                        padding: 0;
+                                                                        cursor: pointer;
+                                                                        display: flex;
+                                                                        align-items: center;
+                                                                        justify-content: center;
+                                                                        height: 2.25rem;
+                                                                        width: 2.25rem;
+                                                                        z-index: 2;
+                                                                    }
+                                                                    .toggle-icon {
+                                                                        position: absolute;
+                                                                        inset: 0;
+                                                                        width: 1.5em;
+                                                                        height: 1.5em;
+                                                                        transition: opacity 0.25s cubic-bezier(.4,0,.2,1);
+                                                                        pointer-events: none;
+                                                                        color: #334155;
+                                                                    }
+                                                                    .toggle-icon.eye {
+                                                                        opacity: 1;
+                                                                        z-index: 2;
+                                                                    }
+                                                                    .toggle-icon.eye-off {
+                                                                        opacity: 0;
+                                                                        z-index: 1;
+                                                                    }
+                                                                    .password-toggle-btn.open .toggle-icon.eye {
+                                                                        opacity: 0;
+                                                                    }
+                                                                    .password-toggle-btn.open .toggle-icon.eye-off {
+                                                                        opacity: 1;
+                                                                    }
+                                                                </style>
+
+                                                                <div class="password-toggle-wrapper">
+                                                                    <input
+                                                                        id="signupPassword"
+                                                                        class="password-toggle-input"
+                                                                        type="password"
+                                                                        placeholder="Create a password"
+                                                                        autocomplete="new-password"
+                                                                        required
+                                                                    />
+                                                                    <button
+                                                                        type="button"
+                                                                        id="toggleSignupPasswordBtn"
+                                                                        class="password-toggle-btn"
+                                                                        aria-label="Show password"
+                                                                        tabindex="0"
+                                                                    >
+                                                                        <span style="position: relative; display: block; width: 1.5em; height: 1.5em;">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                                                id="signupEyeIcon"
+                                                                                class="toggle-icon eye"
+                                                                                aria-hidden="true"
+                                                                                style="position: absolute; inset: 0;"
+                                                                            >
+                                                                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/>
+                                                                                <circle cx="12" cy="12" r="3"/>
+                                                                            </svg>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                                                id="signupEyeOffIcon"
+                                                                                class="toggle-icon eye-off"
+                                                                                aria-hidden="true"
+                                                                                style="position: absolute; inset: 0;"
+                                                                            >
+                                                                                <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49"></path>
+                                                                                <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"></path>
+                                                                                <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"></path>
+                                                                                <path d="m2 2 20 20"></path>
+                                                                            </svg>
+                                                                        </span>
+                                                                    </button>
+                                                                </div>
+                                                                <script>
+                                                                    const signupPasswordInput = document.getElementById('signupPassword');
+                                                                    const toggleSignupBtn = document.getElementById('toggleSignupPasswordBtn');
+                                                                    toggleSignupBtn.addEventListener('click', function () {
+                                                                        const isOpen = toggleSignupBtn.classList.toggle('open');
+                                                                        signupPasswordInput.type = isOpen ? 'text' : 'password';
+                                                                        toggleSignupBtn.setAttribute('aria-label', isOpen ? 'Hide password' : 'Show password');
+                                                                    });
+                                                                    toggleSignupBtn.addEventListener('keydown', function (e) {
+                                                                        if (e.key === ' ' || e.key === 'Enter') {
+                                                                            e.preventDefault();
+                                                                            toggleSignupBtn.click();
+                                                                        }
+                                                                    });
+                                                                </script>
                             </div>
 
                             <div>
@@ -209,18 +326,18 @@
                         </div>
                     </div>
 
-                    <!-- Right: Dynamic wallpaper panel -->
+                    <!-- Right: Dynamic wallpaper panel (matches login.html) -->
                     <div class="relative h-full min-h-[280px] md:min-h-[360px]">
-                        <div class="absolute inset-0 overflow-hidden rounded-none md:rounded-l-2xl bg-gradient-to-br from-green-500 to-blue-600">
+                        <div class="absolute inset-0 overflow-hidden rounded-none md:rounded-l-2xl bg-gradient-to-br from-blue-500 to-purple-600">
                             <!-- Slideshow images container -->
-                            <div id="registerSlideshow" class="absolute inset-0"><div class="login-slide active" style="background-image: url(&quot;images/library1.jpg&quot;);"></div><div class="login-slide" style="background-image: url(&quot;images/library2.jpg&quot;);"></div><div class="login-slide" style="background-image: url(&quot;images/library3.jpg&quot;);"></div></div>
+                            <div id="registerSlideshow" class="absolute inset-0"><div class="login-slide" style="background-image: url('images/library1.jpg');"></div><div class="login-slide" style="background-image: url('images/library2.jpg');"></div><div class="login-slide active" style="background-image: url('images/library3.jpg');"></div></div>
                             <!-- Tint overlay above images -->
                             <div class="absolute inset-0 bg-black/20"></div>
                         </div>
-                        <div class="relative z-[1] h-full flex items-end justify-between p-6">
+                        <div class="relative z-[1] h-full flex items-end justify-between p-4 md:p-6">
                             <div class="text-white drop-shadow-md">
-                                <h2 class="text-xl font-semibold !text-white">Join Our Community</h2>
-                                <p class="text-sm opacity-90">Start your journey today</p>
+                                <h2 class="text-xl font-semibold !text-white">University of Makati</h2>
+                                <p class="text-sm opacity-90">Noise Comfort Index</p>
                             </div>
                             <a href="directions.html"
                                 class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/15 border border-white/15 text-white text-sm hover:bg-white/25 transition">
@@ -238,8 +355,22 @@
         <p>University of Makati - Noise Comfort Index</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="scripts/register.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="scripts/register.js"></script>
+        <script>
+            // Lazy load and fade in the library background, just like login.html
+            document.addEventListener('DOMContentLoaded', function () {
+                var bg = document.querySelector('.library-background');
+                if (bg && bg.dataset.bg) {
+                    var img = new window.Image();
+                    img.onload = function () {
+                        bg.style.backgroundImage = 'url(' + bg.dataset.bg + ')';
+                        bg.classList.add('loaded');
+                    };
+                    img.src = bg.dataset.bg;
+                }
+            });
+        </script>
 </body>
 </html>
 

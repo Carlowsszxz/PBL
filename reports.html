@@ -96,10 +96,9 @@
 </head>
 
 <body
-    class="text-slate-900 min-h-screen flex flex-col relative bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"
-    data-page="reports">
+    class="text-slate-900 min-h-screen flex flex-col relative" data-page="reports">
     <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
-    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="library-background" class="library-background lazy-bg" aria-hidden="true" data-bg="images/Wallpaper.jpg"></div>
     <div id="paper-background" class="paper-background" aria-hidden="true"></div>
 
     <!-- Header Trigger Button (Peek Arrow) -->
@@ -518,3 +517,17 @@
 </body>
 
 </html>
+    <script>
+        // Lazy load and fade in the library background, just like login.html, dashboard.html, and map.html
+        document.addEventListener('DOMContentLoaded', function () {
+            var bg = document.querySelector('.library-background');
+            if (bg && bg.dataset.bg) {
+                var img = new window.Image();
+                img.onload = function () {
+                    bg.style.backgroundImage = 'url(' + bg.dataset.bg + ')';
+                    bg.classList.add('loaded');
+                };
+                img.src = bg.dataset.bg;
+            }
+        });
+    </script>

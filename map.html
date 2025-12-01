@@ -88,10 +88,9 @@
 </head>
 
 <body
-    class="text-slate-900 min-h-screen flex flex-col relative bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50"
-    data-page="map">
+    class="text-slate-900 min-h-screen flex flex-col relative" data-page="map">
     <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
-    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="library-background" class="library-background lazy-bg" aria-hidden="true" data-bg="images/Wallpaper.jpg"></div>
     <div id="paper-background" class="paper-background" aria-hidden="true"></div>
 
     <!-- Header Trigger Button (Peek Arrow) -->
@@ -267,8 +266,22 @@
         <p>University of Makati - Noise Comfort Index</p>
     </footer>
 
-                        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-                        <script src="scripts/map.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="scripts/map.js"></script>
+    <script>
+        // Lazy load and fade in the library background, just like login.html and dashboard.html
+        document.addEventListener('DOMContentLoaded', function () {
+            var bg = document.querySelector('.library-background');
+            if (bg && bg.dataset.bg) {
+                var img = new window.Image();
+                img.onload = function () {
+                    bg.style.backgroundImage = 'url(' + bg.dataset.bg + ')';
+                    bg.classList.add('loaded');
+                };
+                img.src = bg.dataset.bg;
+            }
+        });
+    </script>
 </body>
 
 </html>

@@ -17,7 +17,7 @@
 
 <body class="text-slate-900 min-h-screen flex flex-col relative" data-page="dashboard">
     <div id="cursor-follower" class="cursor-follower" aria-hidden="true"></div>
-    <div id="library-background" class="library-background" aria-hidden="true"></div>
+    <div id="library-background" class="library-background lazy-bg" aria-hidden="true" data-bg="images/Wallpaper.jpg"></div>
     <div id="paper-background" class="paper-background" aria-hidden="true"></div>
 
     <!-- Header Trigger Button (Peek Arrow) -->
@@ -353,7 +353,7 @@
                     <!-- ========================================== -->
                     <!-- ANNOUNCEMENTS - Modern Card Design -->
                     <!-- ========================================== -->
-                    <div class="group backdrop-blur-md rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="group bg-white rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                         <!-- Header with Icon & Timestamp -->
                         <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 px-5 py-4 border-b border-indigo-100/50">
                             <div class="flex items-center justify-between">
@@ -388,7 +388,7 @@
                     <!-- ========================================== -->
                     <!-- TODAY'S ACTIVITY - Timeline with Icons -->
                     <!-- ========================================== -->
-                    <div class="group backdrop-blur-md rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="group bg-white rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                         <!-- Header -->
                         <div class="px-5 py-4 border-b border-green-100/50">
                             <div class="flex items-center justify-between">
@@ -411,12 +411,13 @@
                         <!-- Timeline Content -->
                         <div class="p-5">
                             <div id="activityTimeline" class="space-y-4 activity-timeline-scrollable max-h-[320px] overflow-y-auto pr-2">
-                                <!-- Loading State (will be replaced by JS) -->
-                                <div class="flex items-center justify-center py-8">
-                                    <div class="flex flex-col items-center gap-3">
-                                        <div class="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
-                                        <p class="text-gray-500 text-sm">Loading activity…</p>
+                                <!-- Static Info State -->
+                                <div class="flex flex-col items-center justify-center py-8 text-center">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
+                                        <i data-lucide="calendar-x" class="w-8 h-8 text-gray-400"></i>
                                     </div>
+                                    <p class="text-gray-500 text-sm font-medium">Loading too long?</p>
+                                    <p class="text-gray-400 text-xs mt-1">It means you have no activity records yet.</p>
                                 </div>
                             </div>
                         </div>
@@ -425,7 +426,7 @@
                     <!-- ========================================== -->
                     <!-- YOUR STATS - Engaging Visual Cards -->
                     <!-- ========================================== -->
-                    <div class="group backdrop-blur-md rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <div class="group bg-white rounded-2xl border border-white/50 shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden">
                         <!-- Header -->
                         <div class="px-5 py-4 border-b border-purple-100/50">
                             <div class="flex items-center gap-3">
@@ -726,8 +727,22 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="scripts/dashboard.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="scripts/dashboard.js"></script>
+        <script>
+            // Lazy load and fade in the library background, just like login.html
+            document.addEventListener('DOMContentLoaded', function () {
+                var bg = document.querySelector('.library-background');
+                if (bg && bg.dataset.bg) {
+                    var img = new window.Image();
+                    img.onload = function () {
+                        bg.style.backgroundImage = 'url(' + bg.dataset.bg + ')';
+                        bg.classList.add('loaded');
+                    };
+                    img.src = bg.dataset.bg;
+                }
+            });
+        </script>
 </body>
 
 </html>

@@ -7,7 +7,6 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // Check if user is already logged in on page load
 document.addEventListener('DOMContentLoaded', async function() {
     // Wait for supabase client to be ready
-    supabase = window.supabaseClient;
     if (!supabase) {
         console.error('Supabase client not initialized');
         return;
