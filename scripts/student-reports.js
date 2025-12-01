@@ -2,6 +2,123 @@
 const SUPABASE_URL = 'https://xnqffcutsadthghqxeha.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhucWZmY3V0c2FkdGhnaHF4ZWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NzcwMDMsImV4cCI6MjA3NzE1MzAwM30.wHKLzLhY1q-wGud5Maz3y07sXrkg0JLfY85VF6GGJrk';
 
+// --- User Search Dropdown Logic (adapted from rfid-management.js) ---
+let allUsers = [];
+
+async function loadUsers() {
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        allUsers = data || [];
+        populateUserDropdown(allUsers);
+    } catch (err) {
+        console.error('Error loading users:', err);
+    }
+}
+
+function populateUserDropdown(users) {
+    const dropdown = document.getElementById('userDropdown');
+    if (!dropdown) return;
+    dropdown.innerHTML = '';
+    if (!users || users.length === 0) {
+        dropdown.innerHTML = '<div class="p-4 text-sm text-gray-500 transition-colors duration-200">No users found</div>';
+        return;
+    }
+    users.forEach(user => {
+        const name = (user.first_name || '') + ' ' + (user.last_name || '');
+        const displayText = user.email + (name.trim() ? ' (' + name.trim() + ')' : '') + (user.is_admin ? ' 👑' : '');
+        const item = document.createElement('div');
+        item.className = 'user-dropdown-item px-4 py-3 hover:bg-gray-50 cursor-pointer text-sm transition-colors duration-150';
+        item.innerHTML = `
+            <div class="font-medium text-gray-900">${displayText}</div>
+            ${name.trim() ? `<div class="text-xs text-gray-500">${user.email}</div>` : ''}
+        `;
+        item.addEventListener('click', () => selectUser(user.id, displayText));
+        dropdown.appendChild(item);
+    });
+}
+
+function selectUser(userId, displayText) {
+    document.getElementById('userSelect').value = userId;
+    document.getElementById('userSearch').value = displayText;
+    const clearBtn = document.getElementById('clearUserBtn');
+    if (clearBtn) clearBtn.classList.remove('hidden');
+    hideUserDropdown();
+}
+
+function clearUserSelection() {
+    document.getElementById('userSelect').value = '';
+    document.getElementById('userSearch').value = '';
+    const clearBtn = document.getElementById('clearUserBtn');
+    if (clearBtn) clearBtn.classList.add('hidden');
+    hideUserDropdown();
+}
+
+function filterUsers() {
+    const searchInput = document.getElementById('userSearch');
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const userSelect = document.getElementById('userSelect');
+    const clearBtn = document.getElementById('clearUserBtn');
+
+    // If user types, always clear userSelect so filter uses email substring
+    if (userSelect) userSelect.value = '';
+    if (clearBtn) clearBtn.classList.add('hidden');
+
+    if (!searchTerm) {
+        populateUserDropdown(allUsers);
+        showUserDropdown();
+    } else {
+        // Always filter by email substring
+        const filtered = allUsers.filter(user => {
+            const email = (user.email || '').toLowerCase();
+            return email.includes(searchTerm);
+        });
+        populateUserDropdown(filtered);
+        showUserDropdown();
+    }
+}
+
+// When a dropdown item is clicked, set userSelect and userSearch, and show clear button
+function selectUser(userId, displayText) {
+    document.getElementById('userSelect').value = userId;
+    document.getElementById('userSearch').value = displayText;
+    const clearBtn = document.getElementById('clearUserBtn');
+    if (clearBtn) clearBtn.classList.remove('hidden');
+    hideUserDropdown();
+}
+
+function showUserDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown && allUsers.length > 0) {
+        dropdown.classList.remove('hidden');
+    }
+}
+
+function hideUserDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.classList.add('hidden');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    const searchBox = document.getElementById('userSearch');
+    const dropdown = document.getElementById('userDropdown');
+    if (searchBox && dropdown && !searchBox.contains(event.target) && !dropdown.contains(event.target)) {
+        hideUserDropdown();
+    }
+});
+
+// Load users on page load for dropdown
+document.addEventListener('DOMContentLoaded', function () {
+    loadUsers();
+});
+// --- End User Search Dropdown Logic ---
 let supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Check if user is admin on page load
@@ -103,13 +220,16 @@ async function viewAllReports(filters = null, sortColumn = 'created_at', sortDir
         
         if (error) throw error;
         
-        // Filter by user email if specified (client-side filter)
+        // Filter by user ID if selected, otherwise by email string
         let filteredReports = reports || [];
         if (filters && filters.user && filters.user !== '') {
-            filteredReports = filteredReports.filter(report => {
-                if (!report.user) return false;
-                return report.user.email && report.user.email.toLowerCase().includes(filters.user.toLowerCase());
-            });
+            // If userSelect is filled (UUID), filter by user.id
+            if (/^[0-9a-fA-F-]{36}$/.test(filters.user)) {
+                filteredReports = filteredReports.filter(report => report.user && report.user.id === filters.user);
+            } else {
+                // Otherwise, filter by email substring
+                filteredReports = filteredReports.filter(report => report.user && report.user.email && report.user.email.toLowerCase().includes(filters.user.toLowerCase()));
+            }
         }
         
         // Update statistics (always, even if no reports)
@@ -223,13 +343,13 @@ function toggleSearch() {
 
 function performSearch() {
     const filters = {
-        user: document.getElementById('searchUser').value.trim(),
+        user: document.getElementById('userSelect')?.value?.trim() || '',
         status: document.getElementById('searchStatus').value,
         type: document.getElementById('searchType').value,
         dateFrom: document.getElementById('searchDateFrom').value,
         dateTo: document.getElementById('searchDateTo').value,
-        title: document.getElementById('searchTitle').value.trim(),
-        hasReply: document.getElementById('searchHasReply').value
+        title: document.getElementById('searchGeneral')?.value?.trim() || '',
+        hasReply: document.getElementById('searchHasReply')?.value || ''
     };
     
     // Convert empty strings to null
@@ -254,13 +374,14 @@ function performSearch() {
 }
 
 function clearSearch() {
-    document.getElementById('searchUser').value = '';
+    if(document.getElementById('userSelect')) document.getElementById('userSelect').value = '';
+    if(document.getElementById('userSearch')) document.getElementById('userSearch').value = '';
     document.getElementById('searchStatus').value = '';
     document.getElementById('searchType').value = '';
     document.getElementById('searchDateFrom').value = '';
     document.getElementById('searchDateTo').value = '';
-    document.getElementById('searchTitle').value = '';
-    document.getElementById('searchHasReply').value = '';
+    if(document.getElementById('searchGeneral')) document.getElementById('searchGeneral').value = '';
+    if(document.getElementById('searchHasReply')) document.getElementById('searchHasReply').value = '';
     
     currentFilters = null;
     updateFilterButtons('');

@@ -821,7 +821,9 @@
                                     <p class="text-3xl font-bold text-blue-900" id="totalUsers">-</p>
                                 </div>
                                 <div class="w-12 h-12 rounded-lg bg-blue-500/10">
-                                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                                    <div class="stat-icon-container w-12 h-12 rounded-lg bg-blue-500/10">
+                                        <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -834,7 +836,9 @@
                                     <p class="text-3xl font-bold text-purple-900" id="totalRfid">-</p>
                                 </div>
                                 <div class="w-12 h-12 rounded-lg bg-purple-500/10">
-                                    <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
+                                    <div class="stat-icon-container w-12 h-12 rounded-lg bg-purple-500/10">
+                                        <i data-lucide="credit-card" class="w-6 h-6 text-purple-600"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -847,7 +851,9 @@
                                     <p class="text-3xl font-bold text-green-900" id="occupiedSeats">-</p>
                                 </div>
                                 <div class="w-12 h-12 rounded-lg bg-green-500/10">
-                                    <i data-lucide="armchair" class="w-6 h-6 text-green-600"></i>
+                                    <div class="stat-icon-container w-12 h-12 rounded-lg bg-green-500/10">
+                                        <i data-lucide="armchair" class="w-6 h-6 text-green-600"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -860,7 +866,9 @@
                                     <p class="text-3xl font-bold text-orange-900" id="pendingReports">-</p>
                                 </div>
                                 <div class="w-12 h-12 rounded-lg bg-orange-500/10">
-                                    <i data-lucide="alert-circle" class="w-6 h-6 text-orange-600"></i>
+                                    <div class="stat-icon-container w-12 h-12 rounded-lg bg-orange-500/10">
+                                        <i data-lucide="alert-circle" class="w-6 h-6 text-orange-600"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1008,7 +1016,6 @@
                 <section
                     class="admin-card card-fadein dash-card bg-white/90" style="grid-column: 1 / -1; min-width: 320px;">
                     <div class="admin-card-header flex items-center gap-2">
-                        <i data-lucide="bar-chart-3" class="w-5 h-5 text-blue-500"></i>
                         <h2 class="text-lg font-semibold setup-title-color mb-1">Analytics Dashboard</h2>
                     </div>
                     <p class="text-xs text-gray-600">Monitor usage patterns, identify peak times, and track system performance</p>
@@ -1022,6 +1029,7 @@
                             </div>
                             <div class="text-2xl font-bold text-blue-900" id="totalLoginsMetric">--</div>
                             <div class="text-xs text-blue-700">This period</div>
+                                                <!-- Optionally update this label dynamically based on selected range -->
                         </div>
 
                         <div class="p-4 rounded-lg border border-green-200">
@@ -1057,43 +1065,50 @@
                         <div class="flex flex-col lg:flex-row lg:items-end gap-4 flex-wrap">
                             <div class="flex-1 min-w-[200px]">
                                 <label for="statsStartDate" class="block text-sm font-medium text-gray-700">
-                                    📅 Date Range
+                                    Date Range
                                 </label>
+                                <div class="flex flex-wrap gap-2 mb-2">
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('today', this)">Today</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('yesterday', this)">Yesterday</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('week', this)">This Week</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('month', this)">This Month</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('all', this)">All Time</button>
+                                </div>
                                 <div class="flex gap-2">
                                     <div>
                                         <label for="statsStartDate" class="block text-xs text-gray-500">From</label>
-                                        <input id="statsStartDate" type="date" class="form-input w-full" />
+                                        <input id="statsStartDate" type="date" class="form-input w-full">
                                     </div>
                                     <div>
                                         <label for="statsEndDate" class="block text-xs text-gray-500">To</label>
-                                        <input id="statsEndDate" type="date" class="form-input w-full" />
+                                        <input id="statsEndDate" type="date" class="form-input w-full">
                                     </div>
                                 </div>
                             </div>
 
                             <div class="flex-1 min-w-[180px]">
                                 <label for="statsTableFilter" class="block text-sm font-medium text-gray-700">
-                                    🏢 Filter by Table
+                                    Filter by Table
                                 </label>
                                 <select id="statsTableFilter" class="form-input w-full">
-                                    <option value="all">📊 All Tables</option>
-                                    <option value="table-1">🏷️ Table 1</option>
-                                    <option value="table-2">🏷️ Table 2</option>
-                                    <option value="table-3" disabled>🚧 Table 3 (Future)</option>
-                                    <option value="table-4" disabled>🚧 Table 4 (Future)</option>
+                                    <option value="all">All Tables</option>
+                                    <option value="table-1">Table 1</option>
+                                    <option value="table-2">Table 2</option>
+                                    <option value="table-3" disabled>Table 3 (Future)</option>
+                                    <option value="table-4" disabled>Table 4 (Future)</option>
                                 </select>
                             </div>
 
                             <div class="flex gap-2 flex-wrap">
-                                <button id="statsRefreshBtn" class="btn bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                                <button id="statsRefreshBtn" class="filter-chip analytics-action-chip" type="button">
                                     <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                                     Refresh Data
                                 </button>
-                                <button id="statsExportCsvBtn" class="btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                                <button id="statsExportCsvBtn" class="filter-chip analytics-action-chip" type="button">
                                     <i data-lucide="download" class="w-4 h-4"></i>
                                     Export CSV
                                 </button>
-                                <button id="statsPrintBtn" class="btn bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                                <button id="statsPrintBtn" class="filter-chip analytics-action-chip" type="button">
                                     <i data-lucide="printer" class="w-4 h-4"></i>
                                     Print Report
                                 </button>
@@ -1102,7 +1117,7 @@
 
                         <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
                             <div class="text-sm text-gray-600">
-                                💡 <strong>Tip:</strong> Use date filters to analyze specific time periods, or export data for detailed analysis
+                                <strong>Tip:</strong> Use date filters to analyze specific time periods, or export data for detailed analysis
                             </div>
                             <div class="text-xs text-gray-500 flex items-center gap-2" id="statsLastUpdated">
                                 <i data-lucide="clock" class="w-3 h-3"></i>
@@ -1187,7 +1202,6 @@
                 <section
                     class="admin-card card-fadein dash-card bg-white/90" style="grid-column: 1 / -1; min-width: 320px;">
                     <div class="admin-card-header flex items-center gap-2">
-                        <i data-lucide="megaphone" class="w-4 h-4 text-gray-500"></i>
                         <h2 class="text-lg font-semibold setup-title-color">Manage Announcements</h2>
                     </div>
                     <p class="text-xs text-gray-600">Create and manage announcements visible to
@@ -1197,7 +1211,6 @@
                     <div
                         class="mt-6 p-6 bg-gray-50">
                         <h3 class="text-base font-bold text-gray-900">
-                            <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i>
                             Create New Announcement
                         </h3>
                         <form id="announcementForm" class="space-y-5">
@@ -1261,7 +1274,6 @@
                     <div class="mt-8">
                         <div class="flex items-center justify-between mb-5">
                             <h3 class="text-base font-bold text-gray-900">
-                                <i data-lucide="list" class="w-5 h-5 text-indigo-600"></i>
                                 Existing Announcements
                             </h3>
                         </div>
@@ -1277,7 +1289,6 @@
                     class="admin-card card-fadein dash-card bg-white/90" style="grid-column: 1 / -1; min-width: 320px;">
                     <div class="admin-card-header flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <i data-lucide="clipboard-list" class="w-4 h-4 text-gray-500"></i>
                             <h2 class="text-lg font-semibold setup-title-color">Reports Overview</h2>
                             <span id="reportsTotal"
                                 class="ml-2 px-2 py-0.5 bg-purple-100">0</span>

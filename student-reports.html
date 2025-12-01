@@ -241,120 +241,98 @@
                 </div>
             </header>
             <div class="admin-content-grid">
-
-                <!-- Summary Card -->
-                <section class="admin-card card-fadein">
-                    <div class="admin-card-header">
-                        <h2 class="text-lg font-semibold setup-title-color">Reports Summary</h2>
+                <!-- Unified Dashboard Section: Summary, Search, and Reports -->
+                <section class="admin-card card-fadein w-full" style="grid-column: 1 / -1;">
+                    <div class="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
+                        <!-- Stats Summary -->
+                        <div class="col-span-1 xl:col-span-1 flex flex-col gap-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-2 gap-4" id="statsSummary">
+                                <div class="text-center p-5 rounded-xl bg-white border border-slate-200">
+                                    <div id="statPending" class="text-3xl font-bold text-black">-</div>
+                                    <div class="text-xs text-gray-600">Pending</div>
+                                </div>
+                                <div class="text-center p-5 rounded-xl bg-white border border-slate-200">
+                                    <div id="statReviewing" class="text-3xl font-bold text-black">-</div>
+                                    <div class="text-xs text-gray-600">Reviewing</div>
+                                </div>
+                                <div class="text-center p-5 rounded-xl bg-white border border-slate-200">
+                                    <div id="statResolved" class="text-3xl font-bold text-black">-</div>
+                                    <div class="text-xs text-gray-600">Resolved</div>
+                                </div>
+                                <div class="text-center p-5 rounded-xl bg-white border border-slate-200">
+                                    <div id="statDismissed" class="text-3xl font-bold text-black">-</div>
+                                    <div class="text-xs text-gray-600">Dismissed</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Advanced Search -->
+                        <div class="col-span-1 xl:col-span-3 flex flex-col gap-4">
+                            <div class="admin-card-header mb-2">
+                                <h2 class="text-lg font-semibold setup-title-color">Advanced Search</h2>
+                            </div>
+                            <form id="searchForm" class="grid md:grid-cols-2 gap-4"
+                                onsubmit="event.preventDefault(); performSearch();">
+                                <div class="md:col-span-2 flex flex-wrap gap-2 mb-2">
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('today', this)">Today</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('week', this)">This Week</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('month', this)">This Month</button>
+                                    <button type="button" class="filter-chip date-quick-chip" onclick="quickDateRange('all', this)">All Time</button>
+                                </div>
+                                <div class="md:col-span-2 flex flex-wrap gap-4">
+                                    <div class="w-full md:w-1/2 relative">
+                                        <!-- User search input removed as requested -->
+                                    </div>
+                                    <input type="text" id="searchGeneral" class="w-full md:w-1/2 p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition" placeholder="Search by title or keyword...">
+                                    <select id="searchStatus" class="w-full md:w-40 p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                        <option value="">All Statuses</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="reviewing">Reviewing</option>
+                                        <option value="resolved">Resolved</option>
+                                        <option value="dismissed">Dismissed</option>
+                                    </select>
+                                    <select id="searchType" class="w-full md:w-40 p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                        <option value="">All Types</option>
+                                        <option value="issue">Issue</option>
+                                        <option value="feedback">Feedback</option>
+                                        <option value="complaint">Complaint</option>
+                                        <option value="suggestion">Suggestion</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <input type="date" id="searchDateFrom" class="w-full md:w-40 p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                    <input type="date" id="searchDateTo" class="w-full md:w-40 p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
+                                </div>
+                                <div class="md:col-span-2 flex gap-3 justify-end mt-2">
+                                    <button type="submit" class="filter-chip analytics-action-chip">Search</button>
+                                    <button type="button" onclick="clearSearch()" class="filter-chip">Clear</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-5" id="statsSummary">
-                        <div class="text-center p-5 rounded-xl bg-white">
-                            <div id="statPending" class="text-3xl font-bold text-black">-</div>
-                            <div class="text-xs text-gray-600">Pending</div>
-                        </div>
-                        <div class="text-center p-5 rounded-xl bg-white">
-                            <div id="statReviewing" class="text-3xl font-bold text-black">-</div>
-                            <div class="text-xs text-gray-600">Reviewing</div>
-                        </div>
-                        <div class="text-center p-5 rounded-xl bg-white">
-                            <div id="statResolved" class="text-3xl font-bold text-black">-</div>
-                            <div class="text-xs text-gray-600">Resolved</div>
-                        </div>
-                        <div class="text-center p-5 rounded-xl bg-white">
-                            <div id="statDismissed" class="text-3xl font-bold text-black">-</div>
-                            <div class="text-xs text-gray-600">Dismissed</div>
-                        </div>
-                    </div>
-                </section>
-
-                <div class="flex flex-col gap-8 w-full" style="grid-column: 1 / -1;">
-                    <!-- Advanced Search -->
-                    <section class="admin-card card-fadein">
-                        <div class="admin-card-header">
-                            <h2 class="text-lg font-semibold setup-title-color">Advanced Search</h2>
-                        </div>
-                        <form id="searchForm" class="grid md:grid-cols-2 gap-4"
-                            onsubmit="event.preventDefault(); performSearch();">
-                            <div><label for="searchUser" class="block text-sm font-medium text-slate-700 mb-1">User
-                                    (Email)</label><input type="text" id="searchUser"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                    placeholder="e.g., user@example.com"></div>
-                            <div><label for="searchStatus"
-                                    class="block text-sm font-medium text-slate-700 mb-1">Status</label><select
-                                    id="searchStatus"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                                    <option value="">All Statuses</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="reviewing">Reviewing</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="dismissed">Dismissed</option>
-                                </select></div>
-                            <div><label for="searchType" class="block text-sm font-medium text-slate-700 mb-1">Report
-                                    Type</label><select id="searchType"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                                    <option value="">All Types</option>
-                                    <option value="issue">Issue</option>
-                                    <option value="feedback">Feedback</option>
-                                    <option value="complaint">Complaint</option>
-                                    <option value="suggestion">Suggestion</option>
-                                    <option value="other">Other</option>
-                                </select></div>
-                            <div><label for="searchDateFrom" class="block text-sm font-medium text-slate-700 mb-1">From
-                                    Date</label><input type="date" id="searchDateFrom"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                            </div>
-                            <div><label for="searchDateTo" class="block text-sm font-medium text-slate-700 mb-1">To
-                                    Date</label><input type="date" id="searchDateTo"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                            </div>
-                            <div><label for="searchTitle" class="block text-sm font-medium text-slate-700 mb-1">Title
-                                    (contains)</label><input type="text" id="searchTitle"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition"
-                                    placeholder="Search in title..."></div>
-                            <div><label for="searchHasReply" class="block text-sm font-medium text-slate-700 mb-1">Has Admin
-                                    Reply</label><select id="searchHasReply"
-                                    class="w-full p-3 rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 outline-none transition">
-                                    <option value="">All Reports</option>
-                                    <option value="yes">Has Reply</option>
-                                    <option value="no">No Reply</option>
-                                </select></div>
-                            <div class="md:col-span-2 flex gap-3 justify-end mt-2"><button type="submit"
-                                    class="setup-btn px-5 py-3 rounded-xl font-semibold shadow">Search</button><button
-                                    type="button" onclick="clearSearch()"
-                                    class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear</button>
-                            </div>
-                        </form>
-                    </section>
-
                     <!-- All Reports -->
-                    <section class="admin-card card-fadein">
-                        <div class="admin-card-header flex items-center justify-between">
-                            <h2 class="text-lg font-semibold setup-title-color">All Student Reports</h2>
-                            <div id="searchInfo" class="text-sm text-slate-600 hidden"></div>
+                    <div class="admin-card-header flex items-center justify-between mt-6">
+                        <h2 class="text-lg font-semibold setup-title-color">All Student Reports</h2>
+                        <div id="searchInfo" class="text-sm text-slate-600 hidden"></div>
+                    </div>
+                    <div class="flex flex-wrap gap-3 justify-between items-center mb-4">
+                        <div class="quick-filters flex flex-wrap gap-2">
+                            <button class="filter-btn all active" onclick="filterByStatus('')">All Reports</button>
+                            <button class="filter-btn pending" onclick="filterByStatus('pending')">Pending</button>
+                            <button class="filter-btn reviewing" onclick="filterByStatus('reviewing')">Reviewing</button>
+                            <button class="filter-btn resolved" onclick="filterByStatus('resolved')">Resolved</button>
+                            <button class="filter-btn dismissed" onclick="filterByStatus('dismissed')">Dismissed</button>
                         </div>
-                        <div class="flex flex-wrap gap-3 justify-between items-center mb-4">
-                            <div class="quick-filters flex flex-wrap gap-2">
-                                <button class="filter-btn all active" onclick="filterByStatus('')">All Reports</button>
-                                <button class="filter-btn pending" onclick="filterByStatus('pending')">Pending</button>
-                                <button class="filter-btn reviewing"
-                                    onclick="filterByStatus('reviewing')">Reviewing</button>
-                                <button class="filter-btn resolved" onclick="filterByStatus('resolved')">Resolved</button>
-                                <button class="filter-btn dismissed"
-                                    onclick="filterByStatus('dismissed')">Dismissed</button>
-                            </div>
-                            <div class="flex gap-3">
-                                <button onclick="viewAllReports()"
-                                    class="setup-btn px-6 py-2.5 rounded-xl font-semibold shadow flex items-center"><i
-                                        data-lucide="refresh-cw" class="inline w-5 h-5 mr-2"></i>Refresh Reports</button>
-                                <button onclick="deleteAllReports()" class="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-sm transition-colors duration-200 flex items-center gap-2">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    <span class="text-sm font-medium">Delete All</span>
-                                </button>
-                            </div>
+                        <div class="flex gap-3">
+                            <button onclick="viewAllReports()"
+                                class="setup-btn px-6 py-2.5 rounded-xl font-semibold shadow flex items-center"><i
+                                    data-lucide="refresh-cw" class="inline w-5 h-5 mr-2"></i>Refresh Reports</button>
+                            <button onclick="deleteAllReports()" class="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 shadow-sm transition-colors duration-200 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span class="text-sm font-medium">Delete All</span>
+                            </button>
                         </div>
-                        <div id="reportsData" class="reports-data-container">Loading reports...</div>
-                    </section>
-                </div>
+                    </div>
+                    <div id="reportsData" class="reports-data-container">Loading reports...</div>
+                </section>
             </div>
         </main>
     </div>

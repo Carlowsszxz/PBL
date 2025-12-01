@@ -1559,9 +1559,7 @@ async function loadAnnouncementsAndActivity(rfidUid) {
             if (!activeAnnouncements || activeAnnouncements.length === 0) {
                 container.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-8 text-center">
-                        <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mb-3">
-                            <i data-lucide="inbox" class="w-8 h-8 text-gray-400"></i>
-                        </div>
+                        
                         <p class="text-gray-500 text-sm font-medium">No announcements yet</p>
                         <p class="text-gray-400 text-xs mt-1">Check back later for updates</p>
                     </div>

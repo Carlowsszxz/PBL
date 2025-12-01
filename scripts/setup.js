@@ -1,3 +1,60 @@
+// Quick-select date range buttons for analytics
+function quickDateRange(range, btn) {
+    document.querySelectorAll('.date-quick-chip').forEach(el => el.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const startInput = document.getElementById('statsStartDate');
+    const endInput = document.getElementById('statsEndDate');
+    const now = new Date();
+    let start, end;
+    if (range === 'today') {
+        start = end = now;
+    } else if (range === 'yesterday') {
+        start = end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    } else if (range === 'week') {
+        const day = now.getDay();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1); // Monday
+        end = now;
+    } else if (range === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = now;
+    } else if (range === 'all') {
+        startInput.value = '';
+        endInput.value = '';
+        refreshStatisticsReport();
+        return;
+    }
+    startInput.value = start.toISOString().slice(0, 10);
+    endInput.value = end.toISOString().slice(0, 10);
+    refreshStatisticsReport();
+}
+// Handle Analytics Time Range Buttons
+function setAnalyticsRange(range, btn) {
+    // Remove active from all time range chips
+    document.querySelectorAll('.time-range-chip').forEach(el => el.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    // Set date inputs based on range
+    const startInput = document.getElementById('statsStartDate');
+    const endInput = document.getElementById('statsEndDate');
+    const now = new Date();
+    let start, end;
+    end = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    if (range === 'all') {
+        startInput.value = '';
+        endInput.value = '';
+    } else if (range === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        startInput.value = start.toISOString().slice(0, 10);
+        endInput.value = end.toISOString().slice(0, 10);
+    } else if (range === 'week') {
+        const day = now.getDay();
+        start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1); // Monday as start
+        startInput.value = start.toISOString().slice(0, 10);
+        endInput.value = end.toISOString().slice(0, 10);
+    }
+    // Refresh analytics data
+    refreshStatisticsReport();
+}
 // Supabase Configuration
 const SUPABASE_URL = 'https://xnqffcutsadthghqxeha.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhucWZmY3V0c2FkdGhnaHF4ZWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE1NzcwMDMsImV4cCI6MjA3NzE1MzAwM30.wHKLzLhY1q-wGud5Maz3y07sXrkg0JLfY85VF6GGJrk';

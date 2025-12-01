@@ -199,13 +199,12 @@
             </header>
             <div class="admin-content-grid">
 
-                <!-- Send Message Card -->
-                <section class="admin-card card-fadein lcd-messages-full-width">
+                <!-- Combined LCD Message Card -->
+                <section class="admin-card card-fadein bg-white p-8 rounded-xl shadow w-full max-w-5xl mx-auto">
                     <div class="admin-card-header">
                         <h2 class="text-lg font-semibold setup-title-color">Send Message to LCD Screen</h2>
                     </div>
-                    <p class="text-slate-600 mb-6">Type a message below to display on the ESP32 LCD screen (20
-                        characters per line, 4 lines).</p>
+                    <p class="text-slate-600 mb-6">Type a message below to display on the ESP32 LCD screen (20 characters per line, 4 lines).</p>
                     <form id="messageForm" class="message-form">
                         <div class="form-group">
                             <label for="tableSelect" class="form-label">Select Table:</label>
@@ -216,39 +215,28 @@
                                 <option value="table-4" disabled>Table 4 (Future Expansion)</option>
                             </select>
                         </div>
-
                         <div class="form-group">
                             <label for="messageInput" class="form-label">Message (max 80 characters, 4 lines):</label>
-                            <textarea id="messageInput" class="message-textarea mt-2"
-                                placeholder="Enter your message here...&#10;Example:&#10;Welcome to Lab!&#10;Please maintain&#10;quiet environment"
-                                maxlength="80"></textarea>
+                            <textarea id="messageInput" class="message-textarea mt-2" placeholder="Enter your message here...&#10;Example:&#10;Welcome to Lab!&#10;Please maintain&#10;quiet environment" maxlength="80"></textarea>
                             <div class="character-count"><span id="charCount">0</span> / 80 characters</div>
                         </div>
-
                         <div class="checkbox-group flex items-center gap-2 mb-3"><label><input type="checkbox" id="priorityCheck"> <span class="ml-1">Priority (display immediately, override current screen)</span></label></div>
-
                         <div class="checkbox-group flex items-center gap-2 mb-3"><label><input type="number" id="displayDuration" value="10" min="1" max="300" class="duration-input ml-2" style="width:6rem;"> <span class="ml-2">Display Duration (seconds, 1-300)</span></label></div>
-
                         <div class="button-group flex gap-3 flex-wrap">
-                            <button type="submit" class="setup-btn btn btn-primary px-5 py-3">Send to LCD</button>
-                            <button type="button" id="oneTimeBtn" class="px-5 py-3 rounded-xl text-slate-800 font-semibold shadow hover:bg-slate-100">Send One-Time Message</button>
-                            <button type="button" onclick="clearMessage()" class="px-5 py-3 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold shadow">Clear Message</button>
+                            <button type="submit" class="setup-btn px-5 py-3">Send to LCD</button>
+                            <button type="button" id="oneTimeBtn" class="setup-btn px-5 py-3">Send One-Time Message</button>
+                            <button type="button" onclick="clearMessage()" class="setup-btn px-5 py-3">Clear Message</button>
                         </div>
                     </form>
-
                     <div id="messagePreview" class="message-preview hidden">
                         <div class="preview-label">LCD Preview (20 chars × 4 lines):</div>
                         <div id="previewContent" aria-live="polite"></div>
                     </div>
-
                     <div id="messageStatus" class="message-status hidden"></div>
-                </section>
-
-                <!-- Recent Messages Card -->
-                <section class="admin-card card-fadein lcd-messages-full-width">
+                    <hr class="my-8">
                     <div class="admin-card-header flex items-center justify-between">
                         <h2 class="text-lg font-semibold setup-title-color">Recent Messages</h2>
-                        <button onclick="loadMessages()" class="btn btn-sm setup-btn btn-refresh" aria-label="Refresh messages list">
+                        <button onclick="loadMessages()" class="setup-btn btn btn-sm btn-refresh px-4 py-2" aria-label="Refresh messages list">
                             <i data-lucide="refresh-cw"></i>
                             <span>Refresh</span>
                         </button>
